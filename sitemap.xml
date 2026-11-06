@@ -1,6 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://system.euiyun.com/</loc></url>
+  <url><loc>https://system.euiyun.com/camera/</loc></url>
+  <url><loc>https://system.euiyun.com/camera/chapters/anatomy.html</loc></url>
+  <url><loc>https://system.euiyun.com/camera/chapters/aperture.html</loc></url>
+  <url><loc>https://system.euiyun.com/camera/chapters/basics.html</loc></url>
+  <url><loc>https://system.euiyun.com/camera/chapters/body.html</loc></url>
+  <url><loc>https://system.euiyun.com/camera/chapters/color.html</loc></url>
+  <url><loc>https://system.euiyun.com/camera/chapters/control.html</loc></url>
+  <url><loc>https://system.euiyun.com/camera/chapters/engine.html</loc></url>
+  <url><loc>https://system.euiyun.com/camera/chapters/exposure.html</loc></url>
+  <url><loc>https://system.euiyun.com/camera/chapters/flash.html</loc></url>
+  <url><loc>https://system.euiyun.com/camera/chapters/focal.html</loc></url>
+  <url><loc>https://system.euiyun.com/camera/chapters/focus.html</loc></url>
+  <url><loc>https://system.euiyun.com/camera/chapters/glossary.html</loc></url>
+  <url><loc>https://system.euiyun.com/camera/chapters/histogram.html</loc></url>
+  <url><loc>https://system.euiyun.com/camera/chapters/iso.html</loc></url>
+  <url><loc>https://system.euiyun.com/camera/chapters/mechanism.html</loc></url>
+  <url><loc>https://system.euiyun.com/camera/chapters/modes.html</loc></url>
+  <url><loc>https://system.euiyun.com/camera/chapters/optics.html</loc></url>
+  <url><loc>https://system.euiyun.com/camera/chapters/overview.html</loc></url>
+  <url><loc>https://system.euiyun.com/camera/chapters/playground.html</loc></url>
+  <url><loc>https://system.euiyun.com/camera/chapters/raw.html</loc></url>
+  <url><loc>https://system.euiyun.com/camera/chapters/sensor.html</loc></url>
+  <url><loc>https://system.euiyun.com/camera/chapters/shutter.html</loc></url>
+  <url><loc>https://system.euiyun.com/camera/chapters/smartphone.html</loc></url>
+  <url><loc>https://system.euiyun.com/camera/chapters/stabilization.html</loc></url>
+  <url><loc>https://system.euiyun.com/camera/chapters/video.html</loc></url>
   <url><loc>https://system.euiyun.com/car/</loc></url>
   <url><loc>https://system.euiyun.com/car/chapters/adas.html</loc></url>
   <url><loc>https://system.euiyun.com/car/chapters/aero.html</loc></url>

@@ -1,0 +1,1136 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<title>카메라의 전체 그림 · CameraBook</title>
+<meta name="description" content="카메라를 빛을 숫자로 바꾸는 시스템으로 본다. 여섯 개의 하위 시스템을 3D 투시 모델로 훑고, 광자가 파일이 되기까지의 신호 사슬과 광자 예산, 카메라 형식 비교, 제원표 읽는 법을 시뮬레이터로 익힌다.">
+<link rel="canonical" href="https://system.euiyun.com/camera/chapters/overview.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="CameraBook">
+<meta property="og:title" content="카메라의 전체 그림 · CameraBook">
+<meta property="og:description" content="카메라를 빛을 숫자로 바꾸는 시스템으로 본다. 여섯 개의 하위 시스템을 3D 투시 모델로 훑고, 광자가 파일이 되기까지의 신호 사슬과 광자 예산, 카메라 형식 비교, 제원표 읽는 법을 시뮬레이터로 익힌다.">
+<meta property="og:url" content="https://system.euiyun.com/camera/chapters/overview.html">
+<meta property="og:image" content="https://system.euiyun.com/camera/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="ko_KR">
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","headline":"카메라의 전체 그림","name":"카메라의 전체 그림 · CameraBook","url":"https://system.euiyun.com/camera/chapters/overview.html","mainEntityOfPage":"https://system.euiyun.com/camera/chapters/overview.html","inLanguage":"ko","isAccessibleForFree":true,"learningResourceType":"interactive textbook chapter","position":1,"image":"https://system.euiyun.com/camera/og.png","dateModified":"2026-11-07","isPartOf":{"@type":"Book","@id":"https://system.euiyun.com/camera/#book","name":"CameraBook — 인터랙티브 카메라 교과서","url":"https://system.euiyun.com/camera/"},"publisher":{"@type":"Organization","name":"CameraBook","url":"https://system.euiyun.com/camera/"},"description":"카메라를 빛을 숫자로 바꾸는 시스템으로 본다. 여섯 개의 하위 시스템을 3D 투시 모델로 훑고, 광자가 파일이 되기까지의 신호 사슬과 광자 예산, 카메라 형식 비교, 제원표 읽는 법을 시뮬레이터로 익힌다."},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"CameraBook","item":"https://system.euiyun.com/camera/"},{"@type":"ListItem","position":2,"name":"01 카메라의 전체 그림","item":"https://system.euiyun.com/camera/chapters/overview.html"}]}]}</script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<link rel="stylesheet" href="../css/style.css">
+<script src="../js/common.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/controls/OrbitControls.js"></script>
+<style>
+  .x3-info { padding: 12px 18px; border-top: 1px solid var(--border); font-size: 14.5px; line-height: 1.6; color: var(--text-dim); min-height: 4.6em; }
+  .x3-info b { color: var(--text); margin-right: 6px; }
+  .x3-info a { white-space: nowrap; margin-left: 4px; }
+  .x3-fail { padding: 20px; color: var(--text-dim); }
+  @media (min-width: 900px) { #x3-view { height: 540px; } }
+  #x3-parts button { font-size: 12.5px; padding: 4px 9px; }
+  .ov-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .ov-chips a { font-size: 13px; padding: 2px 9px; border-radius: 999px; background: var(--surface); border: 1px solid var(--border); white-space: nowrap; }
+  .spec-list { display: grid; gap: 0; border-top: 1px solid var(--border); }
+  .spec-list button { display: grid; grid-template-columns: 7.5em minmax(0, 1fr); gap: 10px; text-align: left; font: inherit; font-size: 14px; padding: 9px 18px; border: 0; border-bottom: 1px solid var(--border); background: var(--bg-elev); color: var(--text); cursor: pointer; line-height: 1.5; }
+  .spec-list button:hover { background: var(--surface); }
+  .spec-list button.on { background: var(--accent-soft); }
+  .spec-list button b { color: var(--text-dim); font-weight: 600; }
+  .spec-list button span { font-family: var(--mono); font-size: 13px; overflow-wrap: anywhere; }
+  .spec-exp { padding: 14px 18px; border-bottom: 1px solid var(--border); font-size: 14.5px; line-height: 1.65; color: var(--text-dim); background: var(--surface); }
+  .spec-exp b { color: var(--text); }
+  .spec-exp p { margin: 0 0 6px !important; }
+  .spec-calc { display: grid; gap: 12px; padding: 14px 18px; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+  @media (max-width: 520px) { .spec-list button { grid-template-columns: 1fr; gap: 2px; } }
+</style>
+<link rel="stylesheet" href="../../shared/css/book-shell.css">
+<script defer src="../../shared/js/book-shell.js" data-book="camera"></script>
+</head>
+<body data-chapter="overview">
+<main class="chapter">
+  <header class="chapter-hero">
+    <div class="eyebrow">Chapter 01</div>
+    <h1>카메라의 전체 그림</h1>
+    <p class="lead">카메라는 손에 들리는 크기 안에 정밀 광학, 밀리초 단위로 움직이는 기계, 수천만 개의 광 검출기, 초당 기가바이트를 처리하는 컴퓨터, 그리고 배터리 하나로 이 모든 것을 돌리는 전원 시스템을 담은 기계입니다. 하는 일은 한 문장으로 줄일 수 있습니다. <b>정해진 시간 동안 장면에서 온 빛을 모아 숫자의 배열로 바꾸고, 그것을 파일로 남기는 것</b>입니다. 이 장은 세부로 들어가기 전에 카메라 한 대를 통째로 훑습니다.</p>
+    <ul class="objectives">
+      <li>카메라가 풀어야 하는 문제(시간, 빛의 양, 선명도, 크기·무게, 전력)를 시스템의 요구 조건으로 정리한다.</li>
+      <li>광학계, 기계·구동부, 이미지 센서, 처리 엔진, 제어·인터페이스, 전원·열·바디의 여섯 하위 시스템과 그 위치를 3D로 파악한다.</li>
+      <li>광자 → 전자 → 전압 → 디지털 수 → 이미지 → 파일로 이어지는 신호 사슬과 단계별 손실을 계산한다.</li>
+      <li>DSLR, 미러리스, 컴팩트, 스마트폰, 시네마, 중형 카메라의 구조적 차이와 트레이드오프를 비교한다.</li>
+      <li>제원표의 각 줄이 어떤 하위 시스템의 성능을 말하는지 읽는다.</li>
+    </ul>
+  </header>
+
+  <!-- =============================================================== 1 -->
+  <section id="job">
+    <h2>카메라는 무엇을 하는 기계인가</h2>
+    <p>입력과 출력부터 정리해 봅시다. 입력은 장면에서 날아오는 <span class="term">광자</span><span class="en">(Photon)</span>입니다. 맑은 날 야외라면 손톱만 한 면적에 1초에 10¹⁶개가 넘는 광자가 쏟아지고, 달빛 아래에서는 그보다 약 20만 배(약 18스톱) 적습니다. 출력은 파일입니다. 2,400만 화소 카메라의 RAW 파일 한 장은 대략 25~50 MB, JPEG는 5~15 MB입니다. 그 사이에서 카메라는 빛을 <b>모으고</b>(렌즈), 시간을 <b>자르고</b>(셔터), 전하로 <b>바꾸고</b>(센서), 숫자로 <b>세고</b>(ADC), 보기 좋은 그림으로 <b>다듬어</b>(처리 엔진) <b>저장</b>합니다.</p>
+
+    <figure class="diagram">
+      <svg viewBox="0 0 720 300" role="img" aria-label="카메라 시스템 블록도">
+        <defs><marker id="ov-ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="var(--accent)"/></marker>
+        <marker id="ov-ah2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="var(--accent-2)"/></marker></defs>
+        <g>
+          <circle cx="34" cy="62" r="13" fill="#f5b93a"/>
+          <path d="M14 116 L40 82 L62 116 Z" fill="#5a9a5e"/>
+          <text x="40" y="140" class="t-dim" text-anchor="middle">장면</text>
+          <text x="40" y="156" class="t-mono" text-anchor="middle">광자</text>
+        </g>
+        <g>
+          <rect x="84" y="62" width="108" height="64" rx="10" class="f-acc-soft"/>
+          <text x="138" y="88" class="t" text-anchor="middle" font-weight="700">광학계</text>
+          <text x="138" y="108" class="t-mono" text-anchor="middle">상 맺기 · 03</text>
+          <rect x="208" y="62" width="108" height="64" rx="10" class="f-acc-soft"/>
+          <text x="262" y="88" class="t" text-anchor="middle" font-weight="700">기계·구동부</text>
+          <text x="262" y="108" class="t-mono" text-anchor="middle">시간·양 · 04</text>
+          <rect x="332" y="62" width="108" height="64" rx="10" class="f-acc-soft"/>
+          <text x="386" y="88" class="t" text-anchor="middle" font-weight="700">이미지 센서</text>
+          <text x="386" y="108" class="t-mono" text-anchor="middle">빛→숫자 · 05</text>
+          <rect x="456" y="62" width="108" height="64" rx="10" class="f-acc-soft"/>
+          <text x="510" y="88" class="t" text-anchor="middle" font-weight="700">처리 엔진</text>
+          <text x="510" y="108" class="t-mono" text-anchor="middle">ISP·저장 · 06</text>
+          <rect x="580" y="62" width="120" height="64" rx="10" class="f-elev"/>
+          <text x="640" y="88" class="t" text-anchor="middle" font-weight="700">파일</text>
+          <text x="640" y="108" class="t-mono" text-anchor="middle">RAW · JPEG · 영상</text>
+        </g>
+        <g stroke="var(--accent)" stroke-width="2.5" marker-end="url(#ov-ah)">
+          <line x1="64" y1="94" x2="80" y2="94"/><line x1="194" y1="94" x2="204" y2="94"/><line x1="318" y1="94" x2="328" y2="94"/><line x1="442" y1="94" x2="452" y2="94"/><line x1="566" y1="94" x2="576" y2="94"/>
+        </g>
+        <rect x="208" y="170" width="356" height="52" rx="10" class="f-acc2-soft"/>
+        <text x="386" y="192" class="t" text-anchor="middle" font-weight="700">제어·인터페이스 · 07</text>
+        <text x="386" y="211" class="t-dim" text-anchor="middle">3A(AE·AF·AWB) · 버튼·다이얼 · EVF·LCD</text>
+        <g stroke="var(--accent-2)" stroke-width="2" stroke-dasharray="5 4" fill="none" marker-end="url(#ov-ah2)">
+          <path d="M400 128 L400 166"/>
+          <path d="M510 128 L510 166"/>
+          <path d="M240 168 L170 130"/>
+          <path d="M280 168 L270 130"/>
+        </g>
+        <text x="408" y="152" class="t-mono">측정</text>
+        <text x="518" y="152" class="t-mono">표시</text>
+        <text x="150" y="160" class="t-mono" text-anchor="middle">초점·조리개</text>
+        <text x="300" y="152" class="t-mono">셔터</text>
+        <rect x="84" y="244" width="616" height="40" rx="10" class="f-surface"/>
+        <text x="392" y="269" class="t" text-anchor="middle"><tspan font-weight="700">전원·열·바디 · 08</tspan><tspan class="t-dim" dx="10">배터리 → 모든 블록 · 발열 → 방열 · 섀시·씰링</tspan></text>
+      </svg>
+      <figcaption><b>그림 1-1.</b> 카메라의 블록도. 주황 화살표는 빛과 데이터가 흐르는 길, 청록 점선은 제어 루프입니다. 센서가 잰 밝기와 초점 정보로 제어부가 렌즈·셔터를 다시 움직이고, 처리 엔진의 영상이 뷰파인더로 돌아갑니다. 모든 블록이 같은 배터리와 같은 바디를 나눠 씁니다.</figcaption>
+    </figure>
+
+    <p>이 일을 '잘' 한다는 것은 다섯 가지 제약을 동시에 만족한다는 뜻입니다. 대부분의 카메라 설계 논쟁은 이 다섯 가지 사이의 줄다리기입니다.</p>
+    <div class="cards">
+      <div><b>시간</b>노출 시간은 1/8000초부터 수십 초까지 열 다섯 스톱 이상을 다룹니다. 셔터를 누른 뒤 실제 노출까지의 지연(셔터 랙)은 수십 ms 이하여야 '그 순간'을 잡습니다.</div>
+      <div><b>빛의 양</b>대낮과 달빛의 밝기 차는 약 18스톱(26만 배)입니다. 한 장면 안의 명암 차도 10스톱을 쉽게 넘습니다. 센서는 한 번에 12~15스톱 정도만 담습니다.</div>
+      <div><b>선명도</b>풀프레임 2,400만 화소의 픽셀은 약 6 µm입니다. 렌즈는 그 크기로 점을 모아야 하고, 초점은 수십 µm 안에서 맞아야 하며, 노출 중 흔들림도 픽셀 하나 이하여야 합니다.</div>
+      <div><b>크기·무게</b>손에 들고 하루 종일 다닐 수 있어야 합니다. 센서가 커지면 같은 화각·같은 F값의 렌즈가 커지고 무거워집니다.</div>
+      <div><b>전력·열</b>배터리는 대개 7~16 Wh입니다. 촬영 중 소비 전력은 수 W이고, 그 전부가 손바닥만 한 상자 안에서 열이 됩니다.</div>
+    </div>
+    <p>이 책의 1부는 이 제약들을 각 하위 시스템이 어떻게 나눠 맡는지를 차례로 뜯어보고, 2부(<a href="basics.html">9장</a>부터)는 그 기계를 손에 쥐고 다루는 법을 배웁니다.</p>
+  </section>
+
+  <!-- =============================================================== 2 -->
+  <section id="history">
+    <h2>짧은 역사</h2>
+    <p>카메라의 역사는 '어두운 상자와 구멍'이라는 같은 구조를 두고, 상을 기록하는 매체와 그 매체를 다루는 자동화가 바뀌어 온 과정입니다. 큰 흐름은 세 번 바뀌었습니다. 화학(감광 재료)에서 전자 제어로, 전자 제어에서 디지털 센서로, 그리고 디지털 센서에서 연산으로.</p>
+
+    <figure class="diagram">
+      <svg viewBox="0 0 720 250" role="img" aria-label="카메라 역사 연표">
+        <rect x="20" y="112" width="330" height="26" rx="4" fill="color-mix(in srgb, var(--warn) 22%, transparent)"/>
+        <rect x="350" y="112" width="120" height="26" rx="4" fill="var(--accent-soft)"/>
+        <rect x="470" y="112" width="140" height="26" rx="4" fill="var(--accent-2-soft)"/>
+        <rect x="610" y="112" width="96" height="26" rx="4" fill="color-mix(in srgb, var(--ok) 20%, transparent)"/>
+        <text x="185" y="130" class="t-mono" text-anchor="middle">화학 · 필름</text>
+        <text x="410" y="130" class="t-mono" text-anchor="middle">전자 제어</text>
+        <text x="540" y="130" class="t-mono" text-anchor="middle">디지털 센서</text>
+        <text x="658" y="130" class="t-mono" text-anchor="middle">연산</text>
+        <g class="tl">
+          <circle cx="40" cy="112" r="5" class="f-acc"/><text x="40" y="70" class="t-acc" text-anchor="middle">1500년대</text><text x="40" y="88" class="t-dim" text-anchor="middle">옵스큐라+렌즈</text>
+          <circle cx="98" cy="138" r="5" class="f-acc"/><text x="98" y="164" class="t-acc" text-anchor="middle">1826</text><text x="98" y="182" class="t-dim" text-anchor="middle">최초의 사진</text><text x="98" y="198" class="t-mono" text-anchor="middle">노출 수 시간</text>
+          <circle cx="156" cy="112" r="5" class="f-acc"/><text x="156" y="70" class="t-acc" text-anchor="middle">1839</text><text x="156" y="88" class="t-dim" text-anchor="middle">다게레오타입</text>
+          <circle cx="214" cy="138" r="5" class="f-acc"/><text x="214" y="164" class="t-acc" text-anchor="middle">1888</text><text x="214" y="182" class="t-dim" text-anchor="middle">롤필름 대중화</text>
+          <circle cx="272" cy="112" r="5" class="f-acc"/><text x="272" y="70" class="t-acc" text-anchor="middle">1925</text><text x="272" y="88" class="t-dim" text-anchor="middle">35 mm 소형</text>
+          <circle cx="330" cy="138" r="5" class="f-acc"/><text x="330" y="164" class="t-acc" text-anchor="middle">1950년대</text><text x="330" y="182" class="t-dim" text-anchor="middle">SLR 완성</text>
+          <circle cx="388" cy="112" r="5" class="f-acc"/><text x="388" y="70" class="t-acc" text-anchor="middle">1970년대</text><text x="388" y="88" class="t-dim" text-anchor="middle">자동 노출·μP</text>
+          <circle cx="446" cy="138" r="5" class="f-acc"/><text x="446" y="164" class="t-acc" text-anchor="middle">1985</text><text x="446" y="182" class="t-dim" text-anchor="middle">AF SLR 대중화</text>
+          <circle cx="504" cy="112" r="5" class="f-acc"/><text x="504" y="52" class="t-acc" text-anchor="middle">1975 · 1990s</text><text x="504" y="70" class="t-dim" text-anchor="middle">디지털 시제품</text><text x="504" y="88" class="t-dim" text-anchor="middle">→ 상용 DSLR</text>
+          <circle cx="562" cy="138" r="5" class="f-acc"/><text x="562" y="164" class="t-acc" text-anchor="middle">2000</text><text x="562" y="182" class="t-dim" text-anchor="middle">카메라폰</text>
+          <circle cx="620" cy="112" r="5" class="f-acc"/><text x="620" y="70" class="t-acc" text-anchor="middle">2008</text><text x="620" y="88" class="t-dim" text-anchor="middle">미러리스</text>
+          <circle cx="680" cy="138" r="5" class="f-acc"/><text x="680" y="164" class="t-acc" text-anchor="middle">2010s~</text><text x="680" y="182" class="t-dim" text-anchor="middle">다중 프레임</text><text x="680" y="198" class="t-dim" text-anchor="middle">합성</text>
+        </g>
+        <text x="360" y="236" class="t-dim" text-anchor="middle">간격은 시간에 비례하지 않습니다. 변화는 갈수록 빨라졌습니다.</text>
+      </svg>
+      <figcaption><b>그림 1-2.</b> 카메라 기술의 큰 전환. 띠는 대략적인 시대 구분이며 앞 시대의 기술은 사라지지 않고 겹쳐 쓰였습니다.</figcaption>
+    </figure>
+
+    <div class="table-wrap"><table>
+      <tr><th>시기</th><th>사건</th><th>시스템 관점에서 바뀐 것</th></tr>
+      <tr><td>고대~1500년대</td><td>어두운 방에 구멍으로 상이 비치는 <span class="term">카메라 옵스큐라</span>, 16세기에 구멍 대신 렌즈</td><td>광학계의 탄생. 기록 매체는 없고 사람이 손으로 따라 그렸습니다.</td></tr>
+      <tr><td>1826~1827</td><td>니엡스, 현존하는 가장 오래된 사진</td><td>감광 재료로 상을 '기록'. 노출이 수 시간 이상 걸렸습니다.</td></tr>
+      <tr><td>1839</td><td>다게레오타입 공표</td><td>노출이 수 분 수준으로 줄어 인물 촬영이 가능해졌습니다. 한 장뿐이고 복제가 안 됩니다.</td></tr>
+      <tr><td>1841~1880년대</td><td>음화-양화 방식(칼로타입), 습판, 건판</td><td>음화 한 장에서 여러 장 인화. 건판은 미리 만들어 둘 수 있어 촬영과 현상이 분리되기 시작했습니다.</td></tr>
+      <tr><td>1888</td><td>롤필름을 넣은 박스 카메라 대중화</td><td>"버튼만 누르면 나머지는 우리가." 촬영(사용자)과 현상(공장)이 완전히 분리된 첫 소비자 시스템입니다.</td></tr>
+      <tr><td>1925</td><td>35 mm 영화 필름을 쓰는 소형 정밀 카메라</td><td>24 × 36 mm 판형, 오늘날 '풀프레임'의 기준이 여기서 나왔습니다.</td></tr>
+      <tr><td>1930~50년대</td><td>35 mm 일안 반사식(SLR), 펜타프리즘과 순간 복귀 미러</td><td>찍힐 상을 렌즈를 통해 바로 봄. 이후 50년간의 표준 구조가 됩니다.</td></tr>
+      <tr><td>1960~80년대</td><td>렌즈를 통과한 빛으로 재는 측광(TTL), 전자식 셔터·마이크로프로세서, 1977년 AF 컴팩트, 1985년 무렵 AF SLR 대중화</td><td>기계식 카메라에 <b>제어 루프</b>가 들어왔습니다. 노출과 초점을 카메라가 스스로 정합니다.</td></tr>
+      <tr><td>1969 · 1975</td><td>CCD 발명, 첫 디지털 카메라 시제품(1만 화소, 카세트테이프에 한 장 기록하는 데 약 23초)</td><td>필름 대신 전자 센서. 기록 매체가 '화학'에서 '숫자'로 바뀌는 출발점입니다.</td></tr>
+      <tr><td>1990년대~2000년대 초</td><td>상용 디지털 SLR 등장, 2000년 전후 가격 하락으로 대중화</td><td>센서·처리 엔진·메모리 카드·배터리가 새 하위 시스템으로 추가됩니다.</td></tr>
+      <tr><td>2000</td><td>카메라가 달린 휴대전화</td><td>카메라가 별도 기기가 아닌 부품 모듈이 되는 흐름의 시작.</td></tr>
+      <tr><td>2008~2010년대</td><td>렌즈 교환식 미러리스, CMOS 센서가 CCD를 대체, 적층형 센서</td><td>미러와 광학 파인더를 빼고 센서가 직접 초점·노출을 잽니다. 2010년 전후 연간 1억 대를 넘던 디지털 카메라 출하량은 이후 스마트폰에 밀려 크게 줄었습니다.</td></tr>
+      <tr><td>2010년대 후반~</td><td>다중 프레임 합성, 야간 모드, 피사체 인식 AF</td><td>한 장을 '찍는' 대신 여러 장을 계산으로 합칩니다. 처리 엔진이 화질의 주역이 됩니다.</td></tr>
+    </table></div>
+    <p>옵스큐라와 바늘구멍 사진기의 원리, DSLR과 미러리스의 빛 경로는 <a href="basics.html">9장</a>에서 사용자 관점으로 다시 만납니다. 여기서는 한 가지만 기억해 둡시다. 역사의 각 단계마다 <b>새 하위 시스템이 하나씩 추가</b>되었고, 오늘날의 카메라는 그것들이 모두 한 몸에 들어간 결과입니다.</p>
+  </section>
+
+  <!-- =============================================================== 3 -->
+  <section id="subsystems">
+    <h2>여섯 개의 하위 시스템</h2>
+    <p>오늘날의 렌즈 교환식 카메라를 기능으로 나누면 여섯 덩어리가 됩니다. 1부의 나머지 장은 이 순서를 따라갑니다. 부품의 실제 배치와 분해·조립은 <a href="anatomy.html">2장</a>에서 한 겹씩 뜯어봅니다.</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>하위 시스템</th><th>하는 일</th><th>주요 부품</th><th>대표 숫자</th><th>장</th></tr></thead>
+      <tbody>
+        <tr><td><b>광학계</b><br><span class="en">Optics</span></td><td>장면의 빛을 모아 센서면에 선명한 상을 맺음</td><td>렌즈 10~20장, 코팅, 경통, 마운트</td><td>초점거리, F값, 해상력(MTF)</td><td><div class="ov-chips"><a href="optics.html">03</a><a href="focal.html">17</a></div></td></tr>
+        <tr><td><b>기계·구동부</b><br><span class="en">Mechanics &amp; Actuators</span></td><td>빛의 양과 시간을 자르고, 초점을 옮기고, 흔들림을 상쇄</td><td>조리개, 셔터, AF 모터, IBIS, (DSLR) 미러</td><td>1/8000초, 셔터 수명 수십만 회, 보정 5~8스톱</td><td><div class="ov-chips"><a href="mechanism.html">04</a><a href="shutter.html">12</a></div></td></tr>
+        <tr><td><b>이미지 센서</b><br><span class="en">Image Sensor</span></td><td>광자를 전자로, 전자를 숫자로</td><td>포토다이오드 배열, 컬러 필터, 마이크로렌즈, ADC</td><td>면적, 화소 수, 픽셀 피치, 판독 시간</td><td><div class="ov-chips"><a href="sensor.html">05</a><a href="iso.html">13</a></div></td></tr>
+        <tr><td><b>처리 엔진</b><br><span class="en">Image Processor</span></td><td>RAW를 이미지로 현상하고, 압축하고, 저장</td><td>ISP·CPU가 들어간 SoC, DRAM 버퍼, 카드 슬롯</td><td>초당 수 GB 처리, 버퍼 장수, 코덱</td><td><div class="ov-chips"><a href="engine.html">06</a><a href="raw.html">19</a></div></td></tr>
+        <tr><td><b>제어·인터페이스</b><br><span class="en">Control &amp; UI</span></td><td>노출·초점·색을 자동으로 맞추고, 사람에게 보여 주고 입력을 받음</td><td>3A 알고리즘, EVF, 후면 모니터, 다이얼·버튼</td><td>AF 반응 시간, EVF 지연·주사율</td><td><div class="ov-chips"><a href="control.html">07</a><a href="modes.html">14</a><a href="focus.html">16</a></div></td></tr>
+        <tr><td><b>전원·열·바디</b><br><span class="en">Power, Thermal, Body</span></td><td>에너지를 공급하고, 열을 빼고, 모든 것을 단단히 붙잡음</td><td>배터리, 전원 IC, 방열 구조, 마그네슘 섀시, 씰링</td><td>CIPA 촬영 가능 매수, 동영상 연속 시간, 무게</td><td><div class="ov-chips"><a href="body.html">08</a></div></td></tr>
+      </tbody>
+    </table></div>
+    <p>아래 3D 모델은 외장을 반투명하게 만들어 각 하위 시스템이 바디 안 어디에 있는지 단순한 도형으로 보여 줍니다. DSLR로 바꾸면 무엇이 추가되고 빛이 어디로 돌아가는지도 살펴보세요.</p>
+
+    <div class="sim" id="sim-xray">
+      <div class="sim-head"><span class="sim-tag three">3D</span><h3>투시 카메라: 부품은 어디에 있는가</h3></div>
+      <div class="sim-body side">
+        <div class="sim-view three" id="x3-view"><span class="hint">드래그 회전 · 휠/핀치 확대 · 부품 클릭</span></div>
+        <div class="sim-controls">
+          <div class="ctrl"><span>구조</span><div class="seg" id="x3-type"><button data-value="m" class="on">미러리스</button><button data-value="d">DSLR</button></div></div>
+          <label class="ctrl"><span>외장 불투명도 <output id="x3-op-out"></output></span><input type="range" id="x3-op" min="0" max="100" value="22" step="1"></label>
+          <div class="ctrl"><span>부품 강조</span><div class="seg" id="x3-parts"></div></div>
+          <label class="check"><input type="checkbox" id="x3-rays" checked> 빛의 경로 보기</label>
+          <label class="check"><input type="checkbox" id="x3-labels"> 모든 부품 이름 표시</label>
+          <button class="btn primary" id="x3-shot" type="button">셔터 누르기 (느린 동작)</button>
+        </div>
+      </div>
+      <div class="x3-info" id="x3-info"></div>
+      <div class="sim-note">모델은 크기 비율만 대략 맞춘 개념도입니다(단위 cm, 풀프레임 센서 36 × 24 mm, 플랜지 백 미러리스 약 18 mm · DSLR 약 44 mm). 빛의 경로는 축 위 한 점으로 모이는 광선 몇 가닥만 그린 것으로, 실제 굴절각은 계산하지 않았습니다. '셔터 누르기'는 실제로 수십 ms에 끝나는 동작을 약 30배 느리게 보여 줍니다. 해볼 것: 미러리스에서 셔터를 눌러 보면 선막이 한 번 닫혔다 열리는 동안 화면이 꺼지는 <b>블랙아웃</b>을 볼 수 있습니다. DSLR로 바꾸면 평소에는 빛이 미러에서 위로 꺾여 펜타프리즘을 지나 눈으로 가고, 일부는 서브 미러를 거쳐 아래쪽 AF 모듈로 갑니다. 셔터를 누르면 미러가 올라가야 비로소 센서에 빛이 닿습니다.</div>
+    </div>
+
+    <p>여섯 하위 시스템은 독립적이지 않습니다. 몇 가지 예만 들어도 얽힘이 보입니다.</p>
+    <ul>
+      <li>센서 판독이 빨라지면(05장) 전자 셔터의 왜곡이 줄고, 기계 셔터(04장)를 덜 쓰게 되며, 처리 엔진(06장)이 감당할 데이터는 늘고, 소비 전력과 열(08장)도 늘어납니다.</li>
+      <li>미러를 빼자(미러리스) 플랜지 백이 짧아져 렌즈 설계(03장)가 달라졌고, 초점과 노출을 센서가 직접 재게 되어(07장) AF 모듈과 측광 센서가 사라졌습니다. 대신 EVF와 센서가 늘 켜져 있어 배터리(08장)가 빨리 닳습니다.</li>
+      <li>IBIS(04장)는 센서를 움직이므로 센서보다 큰 상이 맺혀야 하고(03장의 이미지 서클), 센서와 메인보드 사이 배선이 유연해야 하며(02장), 방열 경로(08장)도 움직이는 부품을 지나야 합니다.</li>
+    </ul>
+  </section>
+
+  <!-- =============================================================== 4 -->
+  <section id="signal">
+    <h2>신호가 흐르는 길</h2>
+    <p>사진 한 장은 픽셀마다 하나씩, 여섯 번 모양을 바꾸는 신호의 결과입니다. 단계마다 무언가를 잃고, 잃은 것은 뒤에서 되찾을 수 없습니다. 카메라 설계의 상당 부분은 이 '광자 예산'을 아끼는 일입니다.</p>
+
+    <figure class="diagram">
+      <svg viewBox="0 0 720 250" role="img" aria-label="광자에서 파일까지의 신호 사슬">
+        <defs><marker id="ov-ah3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="var(--accent)"/></marker>
+        <marker id="ov-ah4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="var(--bad)"/></marker></defs>
+        <g>
+          <rect x="6" y="30" width="104" height="78" rx="10" class="f-acc-soft"/><text x="58" y="58" class="t" text-anchor="middle" font-weight="700">광자</text><text x="58" y="78" class="t-dim" text-anchor="middle">렌즈·필터</text><text x="58" y="96" class="t-mono" text-anchor="middle">개/픽셀</text>
+          <rect x="128" y="30" width="104" height="78" rx="10" class="f-acc-soft"/><text x="180" y="58" class="t" text-anchor="middle" font-weight="700">전자</text><text x="180" y="78" class="t-dim" text-anchor="middle">포토다이오드</text><text x="180" y="96" class="t-mono" text-anchor="middle">e⁻</text>
+          <rect x="250" y="30" width="104" height="78" rx="10" class="f-acc-soft"/><text x="302" y="58" class="t" text-anchor="middle" font-weight="700">전압</text><text x="302" y="78" class="t-dim" text-anchor="middle">변환·증폭</text><text x="302" y="96" class="t-mono" text-anchor="middle">µV/e⁻</text>
+          <rect x="372" y="30" width="104" height="78" rx="10" class="f-acc-soft"/><text x="424" y="58" class="t" text-anchor="middle" font-weight="700">디지털 수</text><text x="424" y="78" class="t-dim" text-anchor="middle">ADC</text><text x="424" y="96" class="t-mono" text-anchor="middle">DN 12~14비트</text>
+          <rect x="494" y="30" width="104" height="78" rx="10" class="f-acc2-soft"/><text x="546" y="58" class="t" text-anchor="middle" font-weight="700">이미지</text><text x="546" y="78" class="t-dim" text-anchor="middle">ISP</text><text x="546" y="96" class="t-mono" text-anchor="middle">RGB</text>
+          <rect x="616" y="30" width="98" height="78" rx="10" class="f-acc2-soft"/><text x="665" y="58" class="t" text-anchor="middle" font-weight="700">파일</text><text x="665" y="78" class="t-dim" text-anchor="middle">코덱·카드</text><text x="665" y="96" class="t-mono" text-anchor="middle">MB</text>
+        </g>
+        <g stroke="var(--accent)" stroke-width="2.2" marker-end="url(#ov-ah3)">
+          <line x1="111" y1="69" x2="125" y2="69"/><line x1="233" y1="69" x2="247" y2="69"/><line x1="355" y1="69" x2="369" y2="69"/><line x1="477" y1="69" x2="491" y2="69"/><line x1="599" y1="69" x2="613" y2="69"/>
+        </g>
+        <g stroke="var(--bad)" stroke-width="1.6" stroke-dasharray="4 3" marker-end="url(#ov-ah4)">
+          <line x1="58" y1="110" x2="58" y2="136"/><line x1="180" y1="110" x2="180" y2="136"/><line x1="302" y1="110" x2="302" y2="136"/><line x1="424" y1="110" x2="424" y2="136"/><line x1="546" y1="110" x2="546" y2="136"/><line x1="665" y1="110" x2="665" y2="136"/>
+        </g>
+        <g>
+          <text x="58" y="154" class="t-dim" text-anchor="middle">렌즈 투과</text><text x="58" y="172" class="t-mono" text-anchor="middle">85~95%</text><text x="58" y="190" class="t-dim" text-anchor="middle">컬러 필터</text><text x="58" y="208" class="t-mono" text-anchor="middle">대역의 1/3</text>
+          <text x="180" y="154" class="t-dim" text-anchor="middle">양자 효율</text><text x="180" y="172" class="t-mono" text-anchor="middle">QE 40~80%</text><text x="180" y="190" class="t-dim" text-anchor="middle">풀웰에서</text><text x="180" y="208" class="t-mono" text-anchor="middle">포화</text>
+          <text x="302" y="154" class="t-dim" text-anchor="middle">읽기 노이즈</text><text x="302" y="172" class="t-mono" text-anchor="middle">1~5 e⁻</text>
+          <text x="424" y="154" class="t-dim" text-anchor="middle">양자화</text><text x="424" y="172" class="t-mono" text-anchor="middle">계단 오차</text>
+          <text x="546" y="154" class="t-dim" text-anchor="middle">디모자이크·NR</text><text x="546" y="172" class="t-mono" text-anchor="middle">추정·평균</text>
+          <text x="665" y="154" class="t-dim" text-anchor="middle">8비트·손실</text><text x="665" y="172" class="t-mono" text-anchor="middle">압축(JPEG)</text>
+        </g>
+        <text x="360" y="240" class="t-acc" text-anchor="middle">광자 샷 노이즈는 첫 칸에서 이미 정해진다: 신호 N개에 흔들림 √N개</text>
+      </svg>
+      <figcaption><b>그림 1-3.</b> 픽셀 하나의 신호 사슬. 위는 신호의 형태와 담당 부품, 아래 빨간 점선은 그 단계에서 잃거나 더해지는 것입니다. 앞의 네 칸은 센서(<a href="sensor.html">5장</a>), 뒤의 두 칸은 처리 엔진(<a href="engine.html">6장</a>)의 일입니다.</figcaption>
+    </figure>
+
+    <p>숫자로 따라가 봅시다. 장면의 밝기를 <span class="term">휘도</span><span class="en">(Luminance, cd/m²)</span> \(L\)이라 하면, 멀리 있는 피사체를 F값 \(N\), 투과율 \(T\)인 렌즈로 볼 때 센서면의 <span class="term">조도</span><span class="en">(Illuminance, lux)</span>는</p>
+    $$E_s \approx \frac{\pi\,L\,T}{4N^2}$$
+    <p>입니다. 여기에 노출 시간 \(t\)를 곱한 것이 노출량 \(H = E_s t\)(lx·s)이고, 1 lx·s는 1 m²에 약 \(4\times10^{15}\)개의 광자(555 nm 녹색 빛 기준)에 해당합니다. 픽셀 면적 \(p^2\)를 곱하면 픽셀 하나에 떨어지는 광자 수, 다시 <span class="term">양자 효율</span><span class="en">(QE)</span>을 곱하면 전자 수가 됩니다. 광자는 무작위로 도착하므로 전자 \(n\)개에는 \(\sqrt{n}\)개만큼의 흔들림(<span class="term">광자 샷 노이즈</span>)이 따라옵니다.</p>
+
+    <div class="sim" id="sim-photon">
+      <div class="sim-head"><span class="sim-tag">SIMULATOR</span><h3>광자 예산: 픽셀 하나가 받는 빛</h3></div>
+      <div class="sim-body side">
+        <div class="sim-view"><canvas id="cv-photon"></canvas></div>
+        <div class="sim-controls">
+          <label class="ctrl"><span>장면 밝기 <output id="ph-ev-out"></output></span><input type="range" id="ph-ev" min="-4" max="16" value="12" step="1"></label>
+          <label class="ctrl"><span>조리개 <output id="ph-n-out"></output></span><input type="range" id="ph-n"></label>
+          <label class="ctrl"><span>셔터 <output id="ph-t-out"></output></span><input type="range" id="ph-t"></label>
+          <label class="ctrl"><span>ISO <output id="ph-iso-out"></output></span><input type="range" id="ph-iso"></label>
+          <label class="ctrl"><span>픽셀 피치 <output id="ph-p-out"></output></span><input type="range" id="ph-p" min="0.6" max="8" value="4" step="0.1"></label>
+          <label class="ctrl"><span>양자 효율 QE <output id="ph-qe-out"></output></span><input type="range" id="ph-qe" min="20" max="90" value="50" step="5"></label>
+          <label class="ctrl"><span>읽기 노이즈 <output id="ph-rn-out"></output></span><input type="range" id="ph-rn" min="0.5" max="10" value="2" step="0.5"></label>
+          <div class="ctrl"><span>ADC 비트</span><div class="seg" id="ph-bits"><button data-value="10">10</button><button data-value="12">12</button><button data-value="14" class="on">14</button></div></div>
+        </div>
+      </div>
+      <div class="sim-readout">
+        <div class="stat"><span class="k">센서면 노출 H</span><span class="v" id="ph-h">—</span></div>
+        <div class="stat"><span class="k">광자 / 픽셀</span><span class="v" id="ph-np">—</span></div>
+        <div class="stat"><span class="k">광전자</span><span class="v" id="ph-ne">—</span></div>
+        <div class="stat"><span class="k">SNR (중간 톤)</span><span class="v" id="ph-snr">—</span></div>
+        <div class="stat"><span class="k">하이라이트 여유</span><span class="v" id="ph-head">—</span></div>
+        <div class="stat"><span class="k">노출 판정</span><span class="v" id="ph-exp">—</span></div>
+      </div>
+      <div class="sim-note">모델: 장면은 평균 반사율의 중간 톤 한 면이고, 휘도 \(L = 12.5 \times 2^{EV}/100\) cd/m²(ISO 100 노출계 기준), 렌즈 투과율 T = 0.9, 원거리 피사체(배율 무시), 주변부 감광 없음. 광자 수는 1 lx·s = 4.1 × 10¹⁵ 광자/m²(555 nm 등가)로 셉니다. 실제 백색광은 루멘당 광자가 2~3배 많지만 컬러 필터가 픽셀마다 대역의 약 1/3만 통과시키므로 둘이 대략 상쇄된다고 보았고, QE는 컬러 필터를 포함한 값으로 칩니다(오차 ±2배 수준). 풀웰은 경험식 6,800 × p<sup>1.4</sup> e⁻(p는 µm)로 근사했고 실제 센서와 ±50% 다를 수 있습니다. ISO는 기본 감도 100에서 시작해 ADC가 꽉 차는 전자 수를 100/ISO배로 줄이는 증폭으로만 모델링했고, 실제 센서에서 ISO에 따라 읽기 노이즈가 줄어드는 효과는 넣지 않았습니다. 해볼 것: ① 픽셀 피치를 4 µm에서 2 µm로 줄이면 광자가 1/4(2스톱)로 줄고 SNR은 절반이 됩니다. ② 장면을 EV 3(야간 거리)으로 낮추고 셔터를 그대로 두면 광자가 수십 개로 줄어 아래 픽셀 패치가 거칠어집니다. ③ ISO만 올리면 광자 수는 그대로이고 하이라이트 여유만 줄어듭니다.</div>
+    </div>
+
+    <div class="callout deep"><strong>센서 안에서 일어나는 일</strong>포토다이오드의 광전 변환, 전하를 전압으로 바꾸는 변환 이득, 읽기 회로와 ADC 구조, 노이즈의 종류는 자매 책 SensorBook의 <a href="https://semi.euiyun.com/sensor/chapters/photodiode.html">포토다이오드</a>, <a href="https://semi.euiyun.com/sensor/chapters/readout.html">판독 회로</a>, <a href="https://semi.euiyun.com/sensor/chapters/noise.html">노이즈</a> 장에서 소자 수준까지 다룹니다. 이 책의 <a href="sensor.html">5장</a>은 카메라 시스템에 필요한 만큼만 다룹니다.</div>
+    <div class="callout"><strong>광자 예산이 알려 주는 것</strong>밝은 곳에서는 광자가 넘쳐 화질의 한계가 풀웰(하이라이트)이고, 어두운 곳에서는 광자가 모자라 한계가 샷 노이즈입니다. 큰 센서, 밝은 렌즈, 긴 노출, 높은 QE는 모두 같은 일을 합니다. <b>더 많은 광자를 세는 것</b>입니다. ISO는 광자를 늘리지 않고 숫자를 키울 뿐이라는 점은 <a href="iso.html">13장</a>에서 사진으로 확인합니다.</div>
+  </section>
+
+  <!-- =============================================================== 5 -->
+  <section id="forms">
+    <h2>카메라 형식 비교</h2>
+    <p>같은 여섯 하위 시스템을 어떻게 배치하고 어디에 예산을 쓰느냐에 따라 카메라의 형식이 갈립니다. 형식을 가르는 가장 큰 두 변수는 <b>빛이 어떤 길로 눈과 센서에 가는가</b>, 그리고 <b>센서가 얼마나 큰가</b>입니다.</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>형식</th><th>빛의 길</th><th>대표 센서</th><th>대략적 질량<br><span class="en">(바디+표준 렌즈)</span></th><th>주 용도</th></tr></thead>
+      <tbody>
+        <tr><td><b>DSLR</b></td><td>렌즈 → 미러 → 펜타프리즘 → 눈. 촬영 순간에만 미러가 올라가 센서로</td><td>풀프레임, APS-C</td><td>1.2~2 kg</td><td>광학 파인더가 필요한 사용자, 기존 렌즈 자산</td></tr>
+        <tr><td><b>미러리스</b></td><td>렌즈 → 센서 직행. 센서 영상을 EVF·모니터로</td><td>마이크로 포서드 ~ 풀프레임</td><td>0.5~1.5 kg</td><td>현재 렌즈 교환식의 주류. 사진·영상 겸용</td></tr>
+        <tr><td><b>컴팩트</b></td><td>렌즈 일체형, 센서 직행</td><td>1형 내외</td><td>0.2~0.6 kg</td><td>휴대성, 고배율 줌, 여행</td></tr>
+        <tr><td><b>스마트폰</b></td><td>여러 개의 초소형 카메라 모듈, 화면이 파인더</td><td>1/2.5형 ~ 1형</td><td>기기 전체 약 0.2 kg</td><td>일상 기록. 다중 프레임 합성으로 작은 센서를 보완</td></tr>
+        <tr><td><b>시네마</b></td><td>센서 직행, 외부 모니터·리그 장착 전제</td><td>Super 35 ~ 풀프레임 이상</td><td>3~10 kg(리그 포함)</td><td>영화·광고. 장시간 녹화, 방열, 타임코드·음성 연동</td></tr>
+        <tr><td><b>중형</b></td><td>미러리스 또는 레인지파인더형, 센서 직행</td><td>44 × 33 mm 등 풀프레임보다 큰 센서</td><td>1.5~2.5 kg</td><td>상업·풍경·예술. 해상력과 계조</td></tr>
+      </tbody>
+    </table></div>
+
+    <figure class="diagram">
+      <svg viewBox="0 0 720 250" role="img" aria-label="DSLR과 미러리스의 플랜지 백 비교">
+        <defs><marker id="ov-ah5" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--accent)"/></marker></defs>
+        <text x="180" y="22" class="t-acc" text-anchor="middle">DSLR</text>
+        <rect x="24" y="92" width="118" height="76" rx="6" class="f-surface"/>
+        <ellipse cx="44" cy="130" rx="7" ry="32" fill="rgba(120,190,255,.45)" stroke="var(--accent-2)"/>
+        <ellipse cx="124" cy="130" rx="6" ry="24" fill="rgba(120,190,255,.45)" stroke="var(--accent-2)"/>
+        <rect x="142" y="56" width="178" height="148" rx="10" class="f-elev"/>
+        <path d="M188 56 L218 28 L262 28 L282 56 Z" class="f-surface"/>
+        <line x1="150" y1="78" x2="150" y2="182" stroke="var(--text-dim)" stroke-width="3"/>
+        <line x1="176" y1="160" x2="232" y2="104" stroke="var(--accent-2)" stroke-width="3"/>
+        <line x1="190" y1="70" x2="262" y2="70" stroke="var(--text-faint)" stroke-width="2"/>
+        <rect x="282" y="104" width="7" height="52" fill="#333" stroke="var(--accent)" stroke-width="1.5"/>
+        <line x1="150" y1="222" x2="285" y2="222" stroke="var(--accent)" stroke-width="1.6" marker-start="url(#ov-ah5)" marker-end="url(#ov-ah5)"/>
+        <text x="218" y="242" class="t-mono" text-anchor="middle">플랜지 백 약 44~47 mm</text>
+        <text x="216" y="136" class="t-dim">미러</text>
+        <text x="296" y="98" class="t-dim">센서</text>
+
+        <text x="540" y="22" class="t-acc" text-anchor="middle">미러리스</text>
+        <rect x="394" y="92" width="96" height="76" rx="6" class="f-surface"/>
+        <ellipse cx="412" cy="130" rx="7" ry="32" fill="rgba(120,190,255,.45)" stroke="var(--accent-2)"/>
+        <rect x="490" y="70" width="110" height="120" rx="10" class="f-elev"/>
+        <ellipse cx="512" cy="130" rx="6" ry="26" fill="rgba(120,190,255,.45)" stroke="var(--accent-2)"/>
+        <path d="M520 70 L530 46 L572 46 L582 70 Z" class="f-surface"/>
+        <line x1="496" y1="88" x2="496" y2="172" stroke="var(--text-dim)" stroke-width="3"/>
+        <rect x="550" y="104" width="7" height="52" fill="#333" stroke="var(--accent)" stroke-width="1.5"/>
+        <line x1="496" y1="222" x2="553" y2="222" stroke="var(--accent)" stroke-width="1.6" marker-start="url(#ov-ah5)" marker-end="url(#ov-ah5)"/>
+        <text x="526" y="242" class="t-mono" text-anchor="middle">약 16~20 mm</text>
+        <text x="566" y="98" class="t-dim">센서</text>
+        <text x="618" y="128" class="t-dim">뒷렌즈를</text>
+        <text x="618" y="146" class="t-dim">센서 가까이</text>
+      </svg>
+      <figcaption><b>그림 1-4.</b> 마운트 면에서 센서까지의 거리, <span class="term">플랜지 백</span><span class="en">(Flange Focal Distance)</span>. DSLR은 미러가 움직일 공간 때문에 40 mm 이상이 필요하지만, 미러리스는 그 공간이 없어 20 mm 안팎으로 짧습니다. 짧은 플랜지 백은 광각 렌즈 설계를 쉽게 하고 바디를 얇게 만들며, 어댑터(두께 = 두 플랜지 백의 차)로 DSLR 렌즈를 끼울 수 있게 합니다. 반대 방향 어댑터는 두께가 음수가 되어 무한 초점이 맞지 않습니다.</figcaption>
+    </figure>
+
+    <p>센서 크기는 같은 화각, 같은 F값, 같은 셔터 속도에서 <b>사진 전체가 받는 빛의 총량</b>을 정합니다. 면적이 두 배면 1스톱입니다. 대신 같은 화각을 같은 F값으로 덮으려면 렌즈의 초점거리와 입사 동공이 센서 크기에 비례해 커지므로 렌즈가 무거워집니다. 아래 차트는 이 교환 관계를 한눈에 보여 줍니다.</p>
+
+    <div class="sim" id="sim-forms">
+      <div class="sim-head"><span class="sim-tag">SIMULATOR</span><h3>센서 크기 · 질량 · 빛의 총량</h3></div>
+      <div class="sim-body side">
+        <div class="sim-view"><canvas id="cv-forms"></canvas></div>
+        <div class="sim-controls">
+          <div class="ctrl"><span>강조할 형식</span><div class="seg" id="fm-pick"><button data-value="phone">스마트폰</button><button data-value="compact">1형 컴팩트</button><button data-value="m43">M4/3</button><button data-value="apsc">APS-C</button><button data-value="ffm" class="on">풀프레임 미러리스</button><button data-value="ffd">풀프레임 DSLR</button><button data-value="s35">시네마 S35</button><button data-value="mf">중형</button></div></div>
+          <div class="ctrl"><span>비교 기준</span><div class="seg" id="fm-basis"><button data-value="same" class="on">같은 F값</button><button data-value="typ">대표 렌즈의 F값</button></div></div>
+          <label class="ctrl"><span>스마트폰 합성 프레임 수 <output id="fm-stack-out"></output></span><input type="range" id="fm-stack" min="0" max="4" value="0" step="1"></label>
+        </div>
+      </div>
+      <div class="sim-readout">
+        <div class="stat"><span class="k">센서 크기</span><span class="v" id="fm-size">—</span></div>
+        <div class="stat"><span class="k">크롭 팩터</span><span class="v" id="fm-crop">—</span></div>
+        <div class="stat"><span class="k">빛의 총량 (풀프레임 대비)</span><span class="v" id="fm-light">—</span></div>
+        <div class="stat"><span class="k">f/2.8의 풀프레임 등가</span><span class="v" id="fm-eq">—</span></div>
+      </div>
+      <div class="sim-note">가로축은 바디와 표준 줌(스마트폰은 기기 전체, 시네마는 리그 포함)의 대략적인 질량, 세로축은 같은 화각·같은 셔터 속도에서 사진 전체가 받는 빛의 총량을 풀프레임 대비 스톱으로 나타낸 것입니다. 원의 크기는 센서 면적에 비례합니다. 질량은 2020년대 대표적인 조합의 어림값이며 기종에 따라 ±50% 차이가 납니다. '대표 렌즈의 F값'은 스마트폰 f/1.8, 1형 컴팩트 f/2.8, 시네마 T2.8, 나머지 표준 줌 f/4로 가정했습니다. 합성 프레임 수는 같은 장면을 여러 장 찍어 정렬·평균하면 모은 빛이 장수만큼 늘어난다는(log₂ 장수 스톱) 이상적인 경우이며, 움직이는 피사체에서는 그만큼 얻지 못합니다. 해볼 것: '대표 렌즈의 F값'으로 바꾸고 합성 프레임을 8장으로 올리면 스마트폰이 어디까지 따라오는지 보세요.</div>
+    </div>
+    <p>스마트폰 카메라 모듈의 구조와 부품은 PhoneBook의 <a href="../../phone/chapters/camera.html">카메라 장</a>에서, 스마트폰으로 찍는 요령은 <a href="smartphone.html">23장</a>에서 다룹니다. 센서 크기에 따른 화각과 등가 초점거리는 <a href="focal.html">17장</a>, 배경 흐림은 <a href="aperture.html">11장</a>에서 사용자 관점으로 다시 봅니다.</p>
+  </section>
+
+  <!-- =============================================================== 6 -->
+  <section id="specs">
+    <h2>제원표 읽는 법</h2>
+    <p>카메라의 제원표는 여섯 하위 시스템의 성적표를 한 장에 모은 것입니다. 각 줄이 어느 시스템의 무엇을 말하는지 알면, 마케팅 문구 대신 설계의 선택을 읽을 수 있습니다. 아래는 <b>특정 제품이 아닌 가상의 예시</b>로, 2020년대 중·상급 풀프레임 미러리스의 전형적인 범위에서 값을 골랐습니다. 줄을 눌러 보세요.</p>
+
+    <div class="sim" id="sim-spec">
+      <div class="sim-head"><span class="sim-tag">SIMULATOR</span><h3>제원표 해독기</h3></div>
+      <div class="spec-list" id="sp-list"></div>
+      <div class="spec-exp" id="sp-exp"></div>
+      <div class="spec-calc">
+        <div class="ctrl"><span>센서 형식</span><div class="seg" id="sp-fmt"><button data-value="ff" class="on">풀프레임</button><button data-value="apsc">APS-C</button><button data-value="m43">M4/3</button></div></div>
+        <label class="ctrl"><span>화소 수 <output id="sp-mp-out"></output></span><input type="range" id="sp-mp" min="12" max="100" value="24" step="1"></label>
+        <label class="ctrl"><span>연사 속도 <output id="sp-fps-out"></output></span><input type="range" id="sp-fps" min="5" max="60" value="20" step="1"></label>
+        <div class="ctrl"><span>비트 심도</span><div class="seg" id="sp-bits"><button data-value="12">12비트</button><button data-value="14" class="on">14비트</button></div></div>
+        <div class="ctrl"><span>카드 슬롯</span><div class="seg" id="sp-card"><button data-value="250" class="on">SD UHS-II</button><button data-value="1500">CFexpress B</button></div></div>
+      </div>
+      <div class="sim-readout">
+        <div class="stat"><span class="k">픽셀 피치</span><span class="v" id="sp-pitch">—</span></div>
+        <div class="stat"><span class="k">RAW 1장(무압축)</span><span class="v" id="sp-raw">—</span></div>
+        <div class="stat"><span class="k">연사 데이터율</span><span class="v" id="sp-rate">—</span></div>
+        <div class="stat"><span class="k">버퍼 소진까지</span><span class="v" id="sp-buf">—</span></div>
+      </div>
+      <div class="sim-note">아래 계산기는 제원표의 숫자들이 서로 묶여 있다는 것을 보여 줍니다. 픽셀 피치 = √(센서 면적 / 화소 수), RAW 1장 = 화소 수 × 비트 ÷ 8(실제 카메라는 무손실 압축으로 보통 이의 50~70%), 연사 데이터율 = 장당 크기 × fps. 버퍼는 2 GB, 카드의 지속 쓰기 속도는 SD UHS-II 250 MB/s, CFexpress Type B 1,500 MB/s로 가정했고, 버퍼 소진 시간 = 버퍼 ÷ (데이터율 − 카드 속도)입니다. 해볼 것: 화소 수를 60 MP로 올리고 연사를 20 fps로 두면 SD 카드로는 몇 초 만에 버퍼가 찹니다. 고화소·고속 연사 카메라가 빠른 카드 슬롯과 큰 버퍼를 함께 갖추는 이유입니다.</div>
+    </div>
+
+    <div class="callout warn"><strong>'최대'와 '표준 조건'을 읽자</strong>제원표의 숫자는 대개 정해진 측정 조건의 최댓값입니다. 손떨림 보정 스톱은 CIPA가 정한 시험 조건에서 특정 렌즈와 함께 잰 값이고, 배터리 촬영 매수(CIPA)는 모니터를 켠 채 30초마다 한 장, 일부는 플래시를 터뜨리는 식의 표준 절차로 잰 값입니다. 연사 fps는 특정 셔터 방식·비트 심도·AF 모드에서만 나오는 경우가 많고, 동영상 연속 녹화 시간은 주변 온도에 따라 달라집니다. 숫자 옆의 각주가 그 하위 시스템의 한계를 알려 줍니다.</div>
+    <div class="callout tip"><strong>제원표에 없는 것</strong>셔터 랙, EVF 지연, 메뉴 반응 속도, AF가 피사체를 놓치지 않는 끈기, 열이 쌓였을 때의 동작, 그립감은 표에 거의 나오지 않지만 시스템의 완성도를 가장 크게 좌우합니다. 이것들은 <a href="control.html">7장</a>과 <a href="body.html">8장</a>에서 시간 예산과 열 예산으로 다룹니다.</div>
+  </section>
+
+  <section class="keypoints" id="summary">
+    <h2>핵심 정리</h2>
+    <ol>
+      <li>카메라는 정해진 시간 동안 빛을 모아 숫자의 배열로 바꾸고 파일로 남기는 기계다. 시간, 빛의 양, 선명도, 크기·무게, 전력·열의 다섯 제약을 동시에 만족해야 한다.</li>
+      <li>역사는 화학 → 전자 제어 → 디지털 센서 → 연산으로 이어졌고, 단계마다 새 하위 시스템이 하나씩 추가되었다.</li>
+      <li>여섯 하위 시스템: 광학계(03), 기계·구동부(04), 이미지 센서(05), 처리 엔진(06), 제어·인터페이스(07), 전원·열·바디(08). 한 곳을 바꾸면 다른 곳에 파급된다.</li>
+      <li>신호는 광자 → 전자 → 전압 → 디지털 수 → 이미지 → 파일로 흐르고, 단계마다 손실이 있다. 픽셀이 받는 광자는 휘도 × 시간 × 픽셀 면적 ÷ F값²에 비례하고, 샷 노이즈 SNR은 √(전자 수)다.</li>
+      <li>미러리스는 미러를 없애 플랜지 백이 짧고, 센서가 초점과 노출을 직접 잰다. 센서가 크면 같은 화각·F값에서 빛의 총량이 늘지만 렌즈가 무거워진다.</li>
+      <li>제원표의 각 줄은 특정 하위 시스템의 성능이며, 숫자들은 서로 묶여 있다(화소 수 × 연사 = 데이터율 → 버퍼·카드).</li>
+    </ol>
+  </section>
+
+  <section class="quiz-sec" id="quiz">
+    <h2>확인 퀴즈</h2>
+    <div class="quiz">
+      <div class="quiz-q"><p>다른 조건이 같을 때 픽셀 피치를 4 µm에서 2 µm로 줄이면 픽셀 하나의 광자 샷 노이즈 SNR은?</p><div class="opts">
+        <button class="opt">그대로다</button>
+        <button class="opt" data-correct>절반이 된다</button>
+        <button class="opt">1/4이 된다</button>
+      </div><div class="quiz-exp">픽셀 면적이 1/4이 되어 광자(전자)도 1/4이 되고, SNR = √n이므로 √(1/4) = 1/2이 됩니다. 같은 크기로 출력한 사진 전체의 노이즈는 여러 픽셀이 합쳐 보이므로 이보다 차이가 작습니다.</div></div>
+      <div class="quiz-q"><p>미러리스 바디에 어댑터를 끼워 DSLR 렌즈를 쓸 수 있지만, 그 반대(DSLR 바디에 미러리스 렌즈)는 무한 초점이 맞지 않는 이유는?</p><div class="opts">
+        <button class="opt">마운트 지름이 달라서</button>
+        <button class="opt" data-correct>미러리스 렌즈는 짧은 플랜지 백을 전제로 설계되어, 더 깊은 DSLR 바디에서는 센서까지 너무 멀어지기 때문</button>
+        <button class="opt">DSLR 센서가 더 커서</button>
+      </div><div class="quiz-exp">어댑터는 두 플랜지 백의 차(약 44 − 18 = 26 mm)만큼의 두께로 거리를 채울 수 있지만, 거리를 줄이는 '음수 두께' 어댑터는 만들 수 없습니다.</div></div>
+      <div class="quiz-q"><p>센서의 한 픽셀이 중간 톤에서 10,000개의 광전자를 모았다. 광자 샷 노이즈만 고려한 SNR은?</p><div class="opts">
+        <button class="opt">10,000 (80 dB)</button>
+        <button class="opt" data-correct>100 (40 dB)</button>
+        <button class="opt">10 (20 dB)</button>
+      </div><div class="quiz-exp">샷 노이즈 σ = √10,000 = 100이므로 SNR = 10,000 / 100 = 100, 20·log₁₀(100) = 40 dB입니다.</div></div>
+      <div class="quiz-q"><p>RAW 고속 연사가 몇 초 만에 느려지는 현상과 가장 직접 관련된 하위 시스템은?</p><div class="opts">
+        <button class="opt">광학계</button>
+        <button class="opt">제어·인터페이스</button>
+        <button class="opt" data-correct>처리 엔진(버퍼와 카드 쓰기)</button>
+      </div><div class="quiz-exp">찍는 데이터율(장당 크기 × fps)이 카드 쓰기 속도보다 크면 DRAM 버퍼가 차고, 그 뒤로는 카드 속도에 맞춰 느려집니다(6장).</div></div>
+      <div class="quiz-q"><p>DSLR에서 셔터를 누르면 노출 전에 반드시 일어나야 하는 기계 동작은?</p><div class="opts">
+        <button class="opt" data-correct>미러가 올라가 빛이 센서 쪽으로 가는 길을 연다</button>
+        <button class="opt">센서가 앞으로 이동해 초점을 맞춘다</button>
+        <button class="opt">펜타프리즘이 회전한다</button>
+      </div><div class="quiz-exp">평소에는 미러가 빛을 파인더(와 AF 모듈)로 보냅니다. 미러가 올라가는 동안 파인더가 깜깜해지는 것이 DSLR의 블랙아웃입니다.</div></div>
+      <div class="quiz-q"><p>1888년 롤필름 박스 카메라가 시스템 관점에서 가져온 가장 큰 변화는?</p><div class="opts">
+        <button class="opt">처음으로 렌즈를 사용했다</button>
+        <button class="opt" data-correct>촬영(사용자)과 현상(공장)을 분리해 누구나 사진을 찍게 했다</button>
+        <button class="opt">처음으로 컬러 사진을 찍었다</button>
+      </div><div class="quiz-exp">"버튼만 누르면 나머지는 우리가"라는 구호처럼, 복잡한 처리 단계를 사용자에게서 떼어 냈습니다. 오늘날 처리 엔진이 RAW를 자동 현상하는 것과 같은 발상입니다.</div></div>
+    </div>
+  </section>
+</main>
+
+<script>
+(function () {
+  "use strict";
+  const $ = (id) => document.getElementById(id);
+  const PI = Math.PI;
+
+  /* ================================================================ 0. 3D 헬퍼 */
+  function make3D(box, o) {
+    const THREE = window.THREE;
+    if (!THREE || !THREE.OrbitControls) { box.insertAdjacentHTML("beforeend", '<p class="x3-fail">3D 라이브러리를 불러오지 못했습니다. 인터넷 연결을 확인하세요.</p>'); return null; }
+    let renderer;
+    try { renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true }); }
+    catch (e) { box.insertAdjacentHTML("beforeend", '<p class="x3-fail">이 브라우저에서는 3D(WebGL)를 표시할 수 없습니다.</p>'); return null; }
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.outputEncoding = THREE.sRGBEncoding;
+    box.appendChild(renderer.domElement);
+    renderer.domElement.style.display = "block";
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(o.fov, 1, 0.5, 400);
+    camera.position.set(...o.camera);
+    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.target.set(...o.target);
+    controls.enableDamping = true; controls.dampingFactor = 0.08;
+    controls.minDistance = o.minDistance; controls.maxDistance = o.maxDistance;
+    controls.autoRotate = true; controls.autoRotateSpeed = 0.7;
+    let touched = false;
+    controls.addEventListener("start", () => { controls.autoRotate = false; touched = true; });
+    controls.update();
+    scene.add(new THREE.HemisphereLight(0xffffff, 0x404858, 0.8));
+    const d1 = new THREE.DirectionalLight(0xffffff, 0.9); d1.position.set(12, 20, 14); scene.add(d1);
+    const d2 = new THREE.DirectionalLight(0xc8dcff, 0.45); d2.position.set(-14, 6, -12); scene.add(d2);
+    const layer = document.createElement("div");
+    layer.style.cssText = "position:absolute;inset:0;pointer-events:none;overflow:hidden";
+    box.appendChild(layer);
+    const labels = [], frames = [];
+    const T = { THREE, scene, camera, renderer, controls };
+    T.onFrame = (cb) => frames.push(cb);
+    T.label = function (text, pos) {
+      const el = document.createElement("div");
+      el.className = "overlay-label"; el.textContent = text; layer.appendChild(el);
+      const L = { el, pos: new THREE.Vector3(...pos), visible: true, obj: null };
+      L.setVisible = (v) => { L.visible = v; el.style.display = v ? "" : "none"; };
+      labels.push(L); return L;
+    };
+    function resize() {
+      const w = box.clientWidth, h = box.clientHeight || 400;
+      renderer.setSize(w, h, false);
+      renderer.domElement.style.width = w + "px"; renderer.domElement.style.height = h + "px";
+      camera.aspect = w / h; camera.updateProjectionMatrix();
+      if (!touched) { // 사용자가 돌리기 전에는 화면 비율에 맞춰 거리 조정
+        const dir = camera.position.clone().sub(controls.target).normalize();
+        camera.position.copy(controls.target).addScaledVector(dir, o.dist * Math.max(1, 1.35 / camera.aspect));
+      }
+    }
+    if (window.ResizeObserver) new ResizeObserver(resize).observe(box); else window.addEventListener("resize", resize);
+    resize();
+    const v = new THREE.Vector3();
+    CB.loop(box, (dt, t) => {
+      frames.forEach((cb) => cb(dt, t));
+      controls.update();
+      renderer.render(scene, camera);
+      const w = box.clientWidth, h = box.clientHeight;
+      labels.forEach((L) => {
+        if (!L.visible) return;
+        v.copy(L.pos); if (L.obj) L.obj.localToWorld(v);
+        v.project(camera);
+        L.el.style.display = v.z > 1 ? "none" : "";
+        L.el.style.left = ((v.x + 1) / 2) * w + "px";
+        L.el.style.top = ((1 - v.y) / 2) * h + "px";
+      });
+    });
+    return T;
+  }
+
+  /* ================================================================ 1. 3D 투시 카메라 */
+  (function xray() {
+    const T = make3D($("x3-view"), { camera: [-19, 11, 23], target: [0.4, 0.2, 4.2], dist: 36, fov: 34, minDistance: 12, maxDistance: 80 });
+    if (!T) return;
+    const THREE = T.THREE, root = new THREE.Group();
+    T.scene.add(root);
+    const AX = 0.6, AY = -0.4, SENSOR_Z = -1.3;
+    const MOUNT = { m: SENSOR_Z + 1.8, d: SENSOR_Z + 4.4 };
+
+    /* --- 기하 도우미 */
+    function rrShape(w, h, r) {
+      const s = new THREE.Shape(), x = -w / 2, y = -h / 2;
+      r = Math.min(r, w / 2, h / 2);
+      s.moveTo(x + r, y); s.lineTo(x + w - r, y); s.quadraticCurveTo(x + w, y, x + w, y + r);
+      s.lineTo(x + w, y + h - r); s.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+      s.lineTo(x + r, y + h); s.quadraticCurveTo(x, y + h, x, y + h - r);
+      s.lineTo(x, y + r); s.quadraticCurveTo(x, y, x + r, y);
+      return s;
+    }
+    function rbox(w, h, d, r, b) {
+      b = b == null ? Math.min(0.25, d / 4) : b;
+      const g = new THREE.ExtrudeGeometry(rrShape(w - 2 * b, h - 2 * b, r), { depth: Math.max(0.01, d - 2 * b), bevelEnabled: true, bevelSize: b, bevelThickness: b, bevelSegments: 3, curveSegments: 10 });
+      g.translate(0, 0, -(d - 2 * b) / 2);
+      return g;
+    }
+    function prismZ(pts, depth, bevel) { // x-y 단면 다각형을 z로 압출
+      const s = new THREE.Shape(); pts.forEach(([x, y], i) => (i ? s.lineTo(x, y) : s.moveTo(x, y)));
+      const g = new THREE.ExtrudeGeometry(s, { depth, bevelEnabled: !!bevel, bevelSize: bevel || 0, bevelThickness: bevel || 0, bevelSegments: 2 });
+      g.translate(0, 0, -depth / 2); return g;
+    }
+    function ringZ(rIn, rOut, len, seg) { // z축 원통 고리
+      const pts = [[rIn, -len / 2], [rOut, -len / 2], [rOut, len / 2], [rIn, len / 2], [rIn, -len / 2]].map(([a, b]) => new THREE.Vector2(a, b));
+      const g = new THREE.LatheGeometry(pts, seg || 56); g.rotateX(PI / 2); return g;
+    }
+    function lensZ(r, s1, s2, e) { // 앞면 sag s1(+볼록), 뒷면 sag s2(+볼록), 가장자리 두께 e
+      const pts = [], n = 12;
+      for (let i = 0; i <= n; i++) { const q = i / n; pts.push(new THREE.Vector2(q * r, -e / 2 - s2 * (1 - q * q))); }
+      for (let i = n; i >= 0; i--) { const q = i / n; pts.push(new THREE.Vector2(q * r, e / 2 + s1 * (1 - q * q))); }
+      const g = new THREE.LatheGeometry(pts, 48); g.rotateX(PI / 2); return g;
+    }
+    const cylZ = (r, len, seg) => { const g = new THREE.CylinderGeometry(r, r, len, seg || 40); g.rotateX(PI / 2); return g; };
+    const cylY = (r, len, seg) => new THREE.CylinderGeometry(r, r, len, seg || 40);
+    const boxG = (x, y, z) => new THREE.BoxGeometry(x, y, z);
+
+    /* --- 부품 */
+    const parts = {}, order = [];
+    function part(key, name, desc, ch, modes, labelPos, labelObj) {
+      const p = { key, name, desc, ch, modes, mats: [], group: new THREE.Group(), shell: key === "shell" };
+      root.add(p.group);
+      p.label = T.label(name, labelPos); if (labelObj) p.label.obj = labelObj;
+      parts[key] = p; order.push(key); return p;
+    }
+    function mesh(p, geo, color, x, y, z, mo) {
+      mo = mo || {};
+      const op = mo.op == null ? 1 : mo.op;
+      const mat = mo.basic
+        ? new THREE.MeshBasicMaterial({ map: mo.map, transparent: true, opacity: 1 })
+        : new THREE.MeshStandardMaterial({ color, roughness: mo.r == null ? 0.5 : mo.r, metalness: mo.m == null ? 0.2 : mo.m, transparent: op < 1, opacity: op, side: mo.side || THREE.FrontSide });
+      mat.userData.o0 = op;
+      const m = new THREE.Mesh(geo, mat);
+      m.position.set(x, y, z); m.userData.part = p.key;
+      (mo.parent || p.group).add(m); p.mats.push(mat);
+      return m;
+    }
+
+    /* 렌즈 그룹: 로컬 z = 0이 마운트 면 */
+    const lensG = new THREE.Group(); root.add(lensG);
+    const GLASS = { op: 0.42, r: 0.05, m: 0.1, side: THREE.DoubleSide };
+
+    /* 외장 (미러리스·DSLR 두 벌) */
+    const shell = part("shell", "바디·경통 외장", "마그네슘 합금 섀시와 외장 커버, 손으로 쥐는 그립. 내부 부품을 정렬해 붙잡고, 충격·먼지·물을 막고, 열을 밖으로 흘려보냅니다.", [["body", "08"], ["anatomy", "02"]], "md", [-5.2, 3.6, 2.6]);
+    const shellM = new THREE.Group(), shellD = new THREE.Group(); shell.group.add(shellM, shellD);
+    const BODY = 0x2c2f35, RUBBER = 0x1b1c1f;
+    mesh(shell, rbox(13, 7.2, 4.0, 1.0, 0.35), BODY, 0, -0.4, -1.5, { parent: shellM, r: 0.55, m: 0.3 });
+    mesh(shell, rbox(2.9, 6.9, 3.4, 1.2, 0.5), RUBBER, -5.05, -0.55, 1.1, { parent: shellM, r: 0.9, m: 0 });
+    mesh(shell, prismZ([[-2.6, 0], [2.6, 0], [1.7, 2.2], [-1.7, 2.2]], 3.4, 0.15), BODY, AX, 3.0, -1.9, { parent: shellM, r: 0.55, m: 0.3 });
+    mesh(shell, rbox(14, 7.6, 4.2, 1.0, 0.35), BODY, 0, -0.5, -1.4, { parent: shellD, r: 0.55, m: 0.3 });
+    mesh(shell, rbox(7.4, 6.8, 2.6, 0.8, 0.3), BODY, AX, -0.2, 1.8, { parent: shellD, r: 0.55, m: 0.3 });
+    mesh(shell, rbox(3.3, 7.3, 4.6, 1.2, 0.5), RUBBER, -5.4, -0.6, 1.2, { parent: shellD, r: 0.9, m: 0 });
+    mesh(shell, prismZ([[-3.2, 0], [3.2, 0], [1.6, 3.1], [-1.6, 3.1]], 6.4, 0.15), BODY, AX, 3.0, -0.3, { parent: shellD, r: 0.55, m: 0.3 });
+    // 경통
+    mesh(shell, ringZ(2.95, 3.45, 8.6), 0x24262a, 0, 0, 4.9, { parent: lensG, r: 0.5, m: 0.3 });
+    mesh(shell, ringZ(3.45, 3.68, 2.6), RUBBER, 0, 0, 4.2, { parent: lensG, r: 0.95, m: 0 });
+    mesh(shell, ringZ(3.45, 3.6, 1.3), RUBBER, 0, 0, 7.5, { parent: lensG, r: 0.95, m: 0 });
+    mesh(shell, ringZ(2.95, 3.55, 0.6), 0x1f2023, 0, 0, 9.4, { parent: lensG, r: 0.4, m: 0.4 });
+
+    /* 마운트 */
+    const mount = part("mount", "마운트", "렌즈와 바디를 기계적으로 고정하고 전기 접점으로 통신하는 바요넷 고리. 마운트 지름과 플랜지 백이 어떤 렌즈를 설계할 수 있는지를 정합니다.", [["optics", "03"], ["anatomy", "02"]], "md", [0, 3.4, 0.3], lensG);
+    mesh(mount, ringZ(2.75, 3.25, 0.35), 0xc9ccd3, 0, 0, 0.18, { parent: lensG, r: 0.25, m: 0.9 });
+    mesh(mount, ringZ(2.4, 2.95, 0.45), 0xb3b7bf, 0, 0, -0.1, { parent: lensG, r: 0.3, m: 0.85 });
+    for (let i = 0; i < 3; i++) { const a = (i / 3) * 2 * PI + 0.4; const m = mesh(mount, boxG(1.2, 0.18, 0.2), 0xb3b7bf, Math.cos(a) * 2.55, Math.sin(a) * 2.55, -0.35, { parent: lensG, r: 0.3, m: 0.85 }); m.rotation.z = a + PI / 2; }
+
+    /* 광학계 */
+    const optics = part("optics", "렌즈 광학계", "여러 장의 유리 렌즈가 서로의 수차를 상쇄하며 장면의 상을 센서면에 맺습니다. 표준 줌 렌즈는 보통 12~20장, 일부는 비구면·저분산 유리입니다.", [["optics", "03"], ["focal", "17"]], "md", [0, 3.6, 8.6], lensG);
+    [[2.85, 8.9, 0.42, 0.05, 0.22], [2.35, 7.95, -0.04, -0.34, 0.5], [2.0, 6.95, 0.3, 0.26, 0.14], [2.0, 6.5, -0.26, 0.02, 0.32], [1.85, 4.6, 0.24, 0.24, 0.14], [2.05, 1.55, 0.18, 0.1, 0.2]]
+      .forEach(([r, z, s1, s2, e]) => mesh(optics, lensZ(r, s1, s2, e), 0x9fd2ff, 0, 0, z, Object.assign({ parent: lensG }, GLASS)));
+
+    /* 조리개 */
+    const iris = part("iris", "조리개", "7~11장의 금속 날개가 구멍 지름을 바꿔 빛의 양과 피사계 심도를 조절합니다. 촬영 직전에만 설정 값으로 조여지고 평소에는 활짝 열려 있습니다.", [["mechanism", "04"], ["aperture", "11"]], "md", [0, -3.4, 5.6], lensG);
+    const irisMesh = mesh(iris, new THREE.BufferGeometry(), 0x15161a, 0, 0, 5.6, { parent: lensG, r: 0.6, m: 0.4, side: THREE.DoubleSide });
+    mesh(iris, ringZ(2.75, 2.95, 0.3), 0x3b3e44, 0, 0, 5.6, { parent: lensG, r: 0.5, m: 0.5 });
+    function setIris(rad) {
+      const s = new THREE.Shape(); s.absarc(0, 0, 2.85, 0, 2 * PI, false);
+      const h = new THREE.Path();
+      for (let i = 0; i <= 9; i++) { const a = (i / 9) * 2 * PI + 0.2; const x = Math.cos(a) * rad, y = Math.sin(a) * rad; i ? h.lineTo(x, y) : h.moveTo(x, y); }
+      s.holes.push(h);
+      irisMesh.geometry.dispose(); irisMesh.geometry = new THREE.ShapeGeometry(s, 24);
+    }
+    const IRIS_OPEN = 1.85; setIris(IRIS_OPEN);
+
+    /* AF 구동부 */
+    const afm = part("afm", "AF 구동부", "초점 렌즈 군을 수 µm 단위로 앞뒤로 옮기는 모터(스테핑·초음파·리니어). 무게가 가벼운 초점 군일수록 빠르고 조용하게 움직입니다.", [["mechanism", "04"], ["control", "07"]], "md", [3.4, -2.2, 3.3], lensG);
+    mesh(afm, ringZ(2.15, 2.8, 0.9), 0xe0a030, 0, 0, 3.3, { parent: lensG, r: 0.4, m: 0.5 });
+    const focusEl = mesh(afm, lensZ(1.65, -0.12, 0.3, 0.32), 0x9fd2ff, 0, 0, 3.3, Object.assign({ parent: lensG }, GLASS));
+    mesh(afm, boxG(0.5, 0.5, 2.2), 0xc98a20, 2.45, -1.0, 3.6, { parent: lensG, r: 0.4, m: 0.6 });
+
+    /* 셔터 */
+    const shutter = part("shutter", "셔터 유닛", "선막과 후막 두 장의 막이 위아래로 달리며 틈을 만들어 노출 시간을 정합니다. 막 하나가 센서를 가로지르는 데 수 ms가 걸립니다.", [["mechanism", "04"], ["shutter", "12"]], "md", [AX + 3.2, AY + 2.4, -0.85]);
+    const SZ = -0.85;
+    [[0, 1.65, 5.2, 0.6], [0, -1.65, 5.2, 0.6], [2.3, 0, 0.6, 2.7], [-2.3, 0, 0.6, 2.7]].forEach(([x, y, w, h]) => mesh(shutter, boxG(w, h, 0.28), 0x5b5f66, AX + x, AY + y, SZ, { r: 0.5, m: 0.5 }));
+    function curtain(z) {
+      const g = new THREE.Group(); g.position.set(AX, AY, z); shutter.group.add(g);
+      for (let i = 0; i < 4; i++) mesh(shutter, boxG(4.0, 0.74, 0.04), 0x17181c, 0, -1.1 + i * 0.72, 0, { parent: g, r: 0.6, m: 0.3 });
+      return g;
+    }
+    const curA = curtain(SZ + 0.08), curB = curtain(SZ - 0.08);
+    function setCurtain(g, off) { g.position.y = AY + off; g.scale.y = 1 - 0.72 * Math.min(1, Math.abs(off) / 3); }
+
+    /* 센서 */
+    const sensor = part("sensor", "이미지 센서", "36 × 24 mm 실리콘 위에 수천만 개의 포토다이오드가 있습니다. 광자를 전자로 바꾸고, 칩 안의 ADC가 그 전하를 숫자로 셉니다.", [["sensor", "05"], ["iso", "13"]], "md", [AX - 3.0, AY + 2.2, SENSOR_Z]);
+    const sensG = new THREE.Group(); sensG.position.set(AX, AY, SENSOR_Z); root.add(sensG);
+    mesh(sensor, boxG(4.6, 3.6, 0.3), 0x8a7a62, 0, 0, -0.05, { parent: sensG, r: 0.7, m: 0.1 });
+    const die = mesh(sensor, boxG(3.6, 2.4, 0.06), 0x34479a, 0, 0, 0.13, { parent: sensG, r: 0.18, m: 0.75 });
+
+    /* IBIS */
+    const ibis = part("ibis", "IBIS 유닛", "센서를 얹은 판을 자석과 코일로 띄워 상하·좌우·회전·기울기 5축으로 움직여 흔들림을 상쇄합니다. 자이로가 1초에 수천 번 흔들림을 잽니다.", [["mechanism", "04"], ["stabilization", "20"]], "m", [AX + 3.6, AY - 2.6, -1.7]);
+    mesh(ibis, boxG(6.2, 5.0, 0.22), 0x8c8f96, AX, AY, -1.62, { r: 0.4, m: 0.7 });
+    [[-2.5, 1.9], [2.5, 1.9], [-2.5, -1.9], [2.5, -1.9]].forEach(([x, y]) => mesh(ibis, cylZ(0.5, 0.35, 20), 0xb87333, AX + x, AY + y, -1.85, { r: 0.35, m: 0.8 }));
+
+    /* 메인보드 */
+    const board = part("board", "메인보드·처리 엔진", "영상 처리 SoC(ISP·CPU), DRAM 버퍼, 전원 IC가 올라간 기판. 초당 수 GB의 센서 데이터를 현상·압축하고 카메라 전체를 지휘합니다.", [["engine", "06"], ["raw", "19"]], "md", [AX + 3.4, AY + 1.6, -2.5]);
+    mesh(board, boxG(10.4, 6.0, 0.14), 0x1f6146, 0.3, -0.6, -2.25, { r: 0.6, m: 0.1 });
+    mesh(board, boxG(1.6, 1.6, 0.22), 0x2b2b2e, 1.6, -0.9, -2.43, { r: 0.4, m: 0.5 });
+    mesh(board, boxG(1.3, 0.9, 0.16), 0x202022, 3.4, -0.4, -2.4, { r: 0.4, m: 0.4 });
+    mesh(board, boxG(1.3, 0.9, 0.16), 0x202022, 3.4, -1.6, -2.4, { r: 0.4, m: 0.4 });
+    mesh(board, boxG(0.8, 0.8, 0.14), 0x3a3a3e, -1.2, 0.6, -2.39, { r: 0.4, m: 0.4 });
+
+    /* 메모리 카드 */
+    const card = part("card", "메모리 카드", "버퍼에 쌓인 사진이 이 카드로 옮겨집니다. 카드의 지속 쓰기 속도가 연사를 얼마나 오래 이어 갈 수 있는지를 정합니다.", [["engine", "06"], ["stabilization", "20"]], "md", [-6.8, 2.3, -2.2]);
+    mesh(card, boxG(0.45, 3.4, 2.6), 0x6d7078, -6.1, 0.3, -2.25, { r: 0.5, m: 0.6 });
+    mesh(card, boxG(0.22, 3.2, 2.3), 0x2f66c9, -6.35, 0.3, -2.25, { r: 0.5, m: 0.2 });
+
+    /* 배터리 */
+    const batt = part("battery", "배터리", "7.2 V 리튬 이온, 대개 7~16 Wh. 전원 IC가 이 전압을 여러 가지로 바꿔 센서·엔진·모니터·모터에 나눠 줍니다.", [["body", "08"]], "md", [-4.9, -4.6, 0.6]);
+    mesh(batt, boxG(2.0, 5.4, 3.6), 0x30598f, -4.85, -0.9, 0.8, { r: 0.45, m: 0.3 });
+    mesh(batt, boxG(2.04, 1.0, 3.64), 0xd0d4da, -4.85, 1.4, 0.8, { r: 0.4, m: 0.6 });
+
+    /* 화면 텍스처 */
+    const scr = document.createElement("canvas"); scr.width = 320; scr.height = 200;
+    const sg = scr.getContext("2d"), tex = new THREE.CanvasTexture(scr);
+    tex.encoding = THREE.sRGBEncoding;
+    let scrState = "";
+    function drawScreen(state) {
+      if (state === scrState) return; scrState = state;
+      if (state === "black" || state === "off") { sg.fillStyle = state === "off" ? "#0b0c0e" : "#000"; sg.fillRect(0, 0, 320, 200); tex.needsUpdate = true; return; }
+      const gr = sg.createLinearGradient(0, 0, 0, 200); gr.addColorStop(0, "#5b8fd6"); gr.addColorStop(0.55, "#bcd6ee"); gr.addColorStop(0.56, "#6f9a5c"); gr.addColorStop(1, "#3f6b3a");
+      sg.fillStyle = gr; sg.fillRect(0, 0, 320, 200);
+      sg.fillStyle = "#ffe08a"; sg.beginPath(); sg.arc(250, 48, 18, 0, 7); sg.fill();
+      sg.fillStyle = "#53697f"; sg.beginPath(); sg.moveTo(0, 112); sg.lineTo(70, 62); sg.lineTo(130, 104); sg.lineTo(190, 70); sg.lineTo(320, 112); sg.fill();
+      sg.fillStyle = "#2d4d2c"; sg.beginPath(); sg.moveTo(150, 160); sg.lineTo(170, 100); sg.lineTo(190, 160); sg.fill();
+      sg.fillStyle = "rgba(0,0,0,.55)"; sg.fillRect(0, 176, 320, 24);
+      sg.fillStyle = "#fff"; sg.font = "bold 15px monospace"; sg.textBaseline = "middle";
+      sg.fillText(state === "review" ? "▶ 1/250  F8  ISO100" : "1/250  F8  ISO100  [AF]", 10, 188);
+      if (state === "live") { sg.strokeStyle = "#7ee2a8"; sg.lineWidth = 2; sg.strokeRect(150, 86, 44, 44); }
+      tex.needsUpdate = true;
+    }
+    drawScreen("live");
+
+    /* EVF (미러리스) */
+    const evf = part("evf", "전자식 뷰파인더", "0.4~0.6형 OLED 마이크로디스플레이에 센서 영상을 띄우고 접안 렌즈로 확대해 봅니다. 노출·화이트 밸런스가 반영된 결과를 미리 볼 수 있지만 수 ms~수십 ms의 지연이 있습니다.", [["control", "07"]], "m", [AX, 6.0, -1.8]);
+    mesh(evf, boxG(1.9, 1.5, 0.3), 0x1a1a1d, AX, 3.95, -0.55, { r: 0.5, m: 0.3 });
+    const evfScr = mesh(evf, new THREE.PlaneGeometry(1.6, 1.0), 0, AX, 3.95, -0.72, { basic: true, map: tex }); evfScr.rotation.y = PI;
+    mesh(evf, lensZ(0.95, 0.15, 0.15, 0.1), 0x9fd2ff, AX, 3.95, -2.0, GLASS);
+    mesh(evf, lensZ(1.05, 0.2, 0.05, 0.12), 0x9fd2ff, AX, 3.95, -2.9, GLASS);
+    mesh(evf, rbox(3.4, 2.5, 0.9, 0.6, 0.2), RUBBER, AX, 3.95, -3.9, { r: 0.95, m: 0 });
+
+    /* 후면 모니터 */
+    const lcd = part("lcd", "후면 모니터", "3~3.2형 터치 LCD 또는 OLED. 라이브 뷰, 메뉴, 재생을 보여 주고 터치로 AF 위치를 고릅니다. 틸트·스위블 힌지에 붙어 있습니다.", [["control", "07"]], "md", [AX + 5.0, -3.6, -4.0]);
+    mesh(lcd, rbox(7.8, 5.2, 0.38, 0.3, 0.1), 0x18191c, 1.6, -0.75, -3.72, { r: 0.4, m: 0.2 });
+    const lcdScr = mesh(lcd, new THREE.PlaneGeometry(7.0, 4.4), 0, 1.6, -0.75, -3.93, { basic: true, map: tex }); lcdScr.rotation.y = PI;
+
+    /* 다이얼·버튼 */
+    const ui = part("ui", "다이얼·버튼", "셔터 버튼(반누름이면 AF·측광 시작), 모드 다이얼, 커맨드 다이얼, 조이스틱. 사람의 의도를 제어부에 전하는 입력 장치입니다.", [["control", "07"], ["modes", "14"]], "md", [-3.4, 5.0, -1.4]);
+    const knurl = (r, h) => cylY(r, h, 28);
+    mesh(ui, knurl(1.2, 0.6), 0x3a3d43, -3.9, 3.5, -1.3, { r: 0.5, m: 0.4 });
+    mesh(ui, knurl(0.8, 0.4), 0x33363b, -5.3, 3.35, -3.0, { r: 0.5, m: 0.4 });
+    mesh(ui, cylY(0.45, 0.35, 24), 0xbfc3ca, -5.05, 3.05, 1.6, { r: 0.25, m: 0.9 });
+    mesh(ui, new THREE.TorusGeometry(0.62, 0.12, 8, 28).rotateX(PI / 2), 0x2b2d31, -5.05, 2.95, 1.6, { r: 0.5, m: 0.4 });
+    mesh(ui, cylZ(0.35, 0.3, 16), 0x2b2d31, -3.6, 1.0, -3.62, { r: 0.5, m: 0.3 });
+    [[-4.6, 0.0], [-4.6, -1.2], [-4.6, -2.4]].forEach(([x, y]) => mesh(ui, cylZ(0.28, 0.2, 16), 0x3b3e44, x, y, -3.58, { r: 0.5, m: 0.3 }));
+
+    /* DSLR 전용: 미러 */
+    const ZC = 1.1, ML = 3.0, s45 = Math.SQRT1_2;
+    const mirror = part("mirror", "주 미러·서브 미러", "45°로 놓인 주 미러가 빛을 위의 파인더로 보내고, 가운데 반투명 부분을 지난 빛은 서브 미러가 아래 AF 모듈로 보냅니다. 촬영 순간 미러가 올라가야 센서에 빛이 닿습니다.", [["mechanism", "04"], ["basics", "09"]], "d", [AX - 3.4, AY + 0.6, ZC]);
+    const hinge = new THREE.Group(); hinge.position.set(AX, AY + (ML / 2) * s45, ZC - (ML / 2) * s45); mirror.group.add(hinge);
+    mesh(mirror, boxG(3.9, 0.06, ML), 0xdfe6ee, 0, 0, ML / 2, { parent: hinge, r: 0.05, m: 0.95 });
+    hinge.rotation.x = PI / 4;
+    const subM = mesh(mirror, boxG(1.9, 0.05, 1.2), 0xcfd6de, AX, AY, ZC - 0.5, { r: 0.05, m: 0.95 });
+    subM.rotation.x = -PI / 4;
+    root.updateMatrixWorld(true); hinge.attach(subM);
+
+    /* DSLR 전용: 광학 뷰파인더 */
+    const ovf = part("ovf", "광학 뷰파인더", "미러가 올린 상이 초점 스크린에 맺히고, 펜타프리즘이 이를 바로 세워 접안부로 보냅니다. 빛 그대로를 보므로 지연이 없지만 노출 결과는 미리 볼 수 없습니다. 측광 센서도 이 근처에 있습니다.", [["control", "07"], ["basics", "09"]], "d", [AX, 6.6, 0.6]);
+    const SCREEN_Y = AY + (ZC - SENSOR_Z);
+    mesh(ovf, boxG(3.8, 0.08, 2.6), 0xe8ecf0, AX, SCREEN_Y, ZC, { op: 0.65, r: 0.6, m: 0 });
+    const pp = [[2.6, 2.15], [-0.2, 2.15], [-0.6, 2.9], [-0.6, 4.4], [1.0, 5.4], [2.6, 3.4]];
+    const pg = (function () { const s = new THREE.Shape(); pp.forEach(([z, y], i) => (i ? s.lineTo(z, y) : s.moveTo(z, y))); const g = new THREE.ExtrudeGeometry(s, { depth: 3.0, bevelEnabled: false }); g.rotateY(-PI / 2); g.translate(AX + 1.5, 0, 0); return g; })();
+    mesh(ovf, pg, 0xcfe3f2, 0, 0, 0, { op: 0.55, r: 0.05, m: 0.2, side: THREE.DoubleSide });
+    mesh(ovf, lensZ(0.9, 0.18, 0.12, 0.1), 0x9fd2ff, AX, 3.65, -1.6, GLASS);
+    mesh(ovf, rbox(3.4, 2.5, 0.9, 0.6, 0.2), RUBBER, AX, 3.65, -3.9, { r: 0.95, m: 0 });
+    mesh(ovf, boxG(1.0, 0.6, 0.6), 0x8a5bd0, AX, 4.6, -0.95, { r: 0.4, m: 0.3 });
+
+    /* DSLR 전용: AF 모듈 */
+    const afmod = part("afmod", "위상차 AF 모듈", "서브 미러가 내려보낸 빛을 작은 렌즈 쌍으로 둘로 나눠 두 상의 어긋남으로 초점이 얼마나, 어느 방향으로 틀렸는지 한 번에 잽니다. 미러가 올라가면 쓸 수 없습니다.", [["control", "07"], ["focus", "16"]], "d", [AX + 3.2, -4.6, 0.6]);
+    mesh(afmod, boxG(3.0, 0.7, 2.0), 0xc06a2a, AX, -3.35, 0.6, { r: 0.5, m: 0.3 });
+    [-0.6, 0.6].forEach((x) => mesh(afmod, cylY(0.3, 0.2, 16), 0x9fd2ff, AX + x, -2.92, 0.6, GLASS));
+
+    /* 회전대 */
+    const disc = new THREE.Mesh(new THREE.CircleGeometry(15, 64).rotateX(-PI / 2), new THREE.MeshBasicMaterial({ color: 0x888888, transparent: true, opacity: 0.25 }));
+    disc.position.set(0, -4.7, 1.5); T.scene.add(disc);
+
+    /* --- 빛의 경로 */
+    const raysG = new THREE.Group(); T.scene.add(raysG);
+    const rayMat = new THREE.LineBasicMaterial({ color: 0xff8a4c, transparent: true, opacity: 0.75 });
+    const dotMat = new THREE.MeshBasicMaterial({ color: 0xffd36b });
+    const dotGeo = new THREE.SphereGeometry(0.11, 10, 8);
+    const V = (x, y, z) => new THREE.Vector3(x, y, z);
+    function lensPath(h, mz) { return [V(AX, AY + h, mz + 17), V(AX, AY + h, mz + 8.9), V(AX, AY + 0.62 * h, mz + 5.6), V(AX, AY + 0.42 * h, mz + 1.6)]; }
+    const HS = [-2.3, -1.15, 0, 1.15, 2.3];
+    function buildPaths(kind) {
+      if (kind === "m") return HS.map((h) => lensPath(h, MOUNT.m).concat([V(AX, AY, SENSOR_Z)]));
+      if (kind === "dc") return HS.map((h) => lensPath(h, MOUNT.d).concat([V(AX, AY, SENSOR_Z)]));
+      const out = HS.map((h, i) => {
+        const P = lensPath(h, MOUNT.d), a = P[3], b = V(AX, AY, SENSOR_Z);
+        // 주 미러 평면 (y − AY) + (z − ZC) = 0 과의 교점
+        const fa = a.y - AY + a.z - ZC, fb = b.y - AY + b.z - ZC, u = fa / (fa - fb);
+        const hit = a.clone().lerp(b, u);
+        const spread = (i - 2) * 0.18;
+        return P.concat([hit, V(AX, SCREEN_Y, ZC), V(AX, 5.0, 1.3 + spread), V(AX, 3.65 + spread * 0.5, -0.6), V(AX, 3.65, -1.6), V(AX, 3.65 + spread, -5.2)]);
+      });
+      out.push(lensPath(0, MOUNT.d).concat([V(AX, AY, ZC - 0.5), V(AX, -3.0, ZC - 0.5)]));
+      return out;
+    }
+    const raySets = {};
+    ["m", "dv", "dc"].forEach((k) => {
+      const g = new THREE.Group(); raysG.add(g);
+      const paths = buildPaths(k).map((pts) => {
+        g.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), rayMat));
+        const seg = []; let L = 0;
+        for (let i = 1; i < pts.length; i++) { const d = pts[i].distanceTo(pts[i - 1]); seg.push(d); L += d; }
+        const dots = [];
+        for (let j = 0; j < 4; j++) { const m = new THREE.Mesh(dotGeo, dotMat); g.add(m); dots.push(m); }
+        return { pts, seg, L, dots };
+      });
+      raySets[k] = { g, paths };
+    });
+    function placeDots(set, t) {
+      set.paths.forEach((P, pi) => P.dots.forEach((m, j) => {
+        let s = ((t * 9 + j * (P.L / P.dots.length) + pi * 1.7) % P.L);
+        let i = 0; while (i < P.seg.length - 1 && s > P.seg[i]) { s -= P.seg[i]; i++; }
+        m.position.copy(P.pts[i]).lerp(P.pts[i + 1], Math.min(1, s / P.seg[i]));
+      }));
+    }
+
+    /* --- 상태와 UI */
+    const info = $("x3-info"), partsBox = $("x3-parts"), showAll = $("x3-labels"), raysOn = $("x3-rays");
+    let mode = "m", sel = "", opac = 0.22, shot = -1;
+    const accent = new THREE.Color();
+    const SETS = { m: ["shell", "mount", "optics", "iris", "afm", "shutter", "sensor", "ibis", "board", "card", "battery", "evf", "lcd", "ui"],
+                   d: ["shell", "mount", "optics", "iris", "afm", "mirror", "shutter", "sensor", "afmod", "ovf", "board", "card", "battery", "lcd", "ui"] };
+    const INTRO = { m: "<b>미러리스</b>렌즈를 지난 빛이 곧바로 센서에 닿습니다. 센서가 초점·노출을 직접 재고, 그 영상을 EVF와 모니터로 보여 줍니다.",
+                    d: "<b>DSLR</b>평소에는 미러가 빛을 위의 광학 파인더와 아래의 AF 모듈로 나눠 보내고, 촬영 순간에만 미러가 올라가 센서가 빛을 받습니다. 그래서 바디가 더 깊습니다." };
+    function refresh() {
+      const list = SETS[mode];
+      order.forEach((k) => {
+        const p = parts[k], on = list.includes(k), isSel = sel === k, dim = !!sel && !isSel;
+        p.group.visible = on;
+        p.mats.forEach((m) => {
+          let o = p.shell ? opac : m.userData.o0;
+          if (dim) o = Math.min(o, p.shell ? 0.06 : 0.12);
+          const tr = o < 0.999;
+          if (m.transparent !== tr) { m.transparent = tr; m.needsUpdate = true; }
+          m.opacity = o; m.depthWrite = o > 0.6;
+          if (m.emissive && m !== die.material) m.emissive.copy(accent).multiplyScalar(isSel ? 0.45 : 0);
+        });
+        p.label.setVisible(on && (isSel || (!sel && showAll.checked)));
+      });
+      [...partsBox.querySelectorAll("button")].forEach((b) => b.classList.toggle("on", b.dataset.key === sel));
+      const p = parts[sel];
+      info.innerHTML = p ? `<b>${p.name}</b>${p.desc} ` + p.ch.map(([s, n]) => `<a href="${s}.html">${+n}장 →</a>`).join(" ")
+        : INTRO[mode] + " 부품 버튼을 누르거나 모델을 클릭해 하나씩 살펴보세요.";
+    }
+    function setMode(m) {
+      mode = m;
+      shellM.visible = m === "m"; shellD.visible = m === "d";
+      lensG.position.set(AX, AY, MOUNT[m]);
+      if (!SETS[m].includes(sel)) sel = "";
+      partsBox.innerHTML = '<button data-key="">전체</button>' + SETS[m].map((k) => `<button data-key="${k}">${parts[k].name}</button>`).join("");
+      shot = -1; resetPose();
+      refresh();
+    }
+    partsBox.addEventListener("click", (e) => { const b = e.target.closest("button"); if (!b) return; sel = b.dataset.key; refresh(); });
+    showAll.addEventListener("change", refresh);
+    raysOn.addEventListener("change", () => (raysG.visible = raysOn.checked));
+    CB.range("x3-op", (v) => v + " %", (v) => { opac = v / 100; refresh(); });
+    CB.seg("x3-type", setMode);
+
+    /* 클릭으로 부품 고르기 */
+    const ray = new THREE.Raycaster(), ndc = new THREE.Vector2();
+    let down = null;
+    const cvs = T.renderer.domElement;
+    cvs.addEventListener("pointerdown", (e) => (down = [e.clientX, e.clientY]));
+    cvs.addEventListener("pointerup", (e) => {
+      if (!down || Math.hypot(e.clientX - down[0], e.clientY - down[1]) > 5) return;
+      const r = cvs.getBoundingClientRect();
+      ndc.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
+      ray.setFromCamera(ndc, T.camera);
+      const hits = ray.intersectObject(root, true).filter((h) => {
+        let o = h.object; while (o) { if (!o.visible) return false; o = o.parent; }
+        const k = h.object.userData.part; return k && !(k === "shell" && opac < 0.5);
+      });
+      const k = hits.length ? hits[0].object.userData.part : "";
+      sel = sel === k ? "" : k; refresh();
+    });
+
+    /* 셔터 시퀀스 (느린 동작) */
+    const ramp = (t, a, b) => CB.smooth(a, b, t);
+    function resetPose() {
+      setIris(IRIS_OPEN); hinge.rotation.x = PI / 4;
+      if (mode === "m") { setCurtain(curA, -3); setCurtain(curB, 3); drawScreen("live"); }
+      else { setCurtain(curA, 0); setCurtain(curB, 3); drawScreen("off"); }
+      die.material.emissive.setRGB(0, 0, 0);
+    }
+    $("x3-shot").addEventListener("click", () => { shot = 0; T.controls.autoRotate = false; });
+    function poseAt(t) {
+      const stop = ramp(t, 0, 0.25) * (1 - ramp(t, 2.0, 2.3));
+      setIris(IRIS_OPEN * (1 - 0.5 * stop));
+      let expo = 0;
+      if (mode === "m") {
+        const a = -3 + 3 * ramp(t, 0.3, 0.5) - 3 * ramp(t, 0.7, 0.85);
+        const b = 3 - 3 * ramp(t, 1.2, 1.35) + 3 * ramp(t, 1.6, 1.9);
+        setCurtain(curA, a); setCurtain(curB, b);
+        expo = ramp(t, 0.7, 0.85) * (1 - ramp(t, 1.2, 1.35));
+        drawScreen(t > 0.35 && t < 1.85 ? "black" : "live");
+      } else {
+        hinge.rotation.x = (PI / 4) * (1 - ramp(t, 0, 0.25) + ramp(t, 1.5, 1.7));
+        const a = -3 * ramp(t, 0.7, 0.85) + 3 * ramp(t, 1.75, 2.1);
+        const b = 3 - 3 * ramp(t, 1.2, 1.35) + 3 * ramp(t, 1.75, 2.1);
+        setCurtain(curA, a); setCurtain(curB, b);
+        expo = ramp(t, 0.7, 0.85) * (1 - ramp(t, 1.2, 1.35));
+        drawScreen(t > 1.45 ? "review" : "off");
+      }
+      die.material.emissive.copy(accent).multiplyScalar(0.9 * expo);
+    }
+
+    function theme() {
+      accent.set(CB.color("accent") || "#d9480f");
+      rayMat.color.copy(accent);
+      dotMat.color.set(CB.isDark() ? 0xffd36b : 0xf08c00);
+      disc.material.color.set(CB.color("text-faint") || "#968e84");
+      disc.material.opacity = CB.isDark() ? 0.16 : 0.22;
+      refresh();
+    }
+    CB.onTheme(theme);
+
+    let dslrHold = 0;
+    T.onFrame((dt, t) => {
+      if (shot >= 0) {
+        shot += dt;
+        poseAt(shot);
+        if (mode === "d" && shot > 1.45) dslrHold = 4;
+        if (shot > 2.4) { shot = -1; resetPose(); if (mode === "d") drawScreen("review"); }
+      } else if (mode === "d" && dslrHold > 0) { dslrHold -= dt; if (dslrHold <= 0) drawScreen("off"); }
+      // 초점 군이 천천히 앞뒤로 (AF 구동 표시)
+      focusEl.position.z = 3.3 + 0.18 * Math.sin(t * 1.3);
+      const mirrorUp = mode === "d" && hinge.rotation.x < 0.2;
+      raySets.m.g.visible = mode === "m";
+      raySets.dv.g.visible = mode === "d" && !mirrorUp;
+      raySets.dc.g.visible = mode === "d" && mirrorUp;
+      if (raysG.visible) placeDots(mode === "m" ? raySets.m : mirrorUp ? raySets.dc : raySets.dv, t);
+    });
+
+    setMode("m");
+    theme();
+  })();
+
+  /* ================================================================ 2. 광자 예산 */
+  (function photon() {
+    const upd = CB.throttle(() => calc());
+    const SCENES = { 16: "맑은 날 해변·설원", 15: "맑은 날 야외", 14: "옅은 구름", 13: "흐린 날", 12: "흐린 날·그늘", 11: "짙은 그늘", 10: "해 질 녘", 9: "밝은 실내 창가", 8: "밝은 실내", 7: "실내 조명", 6: "어두운 실내", 5: "밤 실내", 4: "야간 거리(밝음)", 3: "야간 거리", 2: "야경 원경", 1: "어두운 야외", 0: "촛불 근처", "-1": "어두운 실내 밤", "-2": "보름달 풍경", "-3": "보름달 풍경(어두움)", "-4": "반달 풍경" };
+    const EV = CB.range("ph-ev", (v) => "EV " + v + " · " + SCENES[v], upd);
+    const N = CB.steps("ph-n", CB.APERTURES, CB.fmtN, 5.6, upd);
+    const TT = CB.steps("ph-t", CB.SHUTTERS, CB.fmtT, 1 / 125, upd);
+    const ISO = CB.steps("ph-iso", CB.ISOS.filter((s) => s >= 100 && s <= 12800), (s) => "ISO " + s, 100, upd);
+    const P = CB.range("ph-p", (v) => v.toFixed(1) + " µm", upd);
+    const QE = CB.range("ph-qe", (v) => v + " %", upd);
+    const RN = CB.range("ph-rn", (v) => v.toFixed(1) + " e⁻", upd);
+    const BITS = CB.seg("ph-bits", upd);
+    const TRANS = 0.9, PH_PER_LXS = 4.1e15;
+    let S = {};
+    const fmtN = (x) => (x >= 1e4 ? CB.fmt(x, 3) : x >= 10 ? Math.round(x).toLocaleString("en-US") : x.toFixed(x < 1 ? 2 : 1));
+
+    function calc() {
+      const ev = EV(), n = N(), t = TT(), iso = ISO(), p = P(), qe = QE() / 100, rn = RN(), bits = +BITS();
+      const L = 0.125 * Math.pow(2, ev);
+      const Es = (PI * L * TRANS) / (4 * n * n);
+      const H = Es * t;
+      const area = p * p * 1e-12;
+      const pre = (H / TRANS) * PH_PER_LXS * area;
+      const nph = H * PH_PER_LXS * area;
+      const ne = qe * nph;
+      const fwc = 6800 * Math.pow(p, 1.4);
+      const fs = fwc * Math.min(1, 100 / iso);
+      const kept = Math.min(ne, fs);
+      const maxDN = Math.pow(2, bits) - 1;
+      const lsb = fs / (maxDN + 1), sq = lsb / Math.sqrt(12);
+      const floor = Math.sqrt(rn * rn + sq * sq);
+      const sigma = Math.sqrt(kept + floor * floor);
+      const snr = kept / sigma;
+      const dn = Math.round((kept / fs) * maxDN);
+      const head = Math.log2(fs / Math.max(ne, 1e-9));
+      const diff = ev - CB.ev(n, t, iso);
+      S = { pre, nph, ne, kept, fwc, fs, floor, sigma, dn, maxDN, clipped: ne >= fs, snr };
+      CB.stat("ph-h", CB.fmt(H, 3) + "<small>lx·s</small>");
+      CB.stat("ph-np", fmtN(nph));
+      CB.stat("ph-ne", fmtN(ne) + "<small>e⁻</small>");
+      CB.stat("ph-snr", snr > 0.01 ? snr.toFixed(snr < 10 ? 1 : 0) + "<small>(" + (20 * Math.log10(snr)).toFixed(0) + " dB)</small>" : "≈ 0");
+      CB.stat("ph-head", ne >= fs ? '<span style="color:var(--bad)">포화</span>' : head.toFixed(1) + "<small>스톱</small>");
+      CB.stat("ph-exp", Math.abs(diff) < 0.34 ? "적정" : (diff > 0 ? "+" : "−") + Math.abs(diff).toFixed(1) + "<small>스톱 " + (diff > 0 ? "과다" : "부족") + "</small>");
+      cv.redraw();
+    }
+
+    const cv = CB.canvas("#cv-photon", (ctx, w, h) => {
+      if (!S.nph && S.nph !== 0) return;
+      const pal = CB.palette();
+      const font = getComputedStyle(document.body).getPropertyValue("--font");
+      const mono = getComputedStyle(document.body).getPropertyValue("--mono");
+      const lw = w < 460 ? 92 : 128, x0 = lw + 8, x1 = w - 16;
+      const LO = -1, HI = 7;
+      const X = (v) => x0 + ((CB.clamp(Math.log10(Math.max(v, 1e-3)), LO, HI) - LO) / (HI - LO)) * (x1 - x0);
+      const top = 26, rowH = 40;
+      ctx.font = "11px " + mono; ctx.textAlign = "center"; ctx.textBaseline = "top";
+      for (let e = 0; e <= HI; e++) {
+        const px = X(Math.pow(10, e));
+        ctx.strokeStyle = pal.grid; ctx.beginPath(); ctx.moveTo(px, top - 6); ctx.lineTo(px, top + rowH * 4); ctx.stroke();
+        if (w > 420 || e % 2 === 0) { ctx.fillStyle = pal.faint; ctx.fillText("10" + "⁰¹²³⁴⁵⁶⁷"[e], px, 6); }
+      }
+      const rows = [
+        ["렌즈 앞", "광자(픽셀 면적분)", S.pre, pal.warn],
+        ["센서 도달", "광자 · T 90%", S.nph, pal.warn],
+        ["광전자", "× QE", S.ne, pal.accent],
+        ["저장 전하", "풀웰·ISO 한계", S.kept, S.clipped ? pal.bad : pal.accent2],
+      ];
+      rows.forEach(([a, b, v, c], i) => {
+        const y = top + i * rowH;
+        ctx.fillStyle = pal.text; ctx.font = "600 13px " + font; ctx.textAlign = "right"; ctx.textBaseline = "alphabetic";
+        ctx.fillText(a, lw, y + 16);
+        ctx.fillStyle = pal.dim; ctx.font = "11px " + font; ctx.fillText(b, lw, y + 31);
+        ctx.fillStyle = pal.surface; ctx.fillRect(x0, y + 8, x1 - x0, 22);
+        ctx.fillStyle = c; ctx.globalAlpha = 0.85; ctx.fillRect(x0, y + 8, Math.max(1, X(v) - x0), 22); ctx.globalAlpha = 1;
+        ctx.fillStyle = pal.text; ctx.font = "600 12px " + mono; ctx.textAlign = "left"; ctx.textBaseline = "middle";
+        const lbl = v >= 1e4 ? CB.fmt(v, 3) : v >= 10 ? Math.round(v).toLocaleString("en-US") : v.toFixed(2);
+        const tx = X(v) + 6, tw = ctx.measureText(lbl).width;
+        if (tx + tw < x1) ctx.fillText(lbl, tx, y + 19); else { ctx.fillStyle = "#fff"; ctx.textAlign = "right"; ctx.fillText(lbl, X(v) - 6, y + 19); }
+        if (i === 3 && S.kept > 0) { // 샷 노이즈 오차 막대
+          const a1 = X(Math.max(S.kept - S.sigma, 1e-3)), a2 = X(S.kept + S.sigma);
+          ctx.strokeStyle = pal.text; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(a1, y + 34); ctx.lineTo(a2, y + 34); ctx.moveTo(a1, y + 31); ctx.lineTo(a1, y + 37); ctx.moveTo(a2, y + 31); ctx.lineTo(a2, y + 37); ctx.stroke(); ctx.lineWidth = 1;
+        }
+      });
+      // 풀웰과 노이즈 바닥선
+      const yb = top + rowH * 4;
+      const vline = (v, color, label, alignRight, dy) => {
+        const px = X(v); ctx.strokeStyle = color; ctx.setLineDash([5, 4]); ctx.lineWidth = 1.5;
+        ctx.beginPath(); ctx.moveTo(px, top - 2); ctx.lineTo(px, yb + 4); ctx.stroke(); ctx.setLineDash([]); ctx.lineWidth = 1;
+        ctx.fillStyle = color; ctx.font = "11px " + font; ctx.textAlign = alignRight ? "right" : "left"; ctx.textBaseline = "top";
+        ctx.fillText(label, px + (alignRight ? -4 : 4), yb + 6 + (dy || 0));
+      };
+      vline(S.floor, pal.dim, "노이즈 바닥 " + S.floor.toFixed(1) + " e⁻", false);
+      const near = X(S.fs) - X(S.floor) < 230;
+      vline(S.fs, pal.bad, (S.fs < S.fwc ? "ISO 한계 " : "풀웰 ") + CB.fmt(S.fs, 3), true, near ? 15 : 0);
+      // ADC 게이지
+      const gy = yb + (near ? 40 : 30);
+      ctx.fillStyle = pal.text; ctx.font = "600 13px " + font; ctx.textAlign = "right"; ctx.textBaseline = "middle";
+      ctx.fillText("ADC 출력", lw, gy + 9);
+      ctx.fillStyle = pal.surface; ctx.fillRect(x0, gy, x1 - x0, 18);
+      ctx.fillStyle = pal.accent2; ctx.fillRect(x0, gy, (x1 - x0) * (S.dn / S.maxDN), 18);
+      ctx.fillStyle = pal.text; ctx.font = "12px " + mono; ctx.textAlign = "left";
+      ctx.fillText("DN " + S.dn + " / " + S.maxDN + " (선형)", x0 + 6, gy + 9);
+      // 픽셀 패치
+      const py = gy + 30, cols = Math.min(32, Math.floor((x1 - x0) / 9)), rowsN = 5, cs = (x1 - x0) / cols;
+      ctx.fillStyle = pal.text; ctx.font = "600 13px " + font; ctx.textAlign = "right";
+      ctx.fillText("픽셀 패치", lw, py + 14);
+      ctx.fillStyle = pal.dim; ctx.font = "11px " + font; ctx.fillText("평균을 회색으로", lw, py + 30);
+      const mean = S.kept;
+      for (let r = 0; r < rowsN; r++) for (let c = 0; c < cols; c++) {
+        let e = Math.min(CB.poisson(S.ne), S.fs) + S.floor * CB.randn();
+        e = CB.clamp(Math.round((e / S.fs) * S.maxDN), 0, S.maxDN) * (S.fs / S.maxDN);
+        let g = S.clipped ? 1 : mean > 0.05 ? CB.clamp((0.45 * e) / mean, 0, 1) : CB.clamp(0.45 + e * 0.1, 0, 1);
+        const gg = Math.round(255 * Math.pow(g, 1 / 2.2));
+        ctx.fillStyle = `rgb(${gg},${gg},${gg})`; ctx.fillRect(x0 + c * cs, py + r * 9, cs - 1, 8);
+      }
+    }, { aspect: (w) => 326 / w, minHeight: 326 });
+    calc();
+  })();
+
+  /* ================================================================ 3. 형식 비교 */
+  (function forms() {
+    const FF_AREA = 35.9 * 23.9, FF_DIAG = Math.hypot(36, 24);
+    const F = [
+      { k: "phone", name: "스마트폰", w: 9.6, h: 7.2, mass: 200, F: 1.8 },
+      { k: "compact", name: "1형 컴팩트", w: 13.2, h: 8.8, mass: 300, F: 2.8 },
+      { k: "m43", name: "M4/3", w: 17.3, h: 13.0, mass: 600, F: 4 },
+      { k: "apsc", name: "APS-C", w: 23.5, h: 15.6, mass: 800, F: 4 },
+      { k: "ffm", name: "FF 미러리스", w: 35.9, h: 23.9, mass: 1300, F: 4 },
+      { k: "ffd", name: "FF DSLR", w: 35.9, h: 23.9, mass: 1600, F: 4 },
+      { k: "s35", name: "시네마 S35", w: 24.9, h: 14.0, mass: 5000, F: 2.8 },
+      { k: "mf", name: "중형", w: 43.8, h: 32.9, mass: 1900, F: 4 },
+    ];
+    const upd = () => { calc(); cv.redraw(); };
+    const PICK = CB.seg("fm-pick", upd), BASIS = CB.seg("fm-basis", upd);
+    const STACK = CB.range("fm-stack", (v) => (v ? Math.pow(2, v) + "장 (+" + v + "스톱)" : "1장 (합성 없음)"), upd);
+    const light = (f) => Math.log2((f.w * f.h) / FF_AREA) + (BASIS() === "typ" ? 2 * Math.log2(4 / f.F) : 0) + (f.k === "phone" ? STACK() : 0);
+    function calc() {
+      const f = F.find((x) => x.k === PICK()), crop = FF_DIAG / Math.hypot(f.w, f.h), L = light(f);
+      CB.stat("fm-size", f.w + "×" + f.h + "<small>mm</small>");
+      CB.stat("fm-crop", "×" + crop.toFixed(2));
+      CB.stat("fm-light", CB.signed(L, 1) + "<small>스톱</small>");
+      CB.stat("fm-eq", CB.fmtN(2.8 * crop));
+    }
+    const cv = CB.canvas("#cv-forms", (ctx, w, h) => {
+      const pal = CB.palette();
+      const box = { x: 52, y: 16, w: w - 52 - 16, h: h - 16 - 50 };
+      const C = CB.chart(ctx, box, { x: [100, 10000], y: [-6, 3], logX: true, xLabel: "질량 (g, 로그)", yLabel: "빛의 총량 (스톱, FF = 0)", yTicks: [-6, -4, -2, 0, 2], xFmt: (v) => (v >= 1000 ? v / 1000 + " kg" : v + " g"), hlines: [{ y: 0, color: pal.faint }] });
+      const font = getComputedStyle(document.body).getPropertyValue("--font");
+      const pick = PICK();
+      F.slice().sort((a, b) => (a.k === pick) - (b.k === pick)).forEach((f) => {
+        const L = light(f), px = C.X(f.mass), py = C.Y(CB.clamp(L, -6, 3));
+        const r = 3 + Math.sqrt((f.w * f.h) / FF_AREA) * 13, on = f.k === pick;
+        ctx.beginPath(); ctx.arc(px, py, r, 0, 2 * PI);
+        ctx.fillStyle = on ? pal.accent : pal.accent2; ctx.globalAlpha = on ? 0.55 : 0.22; ctx.fill(); ctx.globalAlpha = 1;
+        ctx.strokeStyle = on ? pal.accent : pal.accent2; ctx.lineWidth = on ? 2 : 1; ctx.stroke(); ctx.lineWidth = 1;
+        ctx.fillStyle = on ? pal.text : pal.dim; ctx.font = (on ? "700 " : "") + "12px " + font;
+        ctx.textBaseline = "middle";
+        const right = px + r + 4 + ctx.measureText(f.name).width < box.x + box.w;
+        ctx.textAlign = right ? "left" : "right";
+        ctx.fillText(f.name, right ? px + r + 4 : px - r - 4, f.k === "ffd" ? py + r + 6 : py);
+      });
+    }, { aspect: (w) => (w < 500 ? 0.8 : 0.62), maxHeight: 420 });
+    calc();
+  })();
+
+  /* ================================================================ 4. 제원표 해독기 */
+  (function spec() {
+    const ROWS = [
+      { k: "센서", v: "35.9 × 23.9 mm 적층형 CMOS, 유효 약 2,450만 화소", sys: "이미지 센서", what: "센서 면적은 같은 화각·F값에서 모으는 빛의 총량을, 화소 수는 해상도와 픽셀 하나의 크기(피치)를 정합니다. '적층형'은 픽셀 층과 회로 층을 따로 만들어 붙여 판독이 빠르다는 뜻입니다.", watch: "화소 수가 같아도 센서 크기·세대에 따라 노이즈와 다이내믹 레인지가 다릅니다.", ch: [["sensor", "05"], ["basics", "09"]] },
+      { k: "마운트", v: "바요넷, 내경 약 50 mm, 플랜지 백 약 18 mm", sys: "광학계 · 바디", what: "렌즈를 붙이는 규격. 내경이 크고 플랜지 백이 짧을수록 밝은 렌즈와 광각 렌즈를 설계하기 쉽습니다.", watch: "마운트가 같으면 렌즈를 공유하지만, 크롭 바디에 풀프레임 렌즈를 끼우면 화각이 좁아집니다.", ch: [["optics", "03"], ["focal", "17"]] },
+      { k: "셔터", v: "기계식 1/8000~30초, 전자식 최고 1/32000초, 플래시 동조 1/250초", sys: "기계·구동부", what: "가장 빠른 셔터 속도와 동조 속도는 셔터 막이 얼마나 빨리 달리는지에 달려 있습니다. 전자식 셔터는 소리와 진동이 없지만 센서 판독 속도만큼 롤링 왜곡이 생길 수 있습니다.", watch: "동조 속도보다 빠른 셔터에서 플래시를 쓰려면 고속 동조(HSS)가 필요합니다.", ch: [["mechanism", "04"], ["shutter", "12"], ["flash", "21"]] },
+      { k: "자동 초점", v: "이미지면 위상차 + 콘트라스트, 측거점 수백 개, 사람·동물·탈것 인식, 저조도 −5 EV", sys: "제어·인터페이스 · 센서", what: "센서 픽셀 일부가 위상차를 재고, 처리 엔진의 인식 알고리즘이 피사체를 찾아 따라갑니다. '−5 EV'는 그만큼 어두운 곳에서도 초점을 잡는다는 측정 조건 값입니다.", watch: "측거점 '개수'보다 추적의 끈기와 반응 속도가 체감 성능을 좌우합니다. 측정 조건(F값, 렌즈)을 확인하세요.", ch: [["control", "07"], ["focus", "16"]] },
+      { k: "손떨림 보정", v: "센서 시프트 5축, 최대 6스톱(CIPA 기준)", sys: "기계·구동부", what: "IBIS가 센서를 움직여 흔들림을 상쇄합니다. 스톱 수는 보정 없이 필요한 셔터 속도보다 몇 배 느리게 찍어도 비슷한 확률로 선명한지를 뜻합니다.", watch: "특정 렌즈·초점거리에서의 최댓값입니다. 망원에서는 효과가 줄고, 피사체 흔들림은 막지 못합니다.", ch: [["mechanism", "04"], ["stabilization", "20"]] },
+      { k: "연속 촬영", v: "기계식 10 fps, 전자식 30 fps, RAW 버퍼 약 150장", sys: "센서 · 처리 엔진", what: "초당 장수는 셔터 기구와 센서 판독, 처리 엔진의 처리량이 함께 정합니다. 버퍼 장수는 DRAM 용량과 카드 쓰기 속도의 결과입니다.", watch: "최고 fps는 특정 비트 심도·AF 모드에서만 나오는 경우가 많습니다. 아래 계산기로 데이터율을 확인해 보세요.", ch: [["engine", "06"], ["stabilization", "20"]] },
+      { k: "동영상", v: "4K 60p 10비트 4:2:2, 연속 녹화 시간은 온도에 따라 제한", sys: "처리 엔진 · 전원·열", what: "해상도·프레임 레이트·비트 심도·색 샘플링이 데이터율과 처리 부하를 정합니다. 오래 찍을수록 센서와 엔진의 열이 쌓입니다.", watch: "'오버샘플링'인지 '크롭'인지, 열로 인한 녹화 중단 조건을 확인하세요.", ch: [["engine", "06"], ["body", "08"], ["video", "22"]] },
+      { k: "뷰파인더", v: "0.5형 OLED, 약 576만 도트, 최대 120 fps, 배율 0.78×", sys: "제어·인터페이스", what: "도트는 화소가 아니라 RGB 부화소 수입니다(576만 도트 ≈ 1600 × 1200 화소). 주사율이 높을수록 움직임이 매끄럽고 지연이 짧습니다.", watch: "고주사율 모드는 배터리를 더 씁니다. 배율은 표준 렌즈 기준 시야 크기입니다.", ch: [["control", "07"]] },
+      { k: "모니터", v: "3.2형 약 210만 도트, 터치, 틸트", sys: "제어·인터페이스", what: "라이브 뷰, 메뉴, 재생, 터치 AF. 힌지 구조는 촬영 자세의 자유도를 정합니다.", watch: "야외 시인성(밝기)은 표에 잘 나오지 않습니다.", ch: [["control", "07"]] },
+      { k: "기록 매체", v: "CFexpress Type B ×1, SD UHS-II ×1", sys: "처리 엔진", what: "카드 슬롯의 종류는 지원하는 최대 쓰기 속도를 정해 연사 지속 시간과 고비트레이트 동영상 가능 여부를 좌우합니다.", watch: "카드 표기 속도는 대개 읽기 최고치입니다. 중요한 것은 지속 쓰기 속도입니다.", ch: [["engine", "06"], ["raw", "19"]] },
+      { k: "배터리", v: "리튬 이온 7.2 V 2,280 mAh(약 16 Wh), CIPA 약 400매(EVF) / 550매(모니터)", sys: "전원·열·바디", what: "에너지 = 전압 × 용량 = 7.2 V × 2.28 Ah ≈ 16 Wh. CIPA 매수는 표준 절차로 잰 값이라 기종 간 비교에 씁니다.", watch: "EVF가 모니터보다 매수가 적은 경우가 많습니다(고주사율, 눈 센서). 실제 사용 패턴에 따라 훨씬 많이 찍히기도 합니다.", ch: [["body", "08"]] },
+      { k: "크기·무게", v: "약 136 × 98 × 80 mm, 약 680 g(배터리·카드 포함)", sys: "전원·열·바디", what: "무게에 배터리와 카드가 포함되었는지 확인해야 합니다. 그립 깊이와 바디 두께는 손에 쥐는 느낌과 방열 면적을 정합니다.", watch: "실제 들고 다니는 무게는 렌즈가 좌우합니다. 큰 센서일수록 렌즈가 무겁습니다.", ch: [["body", "08"], ["anatomy", "02"]] },
+      { k: "방진·방적", v: "내부 씰링 적용 (IP 등급 미표기)", sys: "전원·열·바디", what: "버튼·다이얼·덮개 이음새에 고무 씰을 넣어 먼지와 물방울 유입을 줄였다는 뜻입니다.", watch: "등급이 표기되지 않으면 '방수'가 아닙니다. 렌즈 쪽 씰링도 함께 갖춰야 합니다.", ch: [["body", "08"]] },
+    ];
+    const list = $("sp-list"), exp = $("sp-exp");
+    list.innerHTML = ROWS.map((r, i) => `<button data-i="${i}"><b>${r.k}</b><span>${r.v}</span></button>`).join("");
+    function show(i) {
+      const r = ROWS[i];
+      const btns = [...list.querySelectorAll("button")];
+      btns.forEach((b, j) => b.classList.toggle("on", j === i));
+      btns[i].after(exp);
+      exp.innerHTML = `<p><b>${r.k}</b> · 하위 시스템: <b>${r.sys}</b></p><p>${r.what}</p><p><b>읽을 때 주의</b> ${r.watch}</p><p>` + r.ch.map(([s, n]) => `<a href="${s}.html">${+n}장 →</a>`).join(" · ") + "</p>";
+    }
+    list.addEventListener("click", (e) => { const b = e.target.closest("button"); if (b) show(+b.dataset.i); });
+    show(0);
+
+    const DIM = { ff: [35.9, 23.9], apsc: [23.5, 15.6], m43: [17.3, 13.0] };
+    const upd = () => calc();
+    const FMT = CB.seg("sp-fmt", upd), BITS = CB.seg("sp-bits", upd), CARD = CB.seg("sp-card", upd);
+    const MP = CB.range("sp-mp", (v) => v + " MP", upd);
+    const FPS = CB.range("sp-fps", (v) => v + " fps", upd);
+    const BUF = 2000; // MB
+    function calc() {
+      const [w, h] = DIM[FMT()], mp = MP() * 1e6;
+      const pitch = Math.sqrt((w * h) / mp) * 1000;
+      const raw = (mp * +BITS()) / 8 / 1e6;
+      const rate = raw * FPS(), card = +CARD();
+      CB.stat("sp-pitch", pitch.toFixed(2) + "<small>µm</small>");
+      CB.stat("sp-raw", raw.toFixed(0) + "<small>MB</small>");
+      CB.stat("sp-rate", (rate >= 1000 ? (rate / 1000).toFixed(2) + "<small>GB/s</small>" : rate.toFixed(0) + "<small>MB/s</small>"));
+      if (rate <= card) CB.stat("sp-buf", "무제한<small>(카드가 더 빠름)</small>");
+      else { const s = BUF / (rate - card); CB.stat("sp-buf", s.toFixed(1) + "<small>초 · " + Math.round(s * FPS()) + "장</small>"); }
+    }
+    calc();
+  })();
+})();
+</script>
+</body>
+</html>

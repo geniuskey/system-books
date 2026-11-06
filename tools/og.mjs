@@ -14,7 +14,7 @@ const books = window.SYSTEM_BOOKS;
 const live = books.filter((b) => b.status !== 'planned');
 const chapters = live.reduce((n, b) => n + (b.chapters || 0), 0);
 const simulators = Math.floor(live.reduce((n, b) => n + (b.simulators || 0), 0) / 50) * 50;
-const titles = { carbook: '자동차', shipbook: '선박', phonebook: '스마트폰' };
+const titles = { carbook: '자동차', shipbook: '선박', phonebook: '스마트폰', camerabook: '카메라' };
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
 const base = `
@@ -39,7 +39,7 @@ const shelfCovers = books.map((b) => `<div class="book${b.status === 'planned' ?
   </div></div></div>`).join('');
 
 const shelf = `<!doctype html><html lang="ko"><head><meta charset="utf-8"><style>${read('shelf.css')}</style><style>${base}
-  .case { --gap:34px; position:absolute; left:640px; top:200px; width:470px; display:grid; grid-template-columns:repeat(3,1fr); column-gap:var(--gap); row-gap:34px; }
+  .case { --gap:24px; position:absolute; left:590px; top:215px; width:560px; display:grid; grid-template-columns:repeat(4,1fr); column-gap:var(--gap); row-gap:34px; }
   .book.planned .book-cover { filter:saturate(.55) brightness(.8); }
   .book-cover { padding:12% 9% 9% 13%; }
   .book-cover strong { margin-top:0; font-size:15px; white-space:nowrap; letter-spacing:-.05em; }
@@ -50,7 +50,7 @@ const shelf = `<!doctype html><html lang="ko"><head><meta charset="utf-8"><style
     <div class="brand">${read('favicon.svg')}<span>SystemBooks</span></div>
     <div class="eyebrow">INTERACTIVE SYSTEMS TEXTBOOKS</div>
     <h1>부품보다 먼저,<br><span class="soft">맞물려 돌아가는</span><br><span class="warm">전체를 본다</span></h1>
-    <p class="lead">자동차, 선박, 스마트폰을 3D 모델과<br>시뮬레이터로 분해하며 배우는 시스템 서가.</p>
+    <p class="lead">자동차, 선박, 스마트폰, 카메라를 3D 모델과<br>시뮬레이터로 분해하며 배우는 시스템 서가.</p>
     <div class="stats"><span><b>${live.length}</b>권 공개</span><span><b>${chapters}</b>개 장</span><span><b>${simulators.toLocaleString('ko-KR')}+</b>시뮬레이터</span></div>
   </div>
   <div class="url">system.euiyun.com</div>

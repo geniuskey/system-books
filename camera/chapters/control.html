@@ -1,0 +1,814 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<title>3A 제어와 반응 속도 · CameraBook</title>
+<meta name="description" content="카메라를 피드백 제어 시스템으로 본다. 자동 노출·자동 초점·자동 화이트 밸런스 루프의 이득과 지연, 위상차와 콘트라스트 AF, 예측 초점, 피사체 인식, 셔터 랙과 EVF 지연의 시간 예산을 시뮬레이터로 배운다.">
+<link rel="canonical" href="https://system.euiyun.com/camera/chapters/control.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="CameraBook">
+<meta property="og:title" content="3A 제어와 반응 속도 · CameraBook">
+<meta property="og:description" content="카메라를 피드백 제어 시스템으로 본다. 자동 노출·자동 초점·자동 화이트 밸런스 루프의 이득과 지연, 위상차와 콘트라스트 AF, 예측 초점, 피사체 인식, 셔터 랙과 EVF 지연의 시간 예산을 시뮬레이터로 배운다.">
+<meta property="og:url" content="https://system.euiyun.com/camera/chapters/control.html">
+<meta property="og:image" content="https://system.euiyun.com/camera/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="ko_KR">
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","headline":"3A 제어와 반응 속도","name":"3A 제어와 반응 속도 · CameraBook","url":"https://system.euiyun.com/camera/chapters/control.html","mainEntityOfPage":"https://system.euiyun.com/camera/chapters/control.html","inLanguage":"ko","isAccessibleForFree":true,"learningResourceType":"interactive textbook chapter","position":7,"image":"https://system.euiyun.com/camera/og.png","dateModified":"2026-11-07","isPartOf":{"@type":"Book","@id":"https://system.euiyun.com/camera/#book","name":"CameraBook — 인터랙티브 카메라 교과서","url":"https://system.euiyun.com/camera/"},"publisher":{"@type":"Organization","name":"CameraBook","url":"https://system.euiyun.com/camera/"},"description":"카메라를 피드백 제어 시스템으로 본다. 자동 노출·자동 초점·자동 화이트 밸런스 루프의 이득과 지연, 위상차와 콘트라스트 AF, 예측 초점, 피사체 인식, 셔터 랙과 EVF 지연의 시간 예산을 시뮬레이터로 배운다."},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"CameraBook","item":"https://system.euiyun.com/camera/"},{"@type":"ListItem","position":2,"name":"07 3A 제어와 반응 속도","item":"https://system.euiyun.com/camera/chapters/control.html"}]}]}</script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<link rel="stylesheet" href="../css/style.css">
+<script src="../js/common.js"></script>
+<style>
+  .legend i.dash { height: 0; border-top: 2px dashed currentColor; background: none; }
+  .lag-legend { display: grid; gap: 6px; padding: 10px 18px 12px; font-size: 13px; color: var(--text-dim); border-top: 1px solid var(--border); }
+  .lag-legend .row { display: flex; flex-wrap: wrap; gap: 4px 14px; align-items: center; }
+  .lag-legend .row > b { color: var(--text); font-weight: 700; margin-right: 4px; }
+  .lag-legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 5px; vertical-align: -1px; }
+  .seg.disabled { opacity: .45; pointer-events: none; }
+  .loop-table td:first-child { white-space: nowrap; font-weight: 700; }
+</style>
+<link rel="stylesheet" href="../../shared/css/book-shell.css">
+<script defer src="../../shared/js/book-shell.js" data-book="camera"></script>
+</head>
+<body data-chapter="control">
+<main class="chapter">
+  <header class="chapter-hero">
+    <div class="eyebrow">Chapter 07</div>
+    <h1>3A 제어와 반응 속도</h1>
+    <p class="lead">반셔터를 누르는 순간 카메라 안에서는 1초에 수십~수백 번 "재고, 판단하고, 움직이는" 일이 벌어집니다. 밝기를 맞추는 루프, 초점을 맞추는 루프, 색을 맞추는 루프가 동시에 돌고, 그 모든 일은 수십 밀리초라는 시간 예산 안에 끝나야 합니다. 이 장에서는 카메라를 하나의 <b>제어 시스템</b>으로 보고, 그 루프들이 어떻게 빠르면서도 흔들리지 않게 설계되는지 살펴봅니다.</p>
+    <ul class="objectives">
+      <li>측정 → 판단 → 구동으로 이어지는 피드백 루프와, 3A(AE·AF·AWB)가 무엇인지 안다.</li>
+      <li>루프의 이득·지연·스텝 제한이 '빠름'과 '안정'을 어떻게 맞바꾸는지 시뮬레이터로 확인한다.</li>
+      <li>콘트라스트 AF의 언덕 오르기와 위상차 AF의 한 번에 이동이 왜 속도가 다른지 이해한다.</li>
+      <li>움직이는 피사체에서 AF 지연이 초점 오차로 바뀌는 과정과 예측 AF의 역할을 계산해 본다.</li>
+      <li>셔터 랙, EVF 지연, 블랙아웃을 구성 요소별 시간 예산으로 나눠 본다.</li>
+    </ul>
+  </header>
+
+  <!-- =============================================================== 1 -->
+  <section id="system">
+    <h2>카메라는 제어 시스템이다</h2>
+    <p>자동차의 크루즈 컨트롤은 속도를 재고(측정), 목표 속도와 비교해(판단), 스로틀을 조절합니다(구동). 그리고 바뀐 속도를 다시 잽니다. 이렇게 결과가 다시 입력으로 돌아오는 구조를 <span class="term">피드백 루프</span><span class="en">(Feedback Loop)</span>라고 합니다. 디지털 카메라의 자동 기능도 정확히 같은 구조입니다. 다른 점은 센서가 곧 측정기라는 것입니다. 라이브 뷰 프레임 하나하나가 측정값이고, 루프는 그 프레임 속도에 맞춰 돕니다.</p>
+    <p>카메라 업계에서는 세 가지 핵심 루프를 묶어 <span class="term">3A</span>라고 부릅니다. <b>자동 노출</b><span class="en">(AE, Auto Exposure)</span>, <b>자동 초점</b><span class="en">(AF, Auto Focus)</span>, <b>자동 화이트 밸런스</b><span class="en">(AWB, Auto White Balance)</span>입니다. 셋 모두 영상 처리 엔진(<a href="engine.html">06장</a>) 안의 <span class="term">3A 통계</span><span class="en">(3A Statistics)</span> 블록이 프레임마다 뽑아 주는 요약 숫자(구역별 밝기, 초점 값, 색 비율)를 받아서 계산합니다. 수천만 화소를 CPU가 직접 훑지 않고, 하드웨어가 만든 수백~수천 개의 숫자만 보고 판단하는 것이 핵심입니다.</p>
+
+    <figure class="diagram">
+      <svg viewBox="0 0 720 300" role="img" aria-label="카메라 3A 피드백 루프 블록도">
+        <defs><marker id="ar1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--text-dim)"/></marker>
+        <marker id="ar1a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--accent)"/></marker></defs>
+        <rect x="10" y="30" width="110" height="60" rx="10" class="f-surface"/><text x="65" y="57" text-anchor="middle" class="t">장면</text><text x="65" y="76" text-anchor="middle" class="t-dim">빛·움직임</text>
+        <rect x="160" y="30" width="120" height="60" rx="10" class="f-elev"/><text x="220" y="57" text-anchor="middle" class="t">렌즈</text><text x="220" y="76" text-anchor="middle" class="t-dim">조리개·초점군</text>
+        <rect x="320" y="30" width="120" height="60" rx="10" class="f-elev"/><text x="380" y="57" text-anchor="middle" class="t">센서</text><text x="380" y="76" text-anchor="middle" class="t-dim">노출 시간·게인</text>
+        <rect x="480" y="30" width="230" height="60" rx="10" class="f-acc2-soft"/><text x="595" y="54" text-anchor="middle" class="t">ISP · 3A 통계</text><text x="595" y="74" text-anchor="middle" class="t-dim">밝기 격자 · 초점 값 · 색 비율</text>
+        <path d="M120 60 H156" class="s-line" marker-end="url(#ar1)"/><path d="M280 60 H316" class="s-line" marker-end="url(#ar1)"/><path d="M440 60 H476" class="s-line" marker-end="url(#ar1)"/>
+        <rect x="430" y="190" width="280" height="80" rx="10" class="f-acc-soft"/><text x="570" y="214" text-anchor="middle" class="t-acc">3A 알고리즘 (CPU·NPU)</text>
+        <text x="570" y="236" text-anchor="middle" class="t-dim">AE: 목표 밝기와 비교 · AF: 초점 방향·거리</text><text x="570" y="256" text-anchor="middle" class="t-dim">AWB: 광원 추정 · 피사체 인식</text>
+        <path d="M595 90 V186" class="s-line" marker-end="url(#ar1)"/><text x="602" y="142" class="t-mono">측정 (매 프레임)</text>
+        <rect x="40" y="190" width="300" height="80" rx="10" class="f-surface"/><text x="190" y="214" text-anchor="middle" class="t">구동부</text>
+        <text x="190" y="236" text-anchor="middle" class="t-dim">조리개 모터 · 초점 모터 · 셔터</text><text x="190" y="256" text-anchor="middle" class="t-dim">센서 노출·게인 레지스터 · WB 게인</text>
+        <path d="M430 230 H344" class="s-acc" marker-end="url(#ar1a)"/><text x="387" y="222" text-anchor="middle" class="t-mono">명령</text>
+        <path d="M200 190 V94" class="s-acc" marker-end="url(#ar1a)"/><path d="M300 190 C300 140 380 140 380 94" class="s-acc" marker-end="url(#ar1a)"/>
+        <text x="120" y="150" class="t-mono">초점·조리개</text><text x="345" y="140" class="t-mono">노출·게인</text>
+        <text x="360" y="20" text-anchor="middle" class="t-dim">한 바퀴 = 라이브 뷰 1프레임 (60 fps면 16.7 ms, 120 fps면 8.3 ms)</text>
+      </svg>
+      <figcaption><b>그림 7-1.</b> 3A 루프의 공통 구조. 센서 프레임이 곧 측정이고, 계산 결과는 렌즈와 센서로 돌아가 다음 프레임을 바꾼다. 화이트 밸런스는 ISP 안의 색 게인만 바꾸므로 기계 부품을 움직이지 않는다.</figcaption>
+    </figure>
+
+    <div class="table-wrap"><table class="loop-table">
+      <tr><th>루프</th><th>측정</th><th>판단</th><th>구동</th><th>대표 갱신 속도</th></tr>
+      <tr><td>AE</td><td>구역별 밝기 통계, 히스토그램</td><td>목표 밝기와의 차이(EV)</td><td>노출 시간·게인(즉시), 조리개(모터)</td><td>매 프레임, 30~120 Hz</td></tr>
+      <tr><td>AF</td><td>위상차 픽셀의 어긋남, 초점 값(대비)</td><td>초점 방향과 이동량, 예측</td><td>초점 렌즈군 모터</td><td>매 프레임, 60~120 Hz(전용 AF 센서는 별도)</td></tr>
+      <tr><td>AWB</td><td>구역별 R/G, B/G 비율</td><td>광원 색온도 추정</td><td>ISP의 R·B 게인</td><td>매 프레임 계산, 반영은 천천히(수백 ms)</td></tr>
+      <tr><td>손떨림 보정</td><td>자이로(각속도)</td><td>흔들림 각도 적분</td><td>보정 렌즈 또는 센서 이동</td><td>수 kHz (<a href="mechanism.html">04장</a>)</td></tr>
+    </table></div>
+
+    <p>모든 루프에는 같은 고민이 있습니다. <b>빨리 따라가려면</b> 한 번에 많이 고쳐야 하는데, 측정과 구동 사이에 <span class="term">루프 지연</span><span class="en">(Loop Latency)</span>이 있으면 많이 고칠수록 지나쳐 버립니다. 샤워기 온도를 맞출 때 물이 데워지는 데 몇 초가 걸리는데 손잡이를 크게 돌리면 뜨거웠다 차가웠다를 반복하는 것과 같습니다. 카메라 제어 설계의 대부분은 이 '빠름과 안정'의 균형을 잡는 일입니다.</p>
+    <div class="callout"><strong>왜 라이브 뷰 프레임 속도가 중요할까</strong>미러리스 카메라와 스마트폰에서는 측정이 센서 프레임으로 이루어지므로, 라이브 뷰가 60 fps에서 120 fps로 빨라지면 모든 루프가 두 배 자주 돌고 지연도 절반이 됩니다. 어두운 곳에서 AF가 느려지는 이유 중 하나는, 빛을 더 모으려고 라이브 뷰 프레임 속도를 낮추기 때문입니다.</div>
+  </section>
+
+  <!-- =============================================================== 2 -->
+  <section id="ae">
+    <h2>자동 노출 루프</h2>
+    <p>AE는 라이브 뷰 프레임을 수십~수백 개 구역으로 나눠 밝기를 재고, 측광 방식에 따라 가중 평균을 낸 뒤 <span class="term">목표 밝기</span><span class="en">(Target Luminance)</span>와 비교합니다. 목표는 흔히 "반사율 18% 회색이 중간 회색으로 나오는 밝기"이고, 하이라이트 보호나 얼굴 밝기 같은 규칙이 덧붙습니다. 측광 방식과 노출 보정을 사용자가 어떻게 고르는지는 <a href="modes.html">14장</a>에서 다룹니다. 여기서는 그 뒤의 제어 루프를 봅니다.</p>
+    <p>차이가 +1 EV로 나오면 노출을 1스톱 줄이면 되니, 간단해 보입니다. 문제는 <b>지연</b>입니다. 센서는 다음 프레임을 이미 노출하는 중이라, 프레임 N의 통계로 계산한 새 노출 시간·게인은 보통 프레임 N+2쯤에야 적용됩니다(센서 레지스터가 프레임 경계에서만 바뀌기 때문). 그 사이에 같은 오차를 또 측정하고 또 고치면, 이미 고친 만큼을 한 번 더 고치게 됩니다.</p>
+
+    <figure class="diagram">
+      <svg viewBox="0 0 720 190" role="img" aria-label="AE 명령이 두 프레임 뒤에 반영되는 파이프라인">
+        <defs><marker id="ar2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="var(--accent)"/></marker></defs>
+        <text x="10" y="22" class="t-dim">센서 프레임</text>
+        <g>
+          <rect x="100" y="34" width="96" height="40" rx="6" class="f-acc2-soft"/><text x="148" y="59" text-anchor="middle" class="t">N</text>
+          <rect x="200" y="34" width="96" height="40" rx="6" class="f-elev"/><text x="248" y="59" text-anchor="middle" class="t">N+1</text>
+          <rect x="300" y="34" width="96" height="40" rx="6" class="f-acc-soft"/><text x="348" y="59" text-anchor="middle" class="t">N+2</text>
+          <rect x="400" y="34" width="96" height="40" rx="6" class="f-elev"/><text x="448" y="59" text-anchor="middle" class="t">N+3</text>
+          <rect x="500" y="34" width="96" height="40" rx="6" class="f-elev"/><text x="548" y="59" text-anchor="middle" class="t">N+4</text>
+        </g>
+        <path d="M148 78 V110 H210" class="s-line"/><text x="214" y="114" class="t-dim">통계 계산 · AE 판단</text>
+        <path d="M336 110 H348 V82" class="s-acc" marker-end="url(#ar2)"/><text x="356" y="104" class="t-acc">새 노출 반영</text>
+        <path d="M100 140 H396" class="s-axis"/><path d="M100 134 v12 M196 134 v12 M296 134 v12 M396 134 v12" class="s-axis"/>
+        <text x="248" y="164" text-anchor="middle" class="t-mono">루프 지연 d ≈ 2프레임 (60 fps에서 약 33 ms)</text>
+        <text x="610" y="110" class="t-dim">이 동안 측정된</text><text x="610" y="128" class="t-dim">오차는 '이미 고친'</text><text x="610" y="146" class="t-dim">오차다</text>
+      </svg>
+      <figcaption><b>그림 7-2.</b> AE 명령은 바로 다음 프레임이 아니라 그다음 프레임쯤부터 반영된다. 이 지연이 있는 상태에서 이득을 크게 잡으면 노출이 출렁인다.</figcaption>
+    </figure>
+
+    <p>가장 단순한 AE 제어기는 "측정한 오차의 일정 비율 K만큼 고치되, 한 프레임에 s EV 이상은 바꾸지 않는다"입니다. 이를 식으로 쓰면 다음과 같습니다.</p>
+    <div class="formula">$$C_k = C_{k-1} + \operatorname{clip}\!\left(K\,e_k,\;\pm s\right),\qquad A_{k+d} = C_k,\qquad e_k = L_k - A_k$$
+      <div class="where">L: 장면 밝기 변화(EV), A: 실제 적용된 노출 보정, C: 내린 명령, K: 이득, s: 프레임당 최대 변화, d: 루프 지연(프레임). 지연이 2프레임이면 K &gt; 1에서 발산, K &gt; 0.25부터는 넘쳤다 돌아오는 진동이 생긴다.</div>
+    </div>
+
+    <div class="sim" id="sim-ae">
+      <div class="sim-head"><span class="sim-tag">SIMULATOR</span><h3>AE 루프: 그늘에서 햇빛으로 걸어 나갈 때</h3></div>
+      <div class="sim-body side">
+        <div class="sim-view"><canvas id="cv-ae"></canvas></div>
+        <div class="sim-controls">
+          <label class="ctrl"><span>이득 K <output id="ae-k-out"></output></span><input type="range" id="ae-k" min="0.05" max="1.5" step="0.05" value="0.3"></label>
+          <label class="ctrl"><span>프레임당 최대 변화 s <output id="ae-s-out"></output></span><input type="range" id="ae-s" min="0.1" max="3" step="0.1" value="1"></label>
+          <div class="ctrl"><span>루프 지연 d</span><div class="seg" id="ae-d"><button data-value="1">1프레임</button><button data-value="2" class="on">2프레임</button><button data-value="3">3프레임</button></div></div>
+          <div class="ctrl"><span>라이브 뷰</span><div class="seg" id="ae-fps"><button data-value="30">30 fps</button><button data-value="60" class="on">60 fps</button><button data-value="120">120 fps</button></div></div>
+          <div class="ctrl"><span>장면 변화</span><div class="seg" id="ae-step"><button data-value="3" class="on">그늘→햇빛 +3</button><button data-value="-3">실외→실내 −3</button><button data-value="6">터널 출구 +6</button></div></div>
+          <label class="check"><input type="checkbox" id="ae-db" checked> 불감대(±0.15 EV 안의 오차는 무시)</label>
+        </div>
+      </div>
+      <div class="legend"><span><i style="background:var(--accent)"></i>노출 오차 e (사진이 얼마나 밝거나 어두운가)</span><span><i style="background:var(--accent-2)"></i>적용된 노출 보정 A</span><span><i class="dash" style="color:var(--text-faint)"></i>장면 밝기 변화 L</span></div>
+      <div class="sim-readout">
+        <div class="stat"><span class="k">정착 시간(±⅓ EV)</span><span class="v" id="ae-o-settle">—</span></div>
+        <div class="stat"><span class="k">넘침(오버슈트)</span><span class="v" id="ae-o-over">—</span></div>
+        <div class="stat"><span class="k">진동 횟수</span><span class="v" id="ae-o-osc">—</span></div>
+        <div class="stat"><span class="k">정착 후 노출 변경</span><span class="v" id="ae-o-jit">—</span></div>
+      </div>
+      <div class="sim-note">모델: 위 식을 그대로 프레임 단위로 계산합니다. 측정에는 표준편차 0.04 EV의 잡음을 더했고(난수 고정), 조리개 모터의 이동 시간과 측광 방식의 차이는 무시했습니다. 실제 AE는 이득을 오차 크기에 따라 바꾸고 장면 판별 규칙을 더하지만, 이득·지연·제한의 관계는 같습니다. 해볼 것: ① 지연 2프레임에서 K를 0.25 → 0.6 → 1.1로 올려 보세요. 빨라지다가 출렁이고, 결국 멈추지 않습니다. ② K = 1.2에서 최대 변화 s를 0.3 EV로 줄이면 발산은 막히지만 진동은 남습니다. ③ 불감대를 끄면 정착 후에도 노출이 프레임마다 미세하게 바뀝니다. 동영상에서는 이것이 밝기 깜박임으로 보입니다.</div>
+    </div>
+
+    <div class="callout tip"><strong>AE가 '천천히' 반응하도록 만드는 이유</strong>사진 라이브 뷰에서는 빠른 AE가 좋지만, 동영상에서는 일부러 수백 ms~1초에 걸쳐 부드럽게 바꿉니다. 프레임 사이 밝기가 툭툭 바뀌면 눈에 거슬리기 때문입니다. 많은 카메라가 동영상 메뉴에 'AE 반응 속도'나 'AF 추적 감도' 같은 설정을 두는 것도 루프의 이득을 사용자에게 열어 준 것입니다.</div>
+    <div class="callout deep"><strong>깜박이는 조명과 AE</strong>교류 전원(50/60 Hz)의 형광등·LED는 초당 100/120번 밝기가 출렁입니다. 노출 시간이 이 주기보다 짧으면 프레임마다 밝기가 달라지고, 롤링 셔터에서는 화면에 줄무늬가 생깁니다. AE는 통계의 행 방향 패턴으로 깜박임을 감지하고, 노출 시간을 1/100·1/120초의 정수배로 고르거나(플리커 방지) 셔터 시점을 밝은 순간에 맞춥니다(<a href="video.html">22장</a>).</div>
+  </section>
+
+  <!-- =============================================================== 3 -->
+  <section id="af">
+    <h2>자동 초점 루프</h2>
+    <p>AF 루프의 목표는 렌즈 안의 <span class="term">초점 렌즈군</span><span class="en">(Focus Group)</span>을 피사체 거리에 맞는 위치로 옮기는 것입니다. 사용자 입장에서 AF-S/AF-C나 AF 영역을 고르는 법은 <a href="focus.html">16장</a>, 렌즈군을 실제로 움직이는 스테핑·리니어 모터는 <a href="mechanism.html">04장</a>에서 다룹니다. 여기서는 "어디로, 얼마나 움직일지를 아는 방법"이 루프 속도를 어떻게 결정하는지 봅니다.</p>
+
+    <figure class="diagram">
+      <svg viewBox="0 0 720 230" role="img" aria-label="콘트라스트 AF의 언덕 오르기와 위상차 AF의 직접 이동">
+        <defs><marker id="ar3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="var(--accent)"/></marker>
+        <marker id="ar3b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="var(--accent-2)"/></marker></defs>
+        <text x="175" y="20" text-anchor="middle" class="t-acc">콘트라스트 AF: 언덕 오르기</text>
+        <path d="M20 190 H340" class="s-axis"/><path d="M20 190 V40" class="s-axis"/>
+        <path d="M20 180 C120 178 170 150 200 70 C210 45 230 45 240 70 C270 150 300 178 340 180" class="s-line"/>
+        <g fill="var(--accent)"><circle cx="60" cy="179" r="5"/><circle cx="110" cy="174" r="5"/><circle cx="160" cy="150" r="5"/><circle cx="210" cy="52" r="5"/><circle cx="260" cy="125" r="5"/><circle cx="235" cy="58" r="5"/><circle cx="222" cy="47" r="5"/></g>
+        <g class="t-mono"><text x="55" y="168">1</text><text x="105" y="163">2</text><text x="150" y="140">3</text><text x="196" y="44">4</text><text x="266" y="122">5</text><text x="243" y="54">6</text><text x="214" y="36">7</text></g>
+        <text x="282" y="106" class="t-dim">지나쳐 봐야</text><text x="282" y="122" class="t-dim">꼭대기를 안다</text>
+        <text x="180" y="212" text-anchor="middle" class="t-dim">렌즈 위치 →  (점 하나 = 프레임 하나)</text>
+        <text x="535" y="20" text-anchor="middle" class="t-acc">위상차 AF: 한 번에 이동</text>
+        <rect x="400" y="40" width="300" height="56" rx="8" class="f-surface"/>
+        <path d="M430 80 C450 50 470 50 490 80" stroke="var(--accent)" stroke-width="2" fill="none"/><path d="M470 80 C490 50 510 50 530 80" stroke="var(--accent-2)" stroke-width="2" fill="none"/>
+        <text x="560" y="62" class="t-dim">왼쪽·오른쪽 동공으로</text><text x="560" y="80" class="t-dim">본 두 상의 어긋남</text>
+        <path d="M460 104 H500" stroke="var(--text-dim)" stroke-width="1.5"/><text x="480" y="120" text-anchor="middle" class="t-mono">어긋남 = 방향 + 거리</text>
+        <path d="M410 180 H700" class="s-axis"/><circle cx="430" cy="180" r="6" fill="var(--accent-2)"/><circle cx="640" cy="180" r="6" fill="var(--accent-2)"/>
+        <path d="M436 170 C500 140 580 140 634 170" stroke="var(--accent-2)" stroke-width="2" fill="none" marker-end="url(#ar3b)"/>
+        <text x="430" y="204" text-anchor="middle" class="t-mono">1 측정</text><text x="640" y="204" text-anchor="middle" class="t-mono">2 확인</text>
+      </svg>
+      <figcaption><b>그림 7-3.</b> 콘트라스트 AF는 대비가 최대인 곳을 모르기 때문에 한 걸음씩 재 보며 올라가고, 꼭대기를 지나쳐 대비가 떨어지는 것을 본 뒤에야 되돌아온다. 위상차 AF는 한 프레임으로 방향과 거리를 알아내 곧장 이동하고 확인만 한다.</figcaption>
+    </figure>
+
+    <p><span class="term">콘트라스트 AF</span>는 영상의 선명도(고주파 성분의 크기)를 <span class="term">초점 값</span><span class="en">(Focus Value)</span>으로 계산합니다. 초점 값 하나로는 "지금 얼마나 흐린지"만 알 뿐 "앞인지 뒤인지"를 모릅니다. 그래서 렌즈를 조금 움직이고 다음 프레임에서 값이 오르는지 봐야 하고, 꼭대기를 확인하려면 반드시 한 번 지나쳐야 합니다. 이 왕복이 사용자에게는 초점이 '울렁'하는 <span class="term">헌팅</span>으로 보입니다. 대신 실제 영상의 선명도를 직접 보므로 결과는 정확합니다.</p>
+    <p><span class="term">위상차 AF</span>는 렌즈의 왼쪽 절반과 오른쪽 절반을 지난 빛이 만든 두 상의 어긋남을 잽니다. 어긋남의 부호가 방향, 크기가 거리이므로 한 프레임만으로 "초점 링을 이만큼 돌려라"를 계산할 수 있습니다. 다만 어긋남→이동량 변환 계수는 렌즈·조리개·화면 위치마다 다르고 보정 오차가 남으므로, 마지막에 한 번 더 재서 확인합니다. 둘을 섞은 <span class="term">하이브리드 AF</span>는 위상차로 근처까지 뛴 다음 대비로 미세 조정하거나, 위상차 신호가 약한 어두운 곳에서 대비로 넘어갑니다. 센서 안의 위상차 픽셀 구조는 <a href="https://semi.euiyun.com/sensor/chapters/advanced.html">SensorBook</a>에 자세합니다.</p>
+
+    <div class="sim" id="sim-af">
+      <div class="sim-head"><span class="sim-tag">SIMULATOR</span><h3>AF 경주: 콘트라스트 vs 위상차 vs 하이브리드</h3></div>
+      <div class="sim-body side">
+        <div class="sim-view"><canvas id="cv-af"></canvas></div>
+        <div class="sim-controls">
+          <label class="ctrl"><span>시작 렌즈 위치 <output id="af-start-out"></output></span><input type="range" id="af-start" min="0" max="1" step="0.01" value="0.15"></label>
+          <label class="ctrl"><span>합초 위치(피사체 거리) <output id="af-x-out"></output></span><input type="range" id="af-x" min="0.05" max="0.95" step="0.01" value="0.72"></label>
+          <div class="ctrl"><span>라이브 뷰</span><div class="seg" id="af-fps"><button data-value="30">30 fps</button><button data-value="60" class="on">60 fps</button><button data-value="120">120 fps</button></div></div>
+          <div class="ctrl"><span>밝기(측정 잡음)</span><div class="seg" id="af-noise"><button data-value="0.008" class="on">밝음</button><button data-value="0.035">실내</button><button data-value="0.09">아주 어두움</button></div></div>
+          <div class="ctrl"><span>측정점을 표시할 방식</span><div class="seg" id="af-show"><button data-value="cd" class="on">콘트라스트</button><button data-value="pd">위상차</button><button data-value="hy">하이브리드</button></div></div>
+          <button class="btn primary" id="af-run">다시 경주 (새 잡음)</button>
+        </div>
+      </div>
+      <div class="legend"><span><i style="background:var(--warn)"></i>콘트라스트 AF</span><span><i style="background:var(--accent-2)"></i>위상차 AF</span><span><i style="background:var(--accent)"></i>하이브리드</span><span><i class="dash" style="color:var(--text-faint)"></i>합초 위치 ± 허용 오차</span></div>
+      <div class="sim-readout">
+        <div class="stat"><span class="k">콘트라스트</span><span class="v" id="af-o-cd">—</span></div>
+        <div class="stat"><span class="k">위상차</span><span class="v" id="af-o-pd">—</span></div>
+        <div class="stat"><span class="k">하이브리드</span><span class="v" id="af-o-hy">—</span></div>
+        <div class="stat"><span class="k">선택 방식 최종 오차</span><span class="v" id="af-o-err">—</span></div>
+      </div>
+      <div class="sim-note">모델: 렌즈 위치는 초점 링 전체 범위를 0~1로 둔 값이고, 허용 오차는 ±0.01(초점 심도 안)로 가정했습니다. 초점 값은 좁은 봉우리(폭 0.045)와 넓은 언덕(폭 0.33)을 더한 곡선에 측정 잡음을 얹었습니다. 측정 1회는 프레임 1장(16.7 ms @60 fps)을 쓰고, 렌즈는 전체 범위를 80 ms에 움직이며, 이동 중에는 재지 않는다고 단순화했습니다. 콘트라스트 AF는 '오르면 계속, 잡음보다 확실히(2.5σ) 내려가면 반대로 절반 보폭'으로 오른 뒤 가장 높았던 위치로 돌아갑니다. 위상차 AF는 측정마다 6%의 환산 계수 오차, 0.004의 계통 오차, 밝기에 비례한 잡음이 있습니다. 하이브리드는 위상차로 뛰고 확인한 뒤, 그 위치와 ±0.025에서 잰 대비 세 점의 포물선 꼭짓점으로 갑니다(계통 오차 제거). 해볼 것: ① '아주 어두움'에서 여러 번 경주시켜 콘트라스트 AF가 엉뚱한 곳에서 멈추는 경우를 보세요. ② 30 fps와 120 fps의 시간 차이를 비교해 보세요. ③ 시작 위치를 합초 위치 근처로 두면 세 방식의 차이가 줄어듭니다.</div>
+    </div>
+
+    <h3>움직이는 피사체: 예측 AF</h3>
+    <p>AF-C(연속 AF)에서는 루프가 끝없이 돕니다. 그런데 측정한 순간부터 렌즈가 그 위치에 도착하기까지 <b>루프 지연</b>(측정 프레임 + 계산 + 모터 이동, 대략 수십~100 ms)이 있습니다. 그동안 다가오는 피사체는 계속 가까워지므로, 지연 L 동안의 이동 거리 v·L만큼 초점이 뒤에 맺힙니다. 시속 40 km(11 m/s)로 달려오는 자전거라면 60 ms 동안 0.67 m입니다.</p>
+    <p>이 오차가 허용되는지는 <span class="term">피사계 심도</span>에 달려 있고, 심도는 거리의 제곱에 비례해 얕아집니다. 그래서 멀리서는 잘 따라가던 AF가 피사체가 가까워지는 순간 갑자기 놓칩니다. 해결책은 <span class="term">예측 AF</span><span class="en">(Predictive AF)</span>입니다. 최근 몇 번의 측정으로 속도를 추정해 "렌즈가 도착할 때 피사체가 있을 거리"로 미리 보냅니다.</p>
+    <div class="formula">$$H = \frac{f^2}{N c} + f,\qquad D_\text{near} = \frac{H s}{H + (s - f)},\qquad D_\text{far} = \frac{H s}{H - (s - f)}$$
+      <div class="where">f: 초점거리, N: F값, c: 허용 착란원(풀프레임 0.03 mm), s: 초점 거리, H: 과초점 거리. 피사체 거리가 D<sub>near</sub>~D<sub>far</sub> 안에 있으면 초점이 맞은 것으로 본다. 심도는 대략 2Ncs²/f²로 거리의 제곱에 비례한다.</div>
+    </div>
+
+    <div class="sim" id="sim-track">
+      <div class="sim-head"><span class="sim-tag">SIMULATOR</span><h3>다가오는 피사체 추적: 지연과 예측</h3></div>
+      <div class="sim-body side">
+        <div class="sim-view"><canvas id="cv-track"></canvas></div>
+        <div class="sim-controls">
+          <label class="ctrl"><span>피사체 속도 <output id="tr-v-out"></output></span><input type="range" id="tr-v" min="2" max="40" step="1" value="12"></label>
+          <label class="ctrl"><span>초점거리 <output id="tr-f-out"></output></span><input type="range" id="tr-f"></label>
+          <label class="ctrl"><span>조리개 <output id="tr-n-out"></output></span><input type="range" id="tr-n"></label>
+          <label class="ctrl"><span>AF 루프 지연 L <output id="tr-lat-out"></output></span><input type="range" id="tr-lat" min="10" max="200" step="5" value="60"></label>
+          <div class="ctrl"><span>AF 갱신 속도</span><div class="seg" id="tr-rate"><button data-value="30">30 Hz</button><button data-value="60" class="on">60 Hz</button><button data-value="120">120 Hz</button></div></div>
+          <label class="check"><input type="checkbox" id="tr-pred"> 예측 AF 켜기</label>
+        </div>
+      </div>
+      <div class="legend"><span><i style="background:var(--accent)"></i>초점 오차 |피사체 − 초점 거리|</span><span><i style="background:var(--accent-2)"></i>앞쪽 심도(초점 거리 − D<sub>near</sub>)</span><span><i class="dash" style="color:var(--text-faint)"></i>뒤쪽 심도</span></div>
+      <div class="sim-readout">
+        <div class="stat"><span class="k">초점 맞은 시간 비율</span><span class="v" id="tr-o-in">—</span></div>
+        <div class="stat"><span class="k">처음 놓친 거리</span><span class="v" id="tr-o-fail">—</span></div>
+        <div class="stat"><span class="k">지연 동안 이동 v·L</span><span class="v" id="tr-o-vl">—</span></div>
+        <div class="stat"><span class="k">10 m에서 전체 심도</span><span class="v" id="tr-o-dof">—</span></div>
+      </div>
+      <div class="sim-note">모델: 피사체는 60 m에서 5 m까지 일정한 속도로 곧장 다가옵니다. AF는 갱신 주기마다 거리를 재고(오차 표준편차 0.3%), 그 결과가 L 뒤에 렌즈에 반영되어 다음 반영까지 유지됩니다. 예측을 켜면 최근 8회 측정의 직선 회귀로 속도를 구해, 렌즈가 머무는 구간의 가운데 시점(측정 시각 + L + 갱신 주기/2)의 거리로 보냅니다. 심도는 위 식(c = 0.03 mm)으로 계산했습니다. 등속이 아닌 실제 피사체(가속, 방향 전환)에서는 예측 오차가 더 큽니다. 해볼 것: ① 400 mm f/4, 12 m/s에서 예측 없이 어느 거리부터 놓치는지 보세요. ② 지연 L을 반으로 줄이는 것과 예측을 켜는 것을 비교해 보세요. ③ 예측을 켠 채 거리가 아주 가까워지면 측정 잡음만으로도 심도를 벗어나기 시작합니다.</div>
+    </div>
+  </section>
+
+  <!-- =============================================================== 4 -->
+  <section id="tracking">
+    <h2>피사체 인식과 추적</h2>
+    <p>예전 AF는 "어느 점에 맞출지"를 사용자가 정하거나, 가장 가까운 물체를 고르는 단순한 규칙을 썼습니다. 지금의 카메라는 매 프레임 <span class="term">피사체 검출</span><span class="en">(Subject Detection)</span> 신경망을 돌려 사람의 몸·머리·눈, 동물, 새, 자동차·오토바이·기차·비행기 같은 대상을 찾고, 그 위치를 AF 루프의 목표로 넘깁니다. 이 일은 처리 엔진 안의 <span class="term">NPU</span><span class="en">(Neural Processing Unit)</span>가 맡습니다.</p>
+
+    <figure class="diagram">
+      <svg viewBox="0 0 720 210" role="img" aria-label="피사체 검출과 추적의 처리 단계">
+        <defs><marker id="ar4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="var(--text-dim)"/></marker></defs>
+        <rect x="10" y="40" width="120" height="90" rx="8" class="f-surface"/>
+        <circle cx="70" cy="70" r="14" fill="none" stroke="var(--text-dim)" stroke-width="1.5"/><path d="M50 125 C52 98 88 98 90 125" fill="none" stroke="var(--text-dim)" stroke-width="1.5"/>
+        <rect x="52" y="52" width="36" height="36" fill="none" stroke="var(--accent-2)" stroke-width="1.5"/><rect x="61" y="64" width="9" height="6" fill="none" stroke="var(--accent)" stroke-width="1.5"/>
+        <text x="70" y="150" text-anchor="middle" class="t-dim">축소 라이브 뷰</text><text x="70" y="166" text-anchor="middle" class="t-mono">수백 px 폭</text>
+        <path d="M134 85 H164" class="s-line" marker-end="url(#ar4)"/>
+        <rect x="168" y="50" width="120" height="70" rx="8" class="f-acc-soft"/><text x="228" y="80" text-anchor="middle" class="t">NPU 검출</text><text x="228" y="100" text-anchor="middle" class="t-mono">5~20 ms</text>
+        <text x="228" y="150" text-anchor="middle" class="t-dim">몸 → 머리 → 눈</text><text x="228" y="166" text-anchor="middle" class="t-dim">상자 + 종류 + 확신도</text>
+        <path d="M292 85 H322" class="s-line" marker-end="url(#ar4)"/>
+        <rect x="326" y="50" width="120" height="70" rx="8" class="f-acc2-soft"/><text x="386" y="80" text-anchor="middle" class="t">추적기</text><text x="386" y="100" text-anchor="middle" class="t-mono">프레임 간 연결</text>
+        <text x="386" y="150" text-anchor="middle" class="t-dim">같은 피사체에 ID 유지</text><text x="386" y="166" text-anchor="middle" class="t-dim">위치·속도 예측</text>
+        <path d="M450 85 H480" class="s-line" marker-end="url(#ar4)"/>
+        <rect x="484" y="50" width="100" height="70" rx="8" class="f-elev"/><text x="534" y="80" text-anchor="middle" class="t">AF 영역</text><text x="534" y="100" text-anchor="middle" class="t-mono">선택</text>
+        <path d="M588 85 H618" class="s-line" marker-end="url(#ar4)"/>
+        <rect x="622" y="50" width="90" height="70" rx="8" class="f-elev"/><text x="667" y="80" text-anchor="middle" class="t">초점 루프</text><text x="667" y="100" text-anchor="middle" class="t-mono">위상차·예측</text>
+        <text x="360" y="22" text-anchor="middle" class="t-dim">이 모든 단계가 AF 루프 지연에 더해진다</text>
+        <path d="M168 190 H712" class="s-axis"/><text x="440" y="206" text-anchor="middle" class="t-mono">검출 + 추적 + 선택 ≈ 1~2프레임</text>
+      </svg>
+      <figcaption><b>그림 7-4.</b> 피사체 인식의 흐름. 신경망은 전체 해상도가 아닌 축소 영상에서 돌고, 작은 눈은 먼저 찾은 머리 영역을 확대해 다시 찾는 식으로 단계적으로 검출한다.</figcaption>
+    </figure>
+
+    <p>검출만으로는 부족합니다. 프레임마다 찾은 상자들을 "같은 피사체"로 이어 주는 <span class="term">추적기</span><span class="en">(Tracker)</span>가 있어야, 사람이 잠깐 기둥 뒤로 지나가거나 고개를 돌려 눈이 안 보일 때도 초점이 다른 사람으로 튀지 않습니다. 추적기는 위치·크기·움직임 방향과 생김새 특징을 함께 써서 상자를 짝짓고, 잠시 사라진 피사체는 예상 위치를 몇 프레임 동안 유지합니다. 사용자 설정의 '추적 민감도'나 '전환 속도'는 바로 이 유지 시간과 전환 기준을 바꾸는 손잡이입니다.</p>
+    <div class="cards">
+      <div><b>계층 검출</b>몸 전체 → 머리 → 눈 순서로 범위를 좁힌다. 멀리 있어 눈이 몇 픽셀에 불과할 때는 머리나 몸에 맞추고, 가까워지면 눈으로 넘어간다.</div>
+      <div><b>지연의 비용</b>검출에 한 프레임이 걸리면 AF는 '한 프레임 전의 피사체 위치'를 본다. 빠르게 가로지르는 피사체에서는 AF 영역이 뒤처지므로 추적기의 위치 예측이 이를 메운다.</div>
+      <div><b>전력과 열</b>NPU를 매 프레임 돌리는 일은 배터리와 발열에 영향을 준다(<a href="body.html">08장</a>). 일부 카메라는 반셔터 중에만 고속으로 검출한다.</div>
+    </div>
+    <div class="callout warn"><strong>인식이 틀리는 경우</strong>신경망은 학습한 대상만 압니다. 무늬가 얼굴처럼 보이는 배경, 헬멧과 고글로 가려진 눈, 철망 뒤의 동물 같은 경우에 엉뚱한 곳을 잡거나 놓칩니다. 이럴 때는 대상 종류를 직접 지정하거나 AF 영역을 좁히는 것이 루프에 올바른 목표를 주는 방법입니다.</div>
+  </section>
+
+  <!-- =============================================================== 5 -->
+  <section id="awb">
+    <h2>자동 화이트 밸런스</h2>
+    <p>AWB의 질문은 "이 장면을 비추는 빛은 무슨 색인가"입니다. 광원 색을 알면 R·G·B 채널에 반대 비율의 게인을 곱해 흰 물체를 흰색으로 돌려놓을 수 있습니다. 문제는 센서가 보는 색이 <b>물체 색 × 광원 색</b>이라서, 붉은 벽인지 붉은 조명인지 혼자서는 구별할 수 없다는 것입니다. 그래서 AWB는 가정을 세웁니다.</p>
+    <ul>
+      <li><b>회색 세계 가정</b><span class="en">(Gray World)</span>: 장면 전체를 평균하면 회색일 것이다. 평균 색이 기운 만큼이 광원 색이다.</li>
+      <li><b>가장 밝은 곳은 흰색</b><span class="en">(White Patch)</span>: 하이라이트는 광원 색을 그대로 반사한다.</li>
+      <li><b>광원 궤적 제약</b>: 자연광과 백열등은 흑체 복사 곡선(색온도) 근처에 있으므로, 추정값을 그 곡선 근처로 끌어당긴다. 형광등·LED처럼 초록·자주 쪽으로 벗어난 광원은 별도 후보로 둔다.</li>
+      <li><b>학습 기반 추정</b>: 요즘 엔진은 구역별 색 통계, 밝기(실내외 판단), 얼굴 피부색 같은 단서를 함께 넣어 신경망이나 통계 모델로 광원을 추정한다.</li>
+    </ul>
+
+    <figure class="diagram">
+      <svg viewBox="0 0 720 240" role="img" aria-label="색 비율 평면에서 광원 추정">
+        <path d="M60 210 H420" class="s-axis"/><path d="M60 210 V20" class="s-axis"/>
+        <text x="240" y="234" text-anchor="middle" class="t-dim">R/G (붉은 정도) →</text><text x="20" y="115" class="t-dim" transform="rotate(-90 20 115)" text-anchor="middle">B/G (푸른 정도) →</text>
+        <path d="M380 190 C300 150 200 90 100 40" stroke="var(--warn)" stroke-width="3" fill="none" opacity=".75"/>
+        <text x="384" y="186" class="t-mono">2700 K</text><text x="102" y="34" class="t-mono">8000 K</text>
+        <g fill="var(--text-faint)"><circle cx="150" cy="120" r="3"/><circle cx="190" cy="80" r="3"/><circle cx="260" cy="150" r="3"/><circle cx="300" cy="120" r="3"/><circle cx="220" cy="170" r="3"/><circle cx="330" cy="95" r="3"/><circle cx="170" cy="150" r="3"/><circle cx="240" cy="70" r="3"/><circle cx="280" cy="180" r="3"/><circle cx="210" cy="125" r="3"/></g>
+        <circle cx="237" cy="126" r="7" fill="var(--accent)"/><text x="250" y="140" class="t-acc">평균(회색 세계)</text>
+        <path d="M237 126 L222 104" stroke="var(--accent)" stroke-width="1.5" stroke-dasharray="3 3"/><circle cx="222" cy="104" r="6" fill="none" stroke="var(--accent)" stroke-width="2"/>
+        <text x="118" y="96" class="t-dim">궤적에 투영</text>
+        <rect x="450" y="40" width="260" height="150" rx="10" class="f-surface"/>
+        <text x="580" y="68" text-anchor="middle" class="t">추정 결과 → WB 게인</text>
+        <text x="470" y="98" class="t-mono">광원 ≈ 4400 K</text>
+        <text x="470" y="122" class="t-mono">R 게인 × 1.9</text><text x="470" y="144" class="t-mono">G 게인 × 1.0</text><text x="470" y="166" class="t-mono">B 게인 × 1.6</text>
+      </svg>
+      <figcaption><b>그림 7-5.</b> 구역별 색 비율(회색 점)의 평균으로 광원을 추정하고, 실제로 있을 법한 광원 곡선 근처로 끌어당긴 다음, 그 반대 비율을 WB 게인으로 쓴다. 게인 숫자는 설명용 예시다.</figcaption>
+    </figure>
+
+    <p>AWB 루프도 계산은 매 프레임 하지만 반영은 일부러 느리게 합니다. 사람이 빨간 옷을 입고 화면에 들어올 때마다 전체 색이 파랗게 휙 바뀌면 곤란하기 때문입니다. 보통 수백 ms 이상의 시간 상수로 부드럽게 따라가고, 추정의 확신도가 낮을 때는 이전 값을 유지합니다. 사용자 쪽의 프리셋·켈빈 지정·혼합광 대처는 <a href="color.html">18장</a>에서 다룹니다.</p>
+  </section>
+
+  <!-- =============================================================== 6 -->
+  <section id="timing">
+    <h2>시간 예산: 반셔터에서 기록까지</h2>
+    <p>셔터 버튼을 끝까지 눌렀을 때부터 실제로 노출이 시작되기까지의 시간을 <span class="term">셔터 랙</span><span class="en">(Shutter Lag)</span>이라고 합니다. 반셔터로 초점을 미리 맞춰 둔 경우 일반적인 렌즈 교환식 카메라는 수십 ms 정도이고, 초점부터 잡아야 하면 AF 획득 시간(대략 0.1~0.3초)이 더해집니다. 셔터 랙은 여러 단계의 합입니다.</p>
+    <ol>
+      <li><b>스위치 감지</b>: 버튼 접점의 떨림을 걸러 내는 디바운스, 수 ms.</li>
+      <li><b>AF 획득</b>: 반셔터로 미리 맞추지 않았다면 이 장의 AF 루프 전체가 들어온다.</li>
+      <li><b>조리개 조이기</b>: 라이브 뷰 동안 밝게 보려고 열어 둔 조리개를 촬영 F값으로 닫는다. 10~40 ms.</li>
+      <li><b>미러 올리기</b>(DSLR): 반사 거울을 치우는 데 수십 ms. 조리개 조이기와 동시에 진행된다.</li>
+      <li><b>셔터 준비</b>: 미러리스는 라이브 뷰 동안 셔터가 열려 있으므로, 기계식 선막을 쓰려면 먼저 닫았다 다시 열어야 한다. 전자 선막이나 전자 셔터는 센서 리셋만으로 시작해 이 시간이 거의 없다(<a href="mechanism.html">04장</a>).</li>
+      <li><b>노출과 판독</b>: 노출 자체, 그리고 센서에서 데이터를 읽어 오는 판독 시간(<a href="sensor.html">05장</a>). 기록은 버퍼에 쌓인 뒤 이어진다(<a href="engine.html">06장</a>).</li>
+    </ol>
+    <p>뷰파인더 쪽에도 시간이 있습니다. 광학 뷰파인더는 빛을 그대로 보므로 지연이 사실상 0이지만, <span class="term">EVF</span>는 노출 → 판독 → 영상 처리 → 화면 갱신 대기 → 화면 스캔을 거친 영상을 보여 줍니다. 이 <span class="term">EVF 지연</span><span class="en">(Display Latency)</span>만큼 사용자는 '과거'를 보고 셔터를 누르게 됩니다. 연사 중 화면이 꺼지는 <span class="term">블랙아웃</span><span class="en">(Blackout)</span>도 같은 시간 예산의 일부입니다.</p>
+
+    <figure class="diagram">
+      <svg viewBox="0 0 720 150" role="img" aria-label="EVF 지연 사슬">
+        <defs><marker id="ar6" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="var(--text-dim)"/></marker></defs>
+        <g>
+          <rect x="10" y="30" width="100" height="56" rx="8" class="f-surface"/><text x="60" y="56" text-anchor="middle" class="t">노출</text><text x="60" y="74" text-anchor="middle" class="t-mono">1~8 ms</text>
+          <path d="M112 58 H128" class="s-line" marker-end="url(#ar6)"/>
+          <rect x="130" y="30" width="110" height="56" rx="8" class="f-surface"/><text x="185" y="56" text-anchor="middle" class="t">센서 판독</text><text x="185" y="74" text-anchor="middle" class="t-mono">4~20 ms</text>
+          <path d="M242 58 H258" class="s-line" marker-end="url(#ar6)"/>
+          <rect x="260" y="30" width="110" height="56" rx="8" class="f-acc-soft"/><text x="315" y="56" text-anchor="middle" class="t">ISP 처리</text><text x="315" y="74" text-anchor="middle" class="t-mono">5~30 ms</text>
+          <path d="M372 58 H388" class="s-line" marker-end="url(#ar6)"/>
+          <rect x="390" y="30" width="140" height="56" rx="8" class="f-surface"/><text x="460" y="56" text-anchor="middle" class="t">화면 갱신 대기</text><text x="460" y="74" text-anchor="middle" class="t-mono">평균 ½ 주기</text>
+          <path d="M532 58 H548" class="s-line" marker-end="url(#ar6)"/>
+          <rect x="550" y="30" width="160" height="56" rx="8" class="f-acc2-soft"/><text x="630" y="56" text-anchor="middle" class="t">화면 스캔·발광</text><text x="630" y="74" text-anchor="middle" class="t-mono">평균 ½ 주기 + 1 ms</text>
+        </g>
+        <text x="360" y="120" text-anchor="middle" class="t-dim">60 Hz 화면의 한 주기는 16.7 ms, 120 Hz는 8.3 ms. 갱신 속도를 높이면 마지막 두 단계가 함께 줄어든다.</text>
+      </svg>
+      <figcaption><b>그림 7-6.</b> EVF 지연 사슬. 각 단계의 숫자는 일반적인 범위다. 실제 카메라는 판독이 끝나기 전에 처리를 시작하는 식으로 단계를 겹쳐 지연을 줄인다.</figcaption>
+    </figure>
+
+    <div class="sim" id="sim-lag">
+      <div class="sim-head"><span class="sim-tag">SIMULATOR</span><h3>시간 예산: 셔터 랙과 EVF 지연</h3></div>
+      <div class="sim-body side">
+        <div class="sim-view"><canvas id="cv-lag"></canvas></div>
+        <div class="sim-controls">
+          <div class="ctrl"><span>카메라 종류(프리셋)</span><div class="seg" id="lag-preset"><button data-value="dslr">DSLR</button><button data-value="ml" class="on">미러리스</button><button data-value="phone">스마트폰</button></div></div>
+          <div class="ctrl"><span>셔터 방식(미러리스)</span><div class="seg" id="lag-shut"><button data-value="mech">기계식</button><button data-value="efcs" class="on">전자 선막</button><button data-value="elec">전자</button></div></div>
+          <div class="ctrl"><span>화면 갱신</span><div class="seg" id="lag-hz"><button data-value="60">60 Hz</button><button data-value="120" class="on">120 Hz</button></div></div>
+          <label class="ctrl"><span>센서 판독 시간 <output id="lag-ro-out"></output></span><input type="range" id="lag-ro" min="2" max="40" step="1" value="10"></label>
+          <label class="ctrl"><span>표시 처리 시간 <output id="lag-isp-out"></output></span><input type="range" id="lag-isp" min="2" max="60" step="1" value="12"></label>
+          <label class="check"><input type="checkbox" id="lag-pre" checked> 반셔터로 초점을 미리 맞춤</label>
+        </div>
+      </div>
+      <div class="lag-legend" id="lag-legend"></div>
+      <div class="sim-readout">
+        <div class="stat"><span class="k">셔터 랙</span><span class="v" id="lag-o-lag">—</span></div>
+        <div class="stat"><span class="k">화면 지연</span><span class="v" id="lag-o-evf">—</span></div>
+        <div class="stat"><span class="k">블랙아웃(1컷)</span><span class="v" id="lag-o-black">—</span></div>
+        <div class="stat"><span class="k">시속 100 km 차의 이동</span><span class="v" id="lag-o-move">—</span></div>
+      </div>
+      <div class="sim-note">모델: 각 단계의 기본값은 공개된 측정과 설계 자료에서 흔히 보이는 범위의 중간값이며 특정 제품의 값이 아닙니다. 노출은 1/500초(2 ms)로 고정했습니다. EVF 지연 = 노출의 절반 + 판독 + 처리 + 화면 갱신 대기(평균 반 주기) + 화면 스캔(평균 반 주기) + 패널 응답 1 ms이고, 스마트폰은 운영체제 화면 합성 버퍼 1주기를 더했습니다. 실제 기기는 단계들을 겹쳐 처리하므로 이보다 짧을 수 있습니다. 블랙아웃은 DSLR = 미러 업 + 노출 + 미러 복귀, 미러리스 = 셔터 준비 + 노출 + 판독 + 화면 1주기로 근사했고, 전자 셔터에서 판독이 8 ms 이하면 라이브 뷰와 촬영을 함께 처리하는 '블랙아웃 프리'로 봅니다. '차의 이동'은 (화면 지연 + 셔터 랙) 동안 27.8 m/s로 간 거리, 즉 화면에서 본 위치와 사진 속 위치의 차이입니다. 스마트폰의 <span class="term">제로 셔터 랙</span>은 미리 찍어 둔 프레임 중 누른 순간의 것을 골라 랙을 사실상 없앱니다. 해볼 것: ① 미러리스에서 셔터 방식을 기계식 → 전자로 바꿔 보세요. ② 초점 미리 맞춤을 끄면 랙이 몇 배가 되는지 보세요. ③ 60 Hz와 120 Hz의 화면 지연 차이를 확인하세요.</div>
+    </div>
+
+    <div class="callout tip"><strong>반셔터를 쓰는 진짜 이유</strong>위 시뮬레이터에서 보듯 셔터 랙의 가장 큰 덩어리는 AF 획득입니다. 결정적 순간을 기다릴 때 반셔터(또는 AF-ON 버튼)로 초점과 노출을 미리 잡아 두면 루프가 이미 수렴한 상태라, 끝까지 눌렀을 때 남는 시간은 수십 ms뿐입니다. 연사·프리 캡처로 이 시간을 더 메우는 방법은 <a href="stabilization.html">20장</a>에 있습니다.</div>
+  </section>
+
+  <!-- =============================================================== 7 -->
+  <section id="power">
+    <h2>전원 켜기와 깨어나기</h2>
+    <p>전원 스위치를 켠 뒤 첫 장을 찍을 수 있을 때까지의 <span class="term">기동 시간</span><span class="en">(Start-up Time)</span>도 반응 속도의 일부입니다. 기계식 부품이 대부분인 DSLR은 광학 뷰파인더가 처음부터 보이므로 0.1~0.2초면 준비되지만, 미러리스와 스마트폰은 전자 장치 전체가 깨어나야 화면이 켜집니다.</p>
+
+    <figure class="diagram">
+      <svg viewBox="0 0 720 200" role="img" aria-label="미러리스 카메라의 기동 순서">
+        <path d="M20 150 H700" class="s-axis"/>
+        <g class="t-mono"><text x="20" y="170">0</text><text x="190" y="170">0.2 s</text><text x="360" y="170">0.4 s</text><text x="530" y="170">0.6 s</text><text x="690" y="170" text-anchor="end">0.8 s</text></g>
+        <rect x="20" y="30" width="200" height="26" rx="5" class="f-surface"/><text x="28" y="48" class="t">부트로더 · 펌웨어 적재</text>
+        <rect x="150" y="64" width="210" height="26" rx="5" class="f-acc2-soft"/><text x="158" y="82" class="t">센서 설정 · 렌즈 통신</text>
+        <rect x="300" y="98" width="170" height="26" rx="5" class="f-elev"/><text x="308" y="116" class="t">셔터 열기 · 렌즈 초기화</text>
+        <rect x="470" y="30" width="60" height="26" rx="5" class="f-acc-soft"/><text x="500" y="48" text-anchor="middle" class="t">첫 프레임</text>
+        <rect x="530" y="64" width="160" height="26" rx="5" class="f-acc-soft"/><text x="538" y="82" class="t">AE·AWB 수렴(수 프레임)</text>
+        <path d="M530 22 V150" stroke="var(--accent)" stroke-width="1.5" stroke-dasharray="4 4"/><text x="536" y="140" class="t-acc">화면 켜짐</text>
+        <text x="360" y="194" text-anchor="middle" class="t-dim">막대 길이는 설명용이며, 실제 기동 시간은 기종에 따라 약 0.3~1.5초</text>
+      </svg>
+      <figcaption><b>그림 7-7.</b> 미러리스 카메라의 기동 순서(개념도). 몇 단계는 겹쳐 진행되고, 화면이 켜진 뒤에도 노출과 색이 자리 잡는 데 몇 프레임이 더 걸린다.</figcaption>
+    </figure>
+
+    <p>그래서 카메라는 '완전히 끄기'와 '잠들기'를 구분합니다. <span class="term">절전 모드</span><span class="en">(Sleep)</span>에서는 센서·화면·처리 엔진의 전원을 대부분 끄되 메모리의 상태는 유지해, 반셔터를 누르면 부팅 과정 없이 수백 ms 안에 라이브 뷰로 돌아옵니다. 화면 대신 눈 센서(아이 센서)가 뷰파인더에 눈이 닿는 것을 감지해 EVF를 켜고 뒷화면을 끄는 것도 같은 '빨리 깨어나되 아껴 쓰기' 전략입니다. 이 결정들이 배터리 수명과 어떻게 맞물리는지는 <a href="body.html">08장</a>에서 이어집니다.</p>
+    <div class="callout"><strong>스마트폰 카메라 앱이 빨리 켜지는 이유</strong>스마트폰은 운영체제가 이미 깨어 있고, 카메라 모듈은 작아서 기계식 셔터도 조리개 구동도 없습니다. 대신 센서 설정, 3A 수렴, 미리 찍어 두는 프레임 버퍼 준비가 필요합니다. 폰 카메라 모듈의 구조는 <a href="../../phone/chapters/camera.html">PhoneBook</a>, 사용법은 <a href="smartphone.html">23장</a>을 보세요.</div>
+  </section>
+
+  <section class="keypoints" id="summary">
+    <h2>핵심 정리</h2>
+    <ol>
+      <li>카메라의 자동 기능은 측정 → 판단 → 구동의 피드백 루프다. AE·AF·AWB를 3A라고 하며, 라이브 뷰 프레임이 곧 측정이므로 루프 속도는 프레임 속도를 따른다.</li>
+      <li>루프 지연이 있으면 이득을 키울수록 빨라지다가 출렁이고 결국 발산한다. 스텝 제한과 불감대는 안정성과 깜박임을 잡는 장치다.</li>
+      <li>콘트라스트 AF는 방향을 몰라 꼭대기를 지나쳐 봐야 하므로 여러 프레임이 걸린다. 위상차 AF는 한 프레임으로 방향과 거리를 알아 곧장 이동하고 확인한다.</li>
+      <li>움직이는 피사체에서 AF 지연은 v·L만큼의 초점 오차가 된다. 심도는 거리의 제곱으로 얕아지므로 가까울수록 위험하고, 예측 AF가 이를 메운다.</li>
+      <li>피사체 인식은 NPU의 검출과 프레임 간 추적기로 이루어지며, 그 처리 시간도 AF 루프 지연의 일부다.</li>
+      <li>셔터 랙은 스위치·AF·조리개·미러·셔터 준비의 합이고, EVF 지연은 판독·처리·화면 갱신의 합이다. 반셔터로 미리 수렴시키면 랙의 대부분이 사라진다.</li>
+    </ol>
+  </section>
+
+  <section class="quiz-sec" id="quiz">
+    <h2>확인 퀴즈</h2>
+    <div class="quiz">
+      <div class="quiz-q"><p>AE 명령이 2프레임 뒤에 반영되는 카메라에서 이득 K를 크게 올렸더니 밝기가 출렁였다. 가장 알맞은 설명은?</p><div class="opts">
+        <button class="opt">측광 방식이 잘못 선택되어서</button>
+        <button class="opt" data-correct>반영되기 전의 오차를 다시 측정해 이미 고친 만큼을 또 고치기 때문에</button>
+        <button class="opt">센서의 다이내믹 레인지가 부족해서</button>
+      </div><div class="quiz-exp">지연 동안 측정한 오차에는 이미 내린 명령이 반영되어 있지 않다. 이득이 크면 같은 오차를 두 번 고쳐 지나치고, 반대로 또 지나치며 진동한다.</div></div>
+      <div class="quiz-q"><p>콘트라스트 AF가 위상차 AF보다 느린 근본적인 이유는?</p><div class="opts">
+        <button class="opt">렌즈 모터가 다른 종류여서</button>
+        <button class="opt">초점 값을 계산하는 데 시간이 오래 걸려서</button>
+        <button class="opt" data-correct>초점 값 하나로는 방향과 거리를 몰라 여러 프레임을 재며 꼭대기를 지나쳐 봐야 해서</button>
+      </div><div class="quiz-exp">대비는 '얼마나 흐린가'만 알려 준다. 위상차는 어긋남의 부호와 크기로 방향과 이동량을 한 번에 준다.</div></div>
+      <div class="quiz-q"><p>시속 36 km(10 m/s)로 다가오는 피사체를 AF 루프 지연 50 ms로 추적한다. 예측이 없을 때 초점은 대략 얼마나 뒤에 맺히나?</p><div class="opts">
+        <button class="opt">5 cm</button>
+        <button class="opt" data-correct>50 cm</button>
+        <button class="opt">5 m</button>
+      </div><div class="quiz-exp">v·L = 10 m/s × 0.05 s = 0.5 m. 이 값이 그 거리의 심도보다 크면 초점이 빗나간다.</div></div>
+      <div class="quiz-q"><p>같은 렌즈·조리개에서 피사체 거리가 20 m에서 5 m로 가까워지면 피사계 심도는 대략?</p><div class="opts">
+        <button class="opt">1/4로 얕아진다</button>
+        <button class="opt" data-correct>1/16로 얕아진다</button>
+        <button class="opt">변하지 않는다</button>
+      </div><div class="quiz-exp">과초점 거리보다 충분히 가까울 때 심도 ≈ 2Ncs²/f²로 거리의 제곱에 비례한다. 거리가 1/4이면 심도는 1/16.</div></div>
+      <div class="quiz-q"><p>미러리스 카메라에서 기계식 셔터 대신 전자 선막을 쓰면 셔터 랙이 줄어드는 이유는?</p><div class="opts">
+        <button class="opt" data-correct>라이브 뷰 중 열려 있던 셔터를 닫았다 다시 여는 과정 없이 센서 리셋으로 노출을 시작하기 때문에</button>
+        <button class="opt">노출 시간이 짧아지기 때문에</button>
+        <button class="opt">AF가 더 빨라지기 때문에</button>
+      </div><div class="quiz-exp">미러리스는 라이브 뷰를 위해 셔터가 열려 있다. 기계식 선막을 쓰려면 먼저 닫고 재장전해야 하지만, 전자 선막은 행별 리셋으로 노출을 시작한다.</div></div>
+      <div class="quiz-q"><p>EVF 화면 갱신을 60 Hz에서 120 Hz로 올렸을 때 줄어드는 지연 요소는?</p><div class="opts">
+        <button class="opt">센서 판독 시간</button>
+        <button class="opt" data-correct>화면 갱신 대기와 화면 스캔 시간</button>
+        <button class="opt">AF 획득 시간</button>
+      </div><div class="quiz-exp">갱신 주기가 16.7 ms에서 8.3 ms로 줄면 평균 대기(½ 주기)와 스캔(½ 주기)이 합쳐서 약 8 ms 줄어든다.</div></div>
+    </div>
+  </section>
+</main>
+
+<script>
+/* 공통: 시드 고정 정규분포 난수 */
+function gaussFrom(r) { return function () { let u = r(); if (u < 1e-12) u = 1e-12; return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * r()); }; }
+
+/* ---------------------------------------------------------------- 1. AE 루프 */
+(function () {
+  const upd = CB.throttle(() => cv.redraw());
+  const K = CB.range("ae-k", (v) => v.toFixed(2), upd);
+  const S = CB.range("ae-s", (v) => v.toFixed(1) + " EV", upd);
+  const D = CB.seg("ae-d", upd);
+  const FPS = CB.seg("ae-fps", upd);
+  const STEP = CB.seg("ae-step", upd);
+  const DB = CB.check("ae-db", upd);
+  const F = 90, K0 = 10, BAND = 1 / 3;
+  function sim() {
+    const k = K(), s = S(), d = +D(), step = +STEP(), db = DB() ? 0.15 : 0;
+    const g = gaussFrom(CB.rng(7));
+    const L = [], E = [], Ap = [], A = new Array(F + 4).fill(0);
+    let C = 0;
+    for (let i = 0; i < F; i++) {
+      L[i] = i >= K0 ? step : 0;
+      const e = L[i] - A[i];
+      E.push(e); Ap.push(A[i]);
+      const m = e + 0.04 * g();
+      if (Math.abs(m) > db) {
+        C += CB.clamp(k * m, -s, s);
+        if (Math.abs(C) > 50) C = Math.sign(C) * 50;
+        for (let j = i + d; j < A.length; j++) A[j] = C;
+      }
+    }
+    return { L, E, A: Ap, step };
+  }
+  const stairs = (arr) => { const o = []; arr.forEach((v, i) => { o.push([i, v], [i + 1, v]); }); return o; };
+  const cv = CB.canvas("#cv-ae", (ctx, w, h) => {
+    const P = CB.palette();
+    const R = sim(), fps = +FPS();
+    const ymax = Math.abs(R.step) + 2;
+    const box = { x: 46, y: 14, w: w - 46 - 14, h: h - 14 - 46 };
+    const Yv = (v) => box.y + box.h - ((v + ymax) / (2 * ymax)) * box.h;
+    ctx.fillStyle = CB.color("accent-2-soft");
+    ctx.fillRect(box.x, Yv(BAND), box.w, Yv(-BAND) - Yv(BAND));
+    const clip = (v) => CB.clamp(v, -ymax * 1.2, ymax * 1.2);
+    CB.chart(ctx, box, {
+      x: [0, F], y: [-ymax, ymax], xLabel: `프레임 (1프레임 = ${(1000 / fps).toFixed(1)} ms)`, yLabel: "EV",
+      yFmt: (v) => (v > 0 ? "+" : "") + v,
+      series: [
+        { data: stairs(R.L), color: P.faint, width: 1.5, dash: [5, 4] },
+        { data: stairs(R.A.map(clip)), color: P.accent2, width: 2 },
+        { data: stairs(R.E.map(clip)), color: P.accent, width: 2.5 },
+      ],
+      vlines: [{ x: K0, color: P.dim, label: "장면 변화" }],
+      hlines: [{ y: 0, color: P.axis, dash: [] }],
+    });
+    // 지표
+    let idx = K0;
+    for (let i = F - 1; i >= K0; i--) if (Math.abs(R.E[i]) > BAND) { idx = i + 1; break; }
+    const diverge = Math.abs(R.E[F - 1]) > 2 * Math.abs(R.step);
+    if (idx >= F - 8) CB.stat("ae-o-settle", diverge ? "발산" : "<small>정착 안 됨</small>");
+    else { const n = idx - K0; CB.stat("ae-o-settle", n + "<small>프레임</small> " + Math.round((n * 1000) / fps) + "<small>ms</small>"); }
+    const sg = Math.sign(R.step);
+    let os = 0; for (let i = K0; i < F; i++) os = Math.max(os, -sg * R.E[i]);
+    CB.stat("ae-o-over", os < 0.05 ? "없음" : (os > 9.9 ? "&gt;10" : os.toFixed(2)) + "<small>EV</small>");
+    let crosses = 0, last = 0;
+    for (let i = K0; i < F; i++) { const e = R.E[i]; if (Math.abs(e) > BAND) { const sn = Math.sign(e); if (last && sn !== last) crosses++; last = sn; } }
+    CB.stat("ae-o-osc", crosses + "<small>회</small>");
+    if (idx >= F - 8) CB.stat("ae-o-jit", "—");
+    else { let ch = 0; for (let i = Math.max(idx, F - 40) + 1; i < F; i++) if (Math.abs(R.A[i] - R.A[i - 1]) > 1e-9) ch++; const tot = F - 1 - Math.max(idx, F - 40); CB.stat("ae-o-jit", ch + "<small>/" + tot + " 프레임</small>"); }
+  }, { aspect: 0.62, minHeight: 280, maxHeight: 420 });
+})();
+
+/* ---------------------------------------------------------------- 2. AF 경주 */
+(function () {
+  const TFULL = 80, TOL = 0.01, BIAS = 0.004;
+  const contrast = (p, x) => { const d = p - x; return 0.72 * Math.exp(-((d / 0.045) ** 2)) + 0.22 * Math.exp(-((d / 0.33) ** 2)) + 0.03; };
+  const startR = CB.range("af-start", (v) => v.toFixed(2), () => run());
+  const xR = CB.range("af-x", (v) => v.toFixed(2), () => run());
+  const FPS = CB.seg("af-fps", () => run());
+  const NOISE = CB.seg("af-noise", () => run());
+  const SHOW = CB.seg("af-show", () => { done = false; });
+  let seed = 11, R = null, play = 0, total = 1, done = false;
+
+  function runner(x, start, Tf, sigma, sd) {
+    const g = gaussFrom(CB.rng(sd));
+    const S = { t: 0, p: start, tr: [[0, start]], smp: [], frames: 0 };
+    S.measure = () => {
+      S.t = Math.ceil(S.t / Tf - 1e-9) * Tf; S.tr.push([S.t, S.p]);
+      S.t += Tf; S.frames++; S.tr.push([S.t, S.p]);
+      const c = contrast(S.p, x) + sigma * g();
+      S.smp.push({ p: S.p, c, t: S.t }); return c;
+    };
+    S.move = (to) => { to = CB.clamp(to, 0, 1); S.t += Math.abs(to - S.p) * TFULL; S.p = to; S.tr.push([S.t, S.p]); };
+    S.phase = () => { S.measure(); return (x - S.p) * (1 + 0.06 * g()) + BIAS + (0.0015 + sigma * 0.06) * g(); };
+    return S;
+  }
+  function cdaf(x, start, Tf, sigma, sd) {
+    const S = runner(x, start, Tf, sigma, sd);
+    let c = S.measure(), prev = c, best = { p: S.p, c }, dir = S.p < 0.5 ? 1 : -1, step = 0.1, guard = 0;
+    while (step > 0.006 && S.frames < 45 && guard++ < 200) {
+      let nx = S.p + dir * step;
+      if (nx < 0 || nx > 1) { dir = -dir; nx = S.p + dir * step; if (nx < 0 || nx > 1) break; }
+      S.move(nx); c = S.measure();
+      if (c > best.c) best = { p: S.p, c };
+      if (c < prev - 2.5 * sigma) { dir = -dir; step /= 2; } // 잡음보다 확실히 떨어졌을 때만 '지나쳤다'고 판단
+      prev = c;
+    }
+    S.move(best.p); S.measure();
+    return S;
+  }
+  function pdaf(x, start, Tf, sigma, sd) {
+    const S = runner(x, start, Tf, sigma, sd);
+    let d = S.phase();
+    for (let it = 0; it < 4; it++) { S.move(S.p + d); d = S.phase(); if (Math.abs(d) < TOL * 0.7) break; }
+    return S;
+  }
+  function hybrid(x, start, Tf, sigma, sd) {
+    const S = runner(x, start, Tf, sigma, sd);
+    let d = S.phase(), c0;
+    S.move(S.p + d);
+    for (let it = 0; it < 3; it++) { d = S.phase(); c0 = S.smp[S.smp.length - 1].c; if (Math.abs(d) < TOL * 0.7 || it === 2) break; S.move(S.p + d); }
+    const dl = 0.025, c0p = S.p; // 위상차 확인 프레임의 대비 값을 c0로 재사용
+    S.move(c0p + dl); const c1 = S.measure(); S.move(c0p - dl); const c2 = S.measure();
+    const den = c1 + c2 - 2 * c0;
+    let target;
+    if (den < 0) target = c0p + CB.clamp((dl * (c2 - c1)) / (2 * den), -dl, dl);
+    else target = [[c0, c0p], [c1, c0p + dl], [c2, c0p - dl]].sort((a, b) => b[0] - a[0])[0][1];
+    S.move(target); S.measure();
+    return S;
+  }
+  function run(newSeed) {
+    if (newSeed) seed += 17;
+    const x = xR(), st = startR(), Tf = 1000 / +FPS(), sg = +NOISE();
+    R = { x, cd: cdaf(x, st, Tf, sg, seed), pd: pdaf(x, st, Tf, sg, seed + 1), hy: hybrid(x, st, Tf, sg, seed + 2) };
+    total = Math.max(R.cd.t, R.pd.t, R.hy.t);
+    play = 0; done = false;
+    const fmt = (S) => { const miss = Math.abs(S.p - x) > TOL; return S.frames + "<small>프레임</small> " + Math.round(S.t) + "<small>ms" + (miss ? " 빗나감" : "") + "</small>"; };
+    CB.stat("af-o-cd", fmt(R.cd)); CB.stat("af-o-pd", fmt(R.pd)); CB.stat("af-o-hy", fmt(R.hy));
+  }
+  document.getElementById("af-run").addEventListener("click", () => run(true));
+  function cut(tr, tau) {
+    const o = [];
+    for (let i = 0; i < tr.length; i++) {
+      const [t, p] = tr[i];
+      if (t <= tau) { o.push([t, p]); continue; }
+      const [t0, p0] = tr[i - 1] || [0, p];
+      o.push([tau, t > t0 ? p0 + ((p - p0) * (tau - t0)) / (t - t0) : p]); break;
+    }
+    return o;
+  }
+  const posAt = (tr, tau) => { const c = cut(tr, tau); return c.length ? c[c.length - 1][1] : tr[0][1]; };
+  const cv = CB.canvas("#cv-af", (ctx, w, h) => {
+    if (!R) return;
+    const P = CB.palette();
+    const col = { cd: P.warn, pd: P.accent2, hy: P.accent };
+    const tau = Math.min(play, total);
+    const gap = 50, top = 14, bh = (h - top - gap - 46) / 2;
+    const b1 = { x: 46, y: top, w: w - 46 - 14, h: bh }, b2 = { x: 46, y: top + bh + gap, w: w - 46 - 14, h: bh };
+    // 위: 초점 값 곡선과 선택 방식의 측정점
+    const curve = []; for (let i = 0; i <= 200; i++) curve.push([i / 200, contrast(i / 200, R.x)]);
+    const sel = SHOW(), S = R[sel];
+    const pts = S.smp.filter((s) => s.t <= tau + 1e-6).map((s, i, a) => ({ x: s.p, y: CB.clamp(s.c, 0, 1.12), color: col[sel], r: 4, label: a.length <= 12 ? String(i + 1) : "" }));
+    CB.chart(ctx, b1, {
+      x: [0, 1], y: [0, 1.15], xLabel: "렌즈 위치 (초점 링 범위)", yTicks: [0, 0.5, 1], yFmt: (v) => v,
+      series: [{ data: curve, color: P.faint, width: 1.5 }],
+      vlines: ["cd", "pd", "hy"].map((k) => ({ x: posAt(R[k].tr, tau), color: col[k], dash: [], width: k === sel ? 2 : 1 })),
+      points: pts,
+    });
+    ctx.save(); ctx.fillStyle = P.dim; ctx.font = "12px " + CB.color("font"); ctx.translate(14, b1.y + b1.h / 2); ctx.rotate(-Math.PI / 2); ctx.textAlign = "center"; ctx.fillText("초점 값", 0, 0); ctx.restore();
+    // 아래: 시간에 따른 렌즈 위치
+    CB.chart(ctx, b2, {
+      x: [0, total * 1.03], y: [0, 1], xLabel: "시간 (ms)", yTicks: [0, 0.5, 1], yFmt: (v) => v,
+      series: ["cd", "pd", "hy"].map((k) => ({ data: cut(R[k].tr, tau), color: col[k], width: k === sel ? 2.6 : 1.8 })),
+      hlines: [{ y: R.x, color: P.faint }, { y: R.x + TOL, color: P.faint, dash: [2, 3], width: 0.8 }, { y: R.x - TOL, color: P.faint, dash: [2, 3], width: 0.8 }],
+    });
+    ctx.save(); ctx.fillStyle = P.dim; ctx.font = "12px " + CB.color("font"); ctx.translate(14, b2.y + b2.h / 2); ctx.rotate(-Math.PI / 2); ctx.textAlign = "center"; ctx.fillText("렌즈 위치", 0, 0); ctx.restore();
+    const err = Math.abs(S.p - R.x);
+    CB.stat("af-o-err", tau >= S.t ? (err / TOL).toFixed(2) + "<small>× 허용치" + (err > TOL ? " (빗나감)" : "") + "</small>" : "<small>진행 중…</small>");
+  }, { aspect: (w) => (w < 500 ? 1.15 : 0.78), minHeight: 400, maxHeight: 560 });
+  run();
+  CB.loop(document.getElementById("cv-af"), (dt) => {
+    if (done) return;
+    play += dt * 1000 * (total / 3200);
+    if (play > total + total * 0.05) { play = total; done = true; }
+    cv.redraw();
+  });
+})();
+
+/* ---------------------------------------------------------------- 3. 예측 AF */
+(function () {
+  const upd = CB.throttle(() => cv.redraw());
+  const V = CB.range("tr-v", (v) => v + " m/s (" + Math.round(v * 3.6) + " km/h)", upd);
+  const Fm = CB.steps("tr-f", [50, 85, 135, 200, 300, 400, 600], (v) => v + " mm", 400, upd);
+  const Nn = CB.steps("tr-n", [1.4, 2, 2.8, 4, 5.6, 8, 11], CB.fmtN, 4, upd);
+  const LAT = CB.range("tr-lat", (v) => v + " ms", upd);
+  const RATE = CB.seg("tr-rate", upd);
+  const PRED = CB.check("tr-pred", upd);
+  const D0 = 60, D1 = 5, COC = 0.03e-3;
+  const dofLim = (s, f, N) => {
+    const H = (f * f) / (N * COC) + f;
+    const near = (H * s) / (H + (s - f));
+    const far = H - (s - f) > 0 ? (H * s) / (H - (s - f)) : Infinity;
+    return [near, far];
+  };
+  const cv = CB.canvas("#cv-track", (ctx, w, h) => {
+    const P = CB.palette();
+    const v = V(), f = Fm() / 1000, N = Nn(), L = LAT() / 1000, Tu = 1 / +RATE(), pred = PRED();
+    const Tend = (D0 - D1) / v;
+    const s = (t) => D0 - v * t;
+    const g = gaussFrom(CB.rng(23));
+    const nU = Math.floor(Tend / Tu) + 1, tgt = new Array(nU), meas = [];
+    for (let k = 0; k < nU; k++) {
+      const tk = k * Tu, m = s(tk) * (1 + 0.003 * g());
+      meas.push([tk, m]);
+      let target = m;
+      if (pred && meas.length >= 2) {
+        const pts = meas.slice(-8), n = pts.length;
+        const mt = pts.reduce((a, p) => a + p[0], 0) / n, mm = pts.reduce((a, p) => a + p[1], 0) / n;
+        let num = 0, den = 0; pts.forEach(([t, y]) => { num += (t - mt) * (y - mm); den += (t - mt) * (t - mt); });
+        const slope = den > 0 ? num / den : 0;
+        target = mm + slope * (tk + L + Tu / 2 - mt);
+      }
+      tgt[k] = Math.max(0.5, target);
+    }
+    const focusAt = (t) => { const k = Math.floor((t - L) / Tu); return k < 0 ? D0 : tgt[Math.min(k, nU - 1)]; };
+    const M = 900, eS = [], nS = [], fS = [], okA = [];
+    let inN = 0, failD = null;
+    for (let i = 0; i <= M; i++) {
+      const t = (Tend * i) / M, sv = s(t), sf = focusAt(t);
+      const [dn, df] = dofLim(sf, f, N);
+      const ok = sv >= dn && sv <= df;
+      okA.push(ok);
+      if (ok) inN++; else if (failD === null) failD = sv;
+      eS.push([t, Math.max(1e-3, Math.abs(sv - sf))]);
+      nS.push([t, Math.max(1e-3, sf - dn)]);
+      fS.push([t, isFinite(df) ? Math.max(1e-3, Math.min(1e3, df - sf)) : 1e3]);
+    }
+    const box = { x: 54, y: 14, w: w - 54 - 14, h: h - 14 - 46 };
+    // 초점이 빗나간 구간 음영
+    const bands = [];
+    let b0 = null;
+    for (let i = 0; i <= M; i++) {
+      const bad = !okA[i];
+      if (bad && b0 === null) b0 = eS[i][0];
+      if ((!bad || i === M) && b0 !== null) { bands.push({ x0: b0, x1: eS[i][0], color: "color-mix(in srgb, " + P.bad + " 14%, transparent)" }); b0 = null; }
+    }
+    const ch = CB.chart(ctx, box, {
+      x: [0, Tend], y: [1e-3, 1e3], logY: true, xLabel: "시간 (초) · 위쪽 숫자는 그때의 피사체 거리", yLabel: "거리 오차",
+      yFmt: (y) => (y >= 1 ? y + " m" : Math.round(y * 100 * 10) / 10 + " cm"), xFmt: (x) => (Math.round(x * 10) / 10) + "",
+      bands,
+      series: [
+        { data: fS, color: P.faint, width: 1.5, dash: [5, 4] },
+        { data: nS, color: P.accent2, width: 2 },
+        { data: eS, color: P.accent, width: 2 },
+      ],
+    });
+    // 위쪽 거리 눈금
+    ctx.save(); ctx.fillStyle = P.dim; ctx.font = "11px " + CB.color("mono"); ctx.textAlign = "center"; ctx.textBaseline = "top";
+    [50, 30, 20, 10, 5].forEach((d) => { if (d > D0 || d < D1) return; const x = ch.X((D0 - d) / v); ctx.fillText(d + "m", Math.min(x, box.x + box.w - 10), box.y + 2); });
+    ctx.restore();
+    CB.stat("tr-o-in", Math.round((inN / (M + 1)) * 100) + "<small>%</small>");
+    CB.stat("tr-o-fail", failD === null ? "<small>끝까지 맞음</small>" : failD.toFixed(1) + "<small>m</small>");
+    const vl = v * L; CB.stat("tr-o-vl", vl >= 1 ? vl.toFixed(2) + "<small>m</small>" : Math.round(vl * 100) + "<small>cm</small>");
+    const [dn10, df10] = dofLim(10, f, N);
+    const tot = df10 - dn10;
+    CB.stat("tr-o-dof", !isFinite(tot) ? "∞" : tot >= 1 ? tot.toFixed(2) + "<small>m</small>" : (tot * 100).toFixed(1) + "<small>cm</small>");
+  }, { aspect: 0.62, minHeight: 300, maxHeight: 440 });
+})();
+
+/* ---------------------------------------------------------------- 4. 시간 예산 */
+(function () {
+  const PRE = { dslr: { ro: 20, isp: 12, hz: "60", shut: "mech" }, ml: { ro: 10, isp: 12, hz: "120", shut: "efcs" }, phone: { ro: 16, isp: 30, hz: "120", shut: "elec" } };
+  const upd = CB.throttle(() => cv.redraw());
+  const shutEl = document.getElementById("lag-shut");
+  const SHUT = CB.seg("lag-shut", upd);
+  const HZ = CB.seg("lag-hz", upd);
+  const RO = CB.range("lag-ro", (v) => v + " ms", upd);
+  const ISP = CB.range("lag-isp", (v) => v + " ms", upd);
+  const PREF = CB.check("lag-pre", upd);
+  const PS = CB.seg("lag-preset", (v) => {
+    const p = PRE[v];
+    RO.set(p.ro, false); ISP.set(p.isp, false); HZ.set(p.hz, false); SHUT.set(p.shut, false);
+    shutEl.classList.toggle("disabled", v !== "ml");
+    upd();
+  });
+  shutEl.classList.toggle("disabled", PS() !== "ml");
+  const EXP = 2;
+  function model() {
+    const cam = PS(), sh = cam === "dslr" ? "mech" : cam === "phone" ? "elec" : SHUT(), ro = RO(), isp = ISP(), per = 1000 / +HZ(), pre = PREF();
+    const lag = [], cap = [], evf = [];
+    let black;
+    if (cam === "dslr") {
+      lag.push(["스위치 감지", 2]);
+      if (!pre) lag.push(["AF 획득(전용 AF 센서)", 120]);
+      lag.push(["미러 업 + 조리개 조임(동시)", 40], ["선막 출발", 5]);
+      cap.push(["노출", EXP], ["판독(노출 후)", ro]);
+      black = 40 + EXP + 45;
+    } else if (cam === "ml") {
+      lag.push(["스위치 감지", 2]);
+      if (!pre) lag.push(["AF 획득(온센서 위상차)", 90]);
+      lag.push(["조리개 조임", 12]);
+      const prep = sh === "mech" ? ["셔터 닫기·재장전", 30] : sh === "efcs" ? ["전자 선막 리셋", 6] : ["센서 리셋", 1];
+      lag.push(prep);
+      cap.push(["노출", EXP], ["판독", ro]);
+      black = sh === "elec" && ro <= 8 ? 0 : prep[1] + EXP + ro + per;
+    } else {
+      lag.push(["터치 인식", 15]);
+      if (!pre) lag.push(["AF(연속 AF로 이미 진행 중)", 0]);
+      lag.push(["ZSL: 버퍼의 프레임 선택", 0]);
+      cap.push(["다중 프레임 합성(백그라운드)", 0]);
+      black = 0;
+    }
+    if (cam !== "dslr") {
+      evf.push(["노출(절반)", EXP / 2 + 1], ["센서 판독", ro], ["표시 처리", isp], ["갱신 대기(평균)", per / 2], ["화면 스캔(평균)", per / 2]);
+      if (cam === "phone") evf.push(["화면 합성 버퍼", per]);
+      evf.push(["패널 응답", 1]);
+    }
+    const sum = (a) => a.reduce((s, x) => s + x[1], 0);
+    return { cam, lag, cap, evf, black, L: sum(lag), C: sum(cap), E: sum(evf) };
+  }
+  const cv = CB.canvas("#cv-lag", (ctx, w, h) => {
+    const P = CB.palette(), M = model();
+    const cols = [P.accent, P.accent2, P.warn, P.ok, P.blue, P.bad, P.dim];
+    const xmax = Math.max(80, M.L + M.C, M.E, M.black) * 1.1;
+    const x0 = 12, x1 = w - 14, X = (ms) => x0 + ((x1 - x0) * ms) / xmax;
+    const font = CB.color("font"), mono = CB.color("mono");
+    ctx.font = "13px " + font; ctx.textBaseline = "alphabetic";
+    // 눈금
+    const step = xmax > 300 ? 50 : xmax > 150 ? 25 : 10;
+    ctx.strokeStyle = P.grid; ctx.fillStyle = P.faint; ctx.font = "11px " + mono; ctx.textAlign = "center";
+    for (let t = 0; t <= xmax; t += step) { const x = X(t); ctx.beginPath(); ctx.moveTo(x, 20); ctx.lineTo(x, h - 26); ctx.stroke(); ctx.fillText(t + "", x, h - 10); }
+    ctx.textAlign = "right"; ctx.fillText("ms", x1, h - 10);
+    function row(y, label, segs, offset, startIdx, faded) {
+      let t = offset;
+      segs.forEach((s, i) => {
+        const xa = X(t), xb = X(t + s[1]);
+        ctx.globalAlpha = faded ? 0.45 : 1;
+        ctx.fillStyle = cols[(startIdx + i) % cols.length];
+        ctx.fillRect(xa, y, Math.max(xb - xa, s[1] > 0 ? 1.5 : 0), 26);
+        ctx.globalAlpha = 1;
+        if (xb - xa > 30) { ctx.fillStyle = "#fff"; ctx.font = "600 11px " + mono; ctx.textAlign = "center"; ctx.fillText(Math.round(s[1]), (xa + xb) / 2, y + 17); }
+        t += s[1];
+      });
+      return t;
+    }
+    const yA = 34, yB = 108;
+    ctx.fillStyle = P.text; ctx.font = "600 13px " + font; ctx.textAlign = "left";
+    ctx.fillText("① 셔터 끝까지 누름 → 노출 시작(셔터 랙) → 판독", x0, yA - 8);
+    const tl = row(yA, "", M.lag, 0, 0, false);
+    row(yA, "", M.cap, tl, M.lag.length, true);
+    ctx.strokeStyle = P.text; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(X(tl), yA - 4); ctx.lineTo(X(tl), yA + 34); ctx.stroke();
+    ctx.fillStyle = P.text; ctx.font = "600 12px " + mono; ctx.textAlign = X(tl) > w * 0.7 ? "right" : "left";
+    ctx.fillText("랙 " + Math.round(M.L) + " ms", X(tl) + (X(tl) > w * 0.7 ? -4 : 4), yA + 46);
+    ctx.fillStyle = P.text; ctx.font = "600 13px " + font; ctx.textAlign = "left";
+    ctx.fillText("② 현실의 순간 → 뷰파인더에 보이기까지", x0, yB - 8);
+    if (M.cam === "dslr") {
+      ctx.fillStyle = P.accent2; ctx.fillRect(X(0), yB, 3, 26);
+      ctx.fillStyle = P.dim; ctx.font = "13px " + font; ctx.fillText("광학 뷰파인더: 빛이 그대로 눈에 닿아 지연 ≈ 0", x0 + 10, yB + 18);
+    } else row(yB, "", M.evf, 0, 0, false);
+    const yC = 182;
+    ctx.fillStyle = P.text; ctx.font = "600 13px " + font; ctx.textAlign = "left";
+    ctx.fillText("③ 한 컷 찍을 때 화면이 꺼지는 시간(블랙아웃)", x0, yC - 8);
+    if (M.black > 0) { ctx.fillStyle = P.dim; ctx.globalAlpha = 0.55; ctx.fillRect(X(0), yC, X(M.black) - X(0), 26); ctx.globalAlpha = 1; ctx.fillStyle = "#fff"; ctx.font = "600 11px " + mono; ctx.textAlign = "center"; if (X(M.black) - X(0) > 30) ctx.fillText(Math.round(M.black), (X(0) + X(M.black)) / 2, yC + 17); }
+    else { ctx.fillStyle = P.ok; ctx.fillRect(X(0), yC, 3, 26); ctx.fillStyle = P.dim; ctx.font = "13px " + font; ctx.fillText("블랙아웃 없음: 촬영 중에도 라이브 뷰가 이어짐", x0 + 10, yC + 18); }
+    // HTML 범례
+    const chip = (segs, si, fade) => segs.map((s, i) => `<span><i style="background:${cols[(si + i) % cols.length]};opacity:${fade ? 0.45 : 1}"></i>${s[0]} ${s[1] < 1 && s[1] > 0 ? s[1].toFixed(1) : Math.round(s[1])} ms</span>`).join("");
+    document.getElementById("lag-legend").innerHTML =
+      `<div class="row"><b>①</b>${chip(M.lag, 0, false)}${chip(M.cap, M.lag.length, true)}</div>` +
+      `<div class="row"><b>②</b>${M.cam === "dslr" ? "<span>광학 뷰파인더 ≈ 0 ms</span>" : chip(M.evf, 0, false)}</div>`;
+    CB.stat("lag-o-lag", Math.round(M.L) + "<small>ms</small>");
+    CB.stat("lag-o-evf", M.cam === "dslr" ? "≈0<small>ms (광학)</small>" : Math.round(M.E) + "<small>ms</small>");
+    CB.stat("lag-o-black", M.black === 0 ? "0<small>ms (블랙아웃 프리)</small>" : "약 " + Math.round(M.black) + "<small>ms</small>");
+    const mv = (27.8 * (M.L + (M.cam === "dslr" ? 0 : M.E))) / 1000;
+    CB.stat("lag-o-move", mv.toFixed(2) + "<small>m</small>");
+  }, { height: 240 });
+})();
+</script>
+</body>
+</html>

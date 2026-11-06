@@ -1,0 +1,1023 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<title>렌즈 광학계 · CameraBook</title>
+<meta name="description" content="왜 렌즈 한 장으로는 안 되는가. 실제 굴절로 광선을 추적하며 다섯 가지 자이델 수차와 색수차, 색지움 렌즈·비구면·ED 유리·레트로포커스, 코팅과 고스트, MTF와 회절 한계, 마운트와 텔레센트릭성, 줌·포커스 군을 시뮬레이터로 배운다.">
+<link rel="canonical" href="https://system.euiyun.com/camera/chapters/optics.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="CameraBook">
+<meta property="og:title" content="렌즈 광학계 · CameraBook">
+<meta property="og:description" content="왜 렌즈 한 장으로는 안 되는가. 실제 굴절로 광선을 추적하며 다섯 가지 자이델 수차와 색수차, 색지움 렌즈·비구면·ED 유리·레트로포커스, 코팅과 고스트, MTF와 회절 한계, 마운트와 텔레센트릭성, 줌·포커스 군을 시뮬레이터로 배운다.">
+<meta property="og:url" content="https://system.euiyun.com/camera/chapters/optics.html">
+<meta property="og:image" content="https://system.euiyun.com/camera/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="ko_KR">
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","headline":"렌즈 광학계","name":"렌즈 광학계 · CameraBook","url":"https://system.euiyun.com/camera/chapters/optics.html","mainEntityOfPage":"https://system.euiyun.com/camera/chapters/optics.html","inLanguage":"ko","isAccessibleForFree":true,"learningResourceType":"interactive textbook chapter","position":3,"image":"https://system.euiyun.com/camera/og.png","dateModified":"2026-11-07","isPartOf":{"@type":"Book","@id":"https://system.euiyun.com/camera/#book","name":"CameraBook — 인터랙티브 카메라 교과서","url":"https://system.euiyun.com/camera/"},"publisher":{"@type":"Organization","name":"CameraBook","url":"https://system.euiyun.com/camera/"},"description":"왜 렌즈 한 장으로는 안 되는가. 실제 굴절로 광선을 추적하며 다섯 가지 자이델 수차와 색수차, 색지움 렌즈·비구면·ED 유리·레트로포커스, 코팅과 고스트, MTF와 회절 한계, 마운트와 텔레센트릭성, 줌·포커스 군을 시뮬레이터로 배운다."},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"CameraBook","item":"https://system.euiyun.com/camera/"},{"@type":"ListItem","position":2,"name":"03 렌즈 광학계","item":"https://system.euiyun.com/camera/chapters/optics.html"}]}]}</script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<link rel="stylesheet" href="../css/style.css">
+<script src="../js/common.js"></script>
+<style>
+  .wl-row { display: flex; flex-wrap: wrap; gap: 6px 14px; }
+  .wl-row .check i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; }
+  .glass-c { fill: rgba(80, 160, 230, 0.22); stroke: var(--accent-2); stroke-width: 1.2; }
+  .glass-f { fill: rgba(150, 110, 220, 0.30); stroke: #8a6fd6; stroke-width: 1.2; }
+  .r-red { stroke: var(--red); fill: none; stroke-width: 1.6; }
+  .r-green { stroke: var(--green); fill: none; stroke-width: 1.6; }
+  .r-blue { stroke: var(--blue); fill: none; stroke-width: 1.6; }
+  #ab-type { width: 100%; }
+</style>
+<link rel="stylesheet" href="../../shared/css/book-shell.css">
+<script defer src="../../shared/js/book-shell.js" data-book="camera"></script>
+</head>
+<body data-chapter="optics">
+<main class="chapter">
+  <header class="chapter-hero">
+    <div class="eyebrow">Chapter 03</div>
+    <h1>렌즈 광학계</h1>
+    <p class="lead">카메라 렌즈를 반으로 자르면 유리알이 열 몇 장씩 줄지어 들어 있습니다. 상을 맺는 일만 따지면 볼록 렌즈 한 장으로도 되는데, 왜 이렇게 많이 필요할까요? 이 장에서는 렌즈를 '빛의 경로를 설계한 기계'로 보고, 한 장의 렌즈가 가진 결함(수차)과 그것을 지우기 위한 공학적 해법들, 그리고 렌즈 성능을 숫자로 읽는 법을 다룹니다.</p>
+    <ul class="objectives">
+      <li>스넬의 법칙과 얇은 렌즈 공식으로 상이 맺히는 원리를 설명할 수 있다.</li>
+      <li>다섯 가지 자이델 수차와 두 가지 색수차를 구별하고, 조리개를 조였을 때 어느 것이 줄어드는지 안다.</li>
+      <li>색지움 렌즈, 아베수, 비구면, ED 유리, 레트로포커스·망원형 구성이 각각 무엇을 해결하는지 안다.</li>
+      <li>면 개수와 코팅으로 투과율과 고스트를 어림하고, MTF 곡선과 회절 한계를 읽을 수 있다.</li>
+      <li>마운트·플랜지 백·텔레센트릭성, 줌과 포커스 군의 움직임이 설계에 주는 제약을 이해한다.</li>
+    </ul>
+  </header>
+
+  <!-- =============================================================== 1 -->
+  <section id="refraction">
+    <h2>굴절과 한 장의 렌즈</h2>
+    <p>빛은 유리 안에서 공기보다 느리게 갑니다. 진공에서의 속도를 매질 속 속도로 나눈 값이 <span class="term">굴절률</span><span class="en">(Refractive Index)</span> \(n\)이고, 광학 유리는 대략 1.45~2.0입니다. 빛이 두 매질의 경계를 비스듬히 지나면 속도 차이 때문에 진행 방향이 꺾이는데, 그 각도를 정하는 것이 <span class="term">스넬의 법칙</span><span class="en">(Snell's Law)</span>입니다.</p>
+    <div class="formula">$$n_1 \sin\theta_1 = n_2 \sin\theta_2$$
+      <div class="where">\(\theta\): 경계면의 법선(수직선)과 광선이 이루는 각. 공기(1.0)에서 유리(1.5)로 50°로 들어가면 약 30.7°로 꺾인다.</div>
+    </div>
+    <p>렌즈는 이 꺾임을 곡면으로 조직한 물건입니다. 볼록 렌즈의 가장자리는 기울어져 있어서 가장자리를 지나는 빛일수록 더 크게 꺾이고, 그 결과 한 점에서 퍼져 나온 빛이 다시 한 점으로 모입니다. 렌즈가 얇고 광선이 축 가까이 지난다고 가정하면(<span class="term">근축 근사</span><span class="en">(Paraxial Approximation)</span>), 물체 거리 \(s\), 상 거리 \(s'\), 초점거리 \(f\) 사이에 간단한 관계가 성립합니다.</p>
+    <div class="formula">$$\frac{1}{f} = \frac{1}{s} + \frac{1}{s'}, \qquad \frac{1}{f} = (n-1)\left(\frac{1}{R_1} - \frac{1}{R_2}\right)$$
+      <div class="where">왼쪽은 얇은 렌즈 공식, 오른쪽은 곡률 반지름 \(R_1, R_2\)로 초점거리를 정하는 렌즈 제작자 공식. 물체가 무한히 멀면 \(s'=f\): 상은 초점면에 맺힌다. 50 mm 렌즈로 2 m 앞을 찍으면 \(s' = 51.3\) mm, 그래서 가까이 찍을수록 렌즈를 센서에서 멀리 밀어내야 한다(초점 맞추기).</div>
+    </div>
+    <figure class="diagram">
+      <svg viewBox="0 0 800 270" role="img" aria-label="스넬의 법칙과 얇은 렌즈의 결상">
+        <rect x="20" y="150" width="270" height="100" fill="var(--accent-2-soft)"/>
+        <path d="M20 150 H290" class="s-line"/>
+        <path d="M155 40 V250" class="s-axis" stroke-dasharray="4 4"/>
+        <path d="M78.4 85.7 L155 150" stroke="var(--accent)" stroke-width="2.2" fill="none"/>
+        <path d="M155 150 L206.1 236" stroke="var(--accent)" stroke-width="2.2" fill="none"/>
+        <path d="M155 150 L231.6 85.7" stroke="var(--accent)" stroke-width="1.2" fill="none" opacity=".35"/>
+        <path d="M155 110 A40 40 0 0 0 124.4 124.3" class="s-line"/>
+        <path d="M155 190 A40 40 0 0 0 175.4 184.4" class="s-line"/>
+        <text x="132" y="104" class="t-dim">θ₁</text><text x="160" y="208" class="t-dim">θ₂</text>
+        <text x="30" y="140" class="t-dim">공기 n₁ = 1.0</text><text x="30" y="242" class="t-dim">유리 n₂ = 1.5</text>
+        <text x="200" y="80" class="t-dim">반사 ≈ 4%</text>
+        <text x="155" y="28" text-anchor="middle" class="t-acc">스넬의 법칙</text>
+        <!-- thin lens -->
+        <path d="M330 150 H790" class="s-axis"/>
+        <ellipse cx="560" cy="150" rx="9" ry="78" class="f-acc2-soft"/>
+        <path d="M400 150 V100" stroke="var(--text)" stroke-width="3"/><path d="M393 108 L400 98 L407 108" fill="none" stroke="var(--text)" stroke-width="2.5"/>
+        <path d="M684.4 150 V188.9" stroke="var(--accent)" stroke-width="3"/><path d="M677.4 181 L684.4 191 L691.4 181" fill="none" stroke="var(--accent)" stroke-width="2.5"/>
+        <path d="M400 100 H560 L700 200" class="r-red"/>
+        <path d="M400 100 L700 193.8" class="r-green"/>
+        <path d="M400 100 L560 188.9 H700" class="r-blue"/>
+        <circle cx="490" cy="150" r="3.5" class="f-acc"/><circle cx="630" cy="150" r="3.5" class="f-acc"/>
+        <text x="490" y="170" text-anchor="middle" class="t-mono">F</text><text x="630" y="140" text-anchor="middle" class="t-mono">F′</text>
+        <path d="M400 236 H560 M560 252 H684" class="s-line"/>
+        <text x="480" y="230" text-anchor="middle" class="t-dim">s (물체 거리)</text><text x="622" y="246" text-anchor="middle" class="t-dim">s′ (상 거리)</text>
+        <text x="560" y="28" text-anchor="middle" class="t-acc">얇은 렌즈의 결상</text>
+        <text x="400" y="88" text-anchor="middle" class="t-dim">물체</text><text x="720" y="186" class="t-dim">상(거꾸로)</text>
+      </svg>
+      <figcaption><b>그림 3-1.</b> 왼쪽: 굴절률이 큰 쪽으로 들어가면 광선은 법선 쪽으로 꺾인다. 경계에서는 빛의 일부가 반사도 된다(4절). 오른쪽: 축에 나란한 광선은 뒤 초점 F′를, 렌즈 중심을 지나는 광선은 곧게, 앞 초점 F를 지난 광선은 나란하게 나간다. 세 광선이 만나는 곳에 거꾸로 선 상이 생긴다.</figcaption>
+    </figure>
+    <p>여기까지가 9장에서 본 '렌즈가 빛을 한 점에 모은다'는 이야기의 물리적 근거입니다. 문제는 '근축'이라는 단서입니다. 실제 카메라 렌즈는 지름이 크고(f/1.4 50 mm 렌즈의 입사동 지름은 약 36 mm), 화면 귀퉁이에서 오는 빛은 축과 20~40°나 기울어 있습니다. 이런 광선에서는 \(\sin\theta \approx \theta\)가 깨지고, 렌즈는 더 이상 한 점에 모아 주지 못합니다. 그 어긋남이 바로 수차입니다.</p>
+  </section>
+
+  <!-- =============================================================== 2 -->
+  <section id="aberrations">
+    <h2>한 장으로는 안 되는 이유: 수차</h2>
+    <p><span class="term">수차</span><span class="en">(Aberration)</span>는 렌즈를 아무리 정밀하게 깎아도 남는, 구면과 굴절의 기하학에서 생기는 결함입니다. 단색광에서 생기는 다섯 가지를 19세기 수학자의 이름을 따 <span class="term">자이델 수차</span><span class="en">(Seidel Aberrations)</span>라고 부르고, 유리의 굴절률이 파장마다 달라서 생기는 <span class="term">색수차</span><span class="en">(Chromatic Aberration)</span> 두 가지가 더해집니다.</p>
+    <figure class="diagram">
+      <svg viewBox="0 0 800 400" role="img" aria-label="일곱 가지 수차의 모양">
+        <g transform="translate(0,0)">
+          <rect x="6" y="6" width="188" height="186" rx="10" class="f-surface"/>
+          <text x="100" y="28" text-anchor="middle" class="t-acc">① 구면수차</text>
+          <path d="M20 110 H185" class="s-axis"/>
+          <ellipse cx="60" cy="110" rx="7" ry="55" class="f-acc2-soft"/>
+          <path d="M20 65 H60 L135 110 L170 131" class="r-red"/><path d="M20 155 H60 L135 110 L170 89" class="r-red"/>
+          <path d="M20 88 H60 L160 110" class="r-green"/><path d="M20 132 H60 L160 110" class="r-green"/>
+          <text x="100" y="180" text-anchor="middle" class="t-dim">가장자리 광선이 더 앞에 모임</text>
+        </g>
+        <g transform="translate(200,0)">
+          <rect x="6" y="6" width="188" height="186" rx="10" class="f-surface"/>
+          <text x="100" y="28" text-anchor="middle" class="t-acc">② 코마</text>
+          <circle cx="60" cy="105" r="4" class="f-acc"/>
+          <circle cx="76" cy="105" r="10" fill="none" stroke="var(--accent)" stroke-width="1.4"/>
+          <circle cx="98" cy="105" r="19" fill="none" stroke="var(--accent)" stroke-width="1.2" opacity=".75"/>
+          <circle cx="128" cy="105" r="30" fill="none" stroke="var(--accent)" stroke-width="1" opacity=".5"/>
+          <path d="M60 105 L160 48 M60 105 L160 162" class="s-line" stroke-dasharray="3 3"/>
+          <text x="100" y="180" text-anchor="middle" class="t-dim">비스듬한 점이 혜성 꼬리로</text>
+        </g>
+        <g transform="translate(400,0)">
+          <rect x="6" y="6" width="188" height="186" rx="10" class="f-surface"/>
+          <text x="100" y="28" text-anchor="middle" class="t-acc">③ 비점수차</text>
+          <path d="M20 110 H185" class="s-axis"/>
+          <path d="M55 92 V128" stroke="var(--accent)" stroke-width="3"/>
+          <circle cx="100" cy="110" r="12" fill="none" stroke="var(--accent)" stroke-width="2"/>
+          <path d="M128 110 H168" stroke="var(--accent)" stroke-width="3"/>
+          <text x="55" y="150" text-anchor="middle" class="t-mono">자오 초점</text>
+          <text x="100" y="80" text-anchor="middle" class="t-mono">최소 착란원</text>
+          <text x="148" y="150" text-anchor="middle" class="t-mono">구결 초점</text>
+          <text x="100" y="180" text-anchor="middle" class="t-dim">방향마다 초점이 다름</text>
+        </g>
+        <g transform="translate(600,0)">
+          <rect x="6" y="6" width="188" height="186" rx="10" class="f-surface"/>
+          <text x="100" y="28" text-anchor="middle" class="t-acc">④ 상면만곡</text>
+          <ellipse cx="40" cy="105" rx="6" ry="50" class="f-acc2-soft"/>
+          <path d="M150 45 Q118 105 150 165" stroke="var(--accent)" stroke-width="2.5" fill="none"/>
+          <path d="M150 45 V165" stroke="var(--text)" stroke-width="2"/>
+          <text x="100" y="102" text-anchor="middle" class="t-mono">상이 맺히는 면</text>
+          <text x="166" y="110" class="t-mono">센서</text>
+          <text x="100" y="180" text-anchor="middle" class="t-dim">상의 면이 휘어 있음</text>
+        </g>
+        <g transform="translate(0,200)">
+          <rect x="6" y="6" width="188" height="186" rx="10" class="f-surface"/>
+          <text x="100" y="28" text-anchor="middle" class="t-acc">⑤ 왜곡</text>
+          <path d="M28 50 Q55 58 82 50 M28 105 H82 M28 160 Q55 152 82 160 M28 50 Q36 105 28 160 M55 50 V160 M82 50 Q74 105 82 160" class="s-line"/>
+          <path d="M112 50 Q140 42 168 50 M112 105 H168 M112 160 Q140 168 168 160 M112 50 Q104 105 112 160 M140 50 V160 M168 50 Q176 105 168 160" class="s-line"/>
+          <text x="55" y="178" text-anchor="middle" class="t-mono">배럴</text><text x="140" y="178" text-anchor="middle" class="t-mono">핀쿠션</text>
+        </g>
+        <g transform="translate(200,200)">
+          <rect x="6" y="6" width="188" height="186" rx="10" class="f-surface"/>
+          <text x="100" y="28" text-anchor="middle" class="t-acc">⑥ 축상 색수차</text>
+          <path d="M20 110 H185" class="s-axis"/>
+          <ellipse cx="55" cy="110" rx="7" ry="50" class="f-acc2-soft"/>
+          <path d="M20 70 H55 L125 110 L160 130" class="r-blue"/><path d="M20 150 H55 L125 110 L160 90" class="r-blue"/>
+          <path d="M20 74 H55 L150 110" class="r-red"/><path d="M20 146 H55 L150 110" class="r-red"/>
+          <text x="100" y="180" text-anchor="middle" class="t-dim">파랑이 앞에, 빨강이 뒤에</text>
+        </g>
+        <g transform="translate(400,200)">
+          <rect x="6" y="6" width="188" height="186" rx="10" class="f-surface"/>
+          <text x="100" y="28" text-anchor="middle" class="t-acc">⑦ 배율 색수차</text>
+          <rect x="30" y="50" width="140" height="110" rx="4" class="f-elev"/>
+          <rect x="128" y="64" width="26" height="26" fill="none" stroke="var(--blue)" stroke-width="2"/>
+          <rect x="131" y="66" width="26" height="26" fill="none" stroke="var(--green)" stroke-width="2"/>
+          <rect x="134" y="68" width="26" height="26" fill="none" stroke="var(--red)" stroke-width="2"/>
+          <circle cx="100" cy="105" r="2.5" class="f-acc"/>
+          <path d="M100 105 L128 82" class="s-line" stroke-dasharray="3 3"/>
+          <text x="100" y="180" text-anchor="middle" class="t-dim">가장자리에 색 테두리</text>
+        </g>
+        <g transform="translate(600,200)">
+          <rect x="6" y="6" width="188" height="186" rx="10" class="f-acc-soft"/>
+          <text x="100" y="32" text-anchor="middle" class="t-acc">조리개를 조이면?</text>
+          <text x="20" y="62" class="t">줄어든다(블러)</text>
+          <text x="20" y="84" class="t-dim">구면 ∝ D³ · 코마 ∝ D²</text>
+          <text x="20" y="104" class="t-dim">비점·상면만곡 ∝ D</text>
+          <text x="20" y="124" class="t-dim">축상 색수차 ∝ D</text>
+          <text x="20" y="154" class="t">안 줄어든다</text>
+          <text x="20" y="176" class="t-dim">왜곡 · 배율 색수차</text>
+        </g>
+      </svg>
+      <figcaption><b>그림 3-2.</b> 일곱 가지 수차. ①과 ⑥은 화면 중앙에서도 생기고, ②~⑤와 ⑦은 화면 가장자리로 갈수록 커진다. 마지막 칸의 D는 조리개 구멍 지름이다. 왜곡과 배율 색수차는 점을 흐리지 않고 '옮기기'만 하므로 조리개와 무관하고, 대신 소프트웨어로 되돌리기 쉽다.</figcaption>
+    </figure>
+    <div class="table-wrap"><table>
+      <tr><th>수차</th><th>무엇이 어긋나나</th><th>사진에서 보이는 모습</th><th>크기의 의존성</th></tr>
+      <tr><td><b>구면수차</b><br><span class="en">(Spherical)</span></td><td>구멍 가장자리를 지난 빛과 중앙을 지난 빛의 초점이 다름</td><td>개방에서 전체가 뿌옇게 '글로우'</td><td>조리개 지름³, 화각 무관</td></tr>
+      <tr><td><b>코마</b><br><span class="en">(Coma)</span></td><td>비스듬히 들어온 빛의 고리마다 배율이 다름</td><td>야경·별 사진 귀퉁이의 날개 달린 점</td><td>지름² × 화각</td></tr>
+      <tr><td><b>비점수차</b><br><span class="en">(Astigmatism)</span></td><td>가로·세로(자오·구결) 방향 초점이 다름</td><td>귀퉁이의 점이 방사·원주 방향으로 늘어남</td><td>지름 × 화각²</td></tr>
+      <tr><td><b>상면만곡</b><br><span class="en">(Field Curvature)</span></td><td>상이 평면이 아니라 곡면에 맺힘</td><td>중앙에 맞추면 귀퉁이가, 귀퉁이에 맞추면 중앙이 흐림</td><td>지름 × 화각²</td></tr>
+      <tr><td><b>왜곡</b><br><span class="en">(Distortion)</span></td><td>화각에 따라 배율이 다름</td><td>직선이 휨(17장의 배럴·핀쿠션)</td><td>화각³, 조리개 무관</td></tr>
+      <tr><td><b>축상 색수차</b><br><span class="en">(Longitudinal CA)</span></td><td>파장마다 초점 거리가 다름</td><td>초점 앞뒤 흐림에 보라·초록 테두리</td><td>지름</td></tr>
+      <tr><td><b>배율 색수차</b><br><span class="en">(Lateral CA)</span></td><td>파장마다 상의 크기가 다름</td><td>귀퉁이 고대비 경계에 빨강·청록 줄무늬</td><td>화각, 조리개 무관</td></tr>
+    </table></div>
+    <p>아래 시뮬레이터는 각 수차를 '파면 수차의 미분'으로 계산한 실제 광선 분포(스폿 다이어그램)로 시험 차트를 찍어 봅니다. 조리개와 디포커스를 함께 움직이면 어느 수차가 조리개에 민감한지, 어느 것이 초점 이동으로 일부 숨길 수 있는지 바로 보입니다.</p>
+
+    <div class="sim" id="sim-aberr">
+      <div class="sim-head"><span class="sim-tag">SIMULATOR</span><h3>수차가 만드는 상: 스폿 다이어그램으로 찍기</h3></div>
+      <div class="sim-body side">
+        <div class="sim-view photo"><canvas id="cv-ab"></canvas></div>
+        <div class="sim-controls">
+          <label class="ctrl"><span>수차 종류</span>
+            <select id="ab-type">
+              <option value="none">없음(완벽한 렌즈)</option>
+              <option value="sph" selected>① 구면수차</option>
+              <option value="coma">② 코마</option>
+              <option value="astig">③ 비점수차</option>
+              <option value="curv">④ 상면만곡</option>
+              <option value="barrel">⑤ 왜곡(배럴)</option>
+              <option value="pin">⑤ 왜곡(핀쿠션)</option>
+              <option value="axial">⑥ 축상 색수차</option>
+              <option value="lateral">⑦ 배율 색수차</option>
+            </select></label>
+          <label class="ctrl"><span>수차 크기 <output id="ab-s-out"></output></span><input type="range" id="ab-s" min="0" max="100" value="70"></label>
+          <label class="ctrl"><span>조리개(동공 지름) <output id="ab-a-out"></output></span><input type="range" id="ab-a" min="20" max="100" value="100"></label>
+          <label class="ctrl"><span>디포커스(센서 이동) <output id="ab-d-out"></output></span><input type="range" id="ab-d" min="-10" max="10" value="0" step="0.5"></label>
+          <div class="ctrl"><span>피사체</span><div class="seg" id="ab-chart"><button data-value="dots" class="on">점광원 격자</button><button data-value="chart">시험 차트</button></div></div>
+        </div>
+      </div>
+      <div class="sim-readout">
+        <div class="stat"><span class="k">중앙 블러(RMS)</span><span class="v" id="ab-c">—</span></div>
+        <div class="stat"><span class="k">귀퉁이 블러(RMS)</span><span class="v" id="ab-e">—</span></div>
+        <div class="stat"><span class="k">귀퉁이 위치 오차</span><span class="v" id="ab-shift">—</span></div>
+        <div class="stat"><span class="k">조리개·화각 의존성</span><span class="v" id="ab-dep" style="font-size:14px">—</span></div>
+      </div>
+      <div class="sim-note"><b>모델:</b> 3차 파면 수차 \(W = W_{040}\rho^4 + W_{131}H\rho^3\cos\phi + W_{222}H^2\rho^2\cos^2\phi + W_{220}H^2\rho^2 + W_{311}H^3\rho\cos\phi\)의 기울기로 광선 72개(동공 위 균일 표본)가 센서에 닿는 위치를 구하고, 차트의 밝은 화소마다 그 분포로 빛을 흩뿌렸습니다. \(H\)는 화면 중심에서의 거리(귀퉁이 = 1), \(\rho\)는 동공 반지름(조리개 슬라이더). 회절은 무시한 기하광학 모델이고 수차 크기는 실제 렌즈가 아닌 보기 좋은 화소 단위입니다. 색수차는 R·G·B 세 파장만 씁니다. <b>해볼 것:</b> ① 구면수차에서 조리개를 절반으로 줄이면 블러가 약 1/8이 됩니다(∝ρ³). ② 상면만곡에서 디포커스를 움직이면 귀퉁이를 맞추는 대신 중앙이 흐려집니다. ③ 비점수차에서 디포커스를 −로 옮기면 점이 방사 방향 선에서 원주 방향 선으로 바뀝니다. ④ 왜곡과 배율 색수차는 조리개를 아무리 조여도 그대로입니다.</div>
+    </div>
+    <div class="callout tip"><strong>렌즈 리뷰의 '개방 소프트, 두 스톱 조이면 쨍'</strong>밝은 렌즈를 개방에서 쓰면 구면수차·코마가 대비를 떨어뜨리고, f/4~f/8로 조이면 이것들이 3제곱·2제곱으로 빠르게 줄어듭니다. 더 조이면 이번엔 회절이 커집니다(5절). 그 사이의 '가장 선명한 조리개'를 고르는 실전 요령은 <a href="aperture.html">11장</a>에서 다룹니다.</div>
+  </section>
+
+  <!-- =============================================================== 3 -->
+  <section id="design">
+    <h2>여러 장을 쓰는 이유와 해법</h2>
+    <p>수차를 없애는 기본 전략은 <b>서로 반대 방향의 수차를 가진 렌즈를 짝지어 상쇄</b>하는 것입니다. 볼록 렌즈가 만드는 구면수차와 색수차는 오목 렌즈가 반대 부호로 만듭니다. 문제는 오목 렌즈가 모으는 힘(굴절력)도 상쇄해 버린다는 점인데, 여기서 유리의 종류가 열쇠가 됩니다.</p>
+    <h3>색지움 이중 렌즈와 아베수</h3>
+    <p>유리의 굴절률은 파랑에서 크고 빨강에서 작습니다. 이 차이, 즉 <span class="term">분산</span><span class="en">(Dispersion)</span>이 얼마나 작은지를 나타내는 값이 <span class="term">아베수</span><span class="en">(Abbe Number)</span>입니다.</p>
+    <div class="formula">$$V_d = \frac{n_d - 1}{n_F - n_C}, \qquad \frac{\phi_1}{V_1} + \frac{\phi_2}{V_2} = 0$$
+      <div class="where">\(n_d, n_F, n_C\): 노랑(587.6 nm)·파랑(486.1 nm)·빨강(656.3 nm)에서의 굴절률. \(V\)가 클수록 분산이 작다. 오른쪽은 얇은 두 렌즈(굴절력 \(\phi = 1/f\))를 붙였을 때 빨강과 파랑의 초점을 일치시키는 조건이다.</div>
+    </div>
+    <p>분산이 작은 <b>크라운</b><span class="en">(Crown, V ≈ 55~70)</span> 유리로 강한 볼록 렌즈를, 분산이 큰 <b>플린트</b><span class="en">(Flint, V ≈ 25~40)</span> 유리로 약한 오목 렌즈를 만들어 붙이면, 굴절력은 남고 색 번짐은 상쇄됩니다. 이것이 <span class="term">색지움 렌즈</span><span class="en">(Achromat)</span>이고, 붙이는 면의 곡률을 고르면 구면수차까지 함께 줄일 수 있습니다. 예를 들어 초점거리 100 mm를 BK7형 크라운(V 64)과 F2형 플린트(V 36)로 만들면 볼록 쪽은 약 +43 mm, 오목 쪽은 약 −76 mm로, 둘 다 혼자서는 훨씬 강한 렌즈입니다.</p>
+    <figure class="diagram">
+      <svg viewBox="0 0 800 300" role="img" aria-label="광학 유리 지도: 굴절률과 아베수">
+        <rect x="70" y="20" width="700" height="230" class="f-elev"/>
+        <path d="M70 250 H770 M70 20 V250" class="s-axis"/>
+        <!-- V from 100 (x=70) to 20 (x=770): x = 70 + (100-V)*8.75 ; n from 1.4 (y=250) to 2.0 (y=20): y = 250 - (n-1.4)*383.3 -->
+        <path d="M463.75 250 V173.3 H507.5 V20" stroke="var(--text-faint)" stroke-dasharray="5 4" fill="none"/>
+        <text x="150" y="44" class="t-dim">크라운 (분산 작음)</text><text x="560" y="44" class="t-dim">플린트 (분산 큼)</text>
+        <circle cx="383.5" cy="204" r="6" fill="var(--accent-2)"/><text x="394" y="208" class="t-mono">BK7형 1.517/64</text>
+        <circle cx="417" cy="165" r="6" fill="var(--accent-2)"/><text x="428" y="160" class="t-mono">SK16형 1.620/60</text>
+        <circle cx="477" cy="128" r="6" fill="var(--accent-2)"/><text x="466" y="124" text-anchor="end" class="t-mono">란탄 크라운 1.713/54</text>
+        <circle cx="626" cy="165" r="6" fill="#8a6fd6"/><text x="637" y="169" class="t-mono">F2형 1.620/36</text>
+        <circle cx="533" cy="146.5" r="6" fill="#8a6fd6"/><text x="544" y="140" class="t-mono">BaF형 1.670/47</text>
+        <circle cx="725" cy="92" r="6" fill="#8a6fd6"/><text x="714" y="80" text-anchor="end" class="t-mono">SF6형 1.805/25</text>
+        <circle cx="231" cy="215" r="7" fill="var(--accent)"/><text x="242" y="234" class="t-mono">ED 유리 1.497/82</text>
+        <circle cx="114" cy="236" r="7" fill="var(--accent)"/><text x="104" y="226" class="t-mono" text-anchor="start">형석 1.434/95</text>
+        <text x="420" y="282" text-anchor="middle" class="t">아베수 V_d (← 분산 작음 · 큼 →)</text>
+        <text x="62" y="254" text-anchor="end" class="t-mono">1.4</text><text x="62" y="177" text-anchor="end" class="t-mono">1.6</text><text x="62" y="101" text-anchor="end" class="t-mono">1.8</text><text x="62" y="24" text-anchor="end" class="t-mono">2.0</text>
+        <text x="70" y="268" text-anchor="middle" class="t-mono">100</text><text x="245" y="268" text-anchor="middle" class="t-mono">80</text><text x="420" y="268" text-anchor="middle" class="t-mono">60</text><text x="595" y="268" text-anchor="middle" class="t-mono">40</text><text x="770" y="268" text-anchor="middle" class="t-mono">20</text>
+        <text x="20" y="140" class="t-dim" transform="rotate(-90 20 140)" text-anchor="middle">굴절률 n_d</text>
+      </svg>
+      <figcaption><b>그림 3-3.</b> 광학 유리 지도(아베 다이어그램). 값은 대표적인 유리 계열의 대략값이다. 오른쪽 위로 갈수록 강하게 꺾고 색을 많이 퍼뜨린다. 주황 점의 ED 유리와 형석은 분산이 아주 작을 뿐 아니라 파장별 분산의 '모양'(부분 분산비)이 보통 유리와 달라서, 색지움 렌즈로도 남는 2차 스펙트럼을 줄인다.</figcaption>
+    </figure>
+    <p>보통의 크라운·플린트 조합은 빨강과 파랑의 초점만 맞추고 초록이 조금 어긋나게 남는데, 이것을 <span class="term">2차 스펙트럼</span><span class="en">(Secondary Spectrum)</span>이라고 합니다. 초점거리에 비례해 커지기 때문에 망원 렌즈에서 특히 문제가 되고, 그래서 망원 렌즈에는 <span class="term">ED 유리</span><span class="en">(Extra-low Dispersion)</span>나 형석<span class="en">(CaF₂, Fluorite)</span> 렌즈가 들어갑니다. 세 파장 이상을 맞춘 설계를 아포크로맷<span class="en">(Apochromat)</span>이라 부릅니다.</p>
+
+    <h3>비구면, 대칭형, 레트로포커스, 망원형</h3>
+    <div class="cards">
+      <div><b>비구면 렌즈</b>구면이 아닌 곡면은 한 장으로 구면수차를 거의 없앨 수 있어, 구면 렌즈 2~3장을 대신합니다. 정밀 유리 성형(금형으로 찍기), 연삭·연마, 유리 위에 수지 층을 얹는 복합형으로 만듭니다. 스마트폰 렌즈는 모든 면이 극단적인 플라스틱 비구면입니다.</div>
+      <div><b>대칭형(더블 가우스)</b>조리개를 사이에 두고 앞뒤를 거울처럼 배치하면 코마·왜곡·배율 색수차처럼 '방향이 있는' 수차가 앞뒤에서 상쇄됩니다. 표준 단렌즈의 기본형입니다.</div>
+      <div><b>레트로포커스</b>앞에 오목, 뒤에 볼록 군. 렌즈 뒤 끝에서 센서까지(후초점)가 초점거리보다 길어집니다. 거울 상자가 있던 DSLR에서 광각을 만들기 위해 필수였습니다.</div>
+      <div><b>망원형</b>앞에 볼록, 뒤에 오목 군. 렌즈 전체 길이가 초점거리보다 짧아집니다. 400 mm 렌즈의 경통이 400 mm보다 짧은 이유입니다.</div>
+    </div>
+    <figure class="diagram">
+      <svg viewBox="0 0 800 230" role="img" aria-label="레트로포커스와 망원형의 주점 위치">
+        <g transform="translate(10,0)">
+          <text x="190" y="22" text-anchor="middle" class="t-acc">레트로포커스 (광각)</text>
+          <path d="M10 120 H380" class="s-axis"/>
+          <path d="M60 60 Q75 120 60 180 L76 180 Q66 120 76 60 Z" class="glass-c"/>
+          <ellipse cx="170" cy="120" rx="8" ry="40" class="glass-c"/>
+          <ellipse cx="195" cy="120" rx="8" ry="40" class="glass-c"/>
+          <path d="M10 90 H64 L176 70 L340 120" class="s-acc"/>
+          <path d="M64 90 H242" stroke="var(--text-faint)" stroke-dasharray="4 4" fill="none"/>
+          <path d="M242 60 V180" stroke="var(--accent-2)" stroke-width="1.5" stroke-dasharray="6 3"/>
+          <text x="242" y="52" text-anchor="middle" class="t-mono">주평면 H′</text>
+          <path d="M340 104 V136" stroke="var(--text)" stroke-width="3"/><text x="340" y="96" text-anchor="middle" class="t-mono">센서</text>
+           <path d="M242 200 H340" class="s-line"/><text x="291" y="216" text-anchor="middle" class="t-dim">초점거리 f</text>
+          <path d="M203 186 H340" stroke="var(--accent)" stroke-width="1.5"/><text x="250" y="180" class="t-mono">후초점 &gt; f</text>
+          <text x="68" y="198" text-anchor="middle" class="t-mono">오목 군</text>
+        </g>
+        <g transform="translate(410,0)">
+          <text x="190" y="22" text-anchor="middle" class="t-acc">망원형</text>
+          <path d="M10 120 H380" class="s-axis"/>
+          <ellipse cx="90" cy="120" rx="9" ry="50" class="glass-c"/>
+          <path d="M160 85 Q170 120 160 155 L180 155 Q170 120 180 85 Z" class="glass-f"/>
+          <path d="M10 80 H90 L170 96 L350 120" class="s-acc"/>
+          <path d="M90 80 L170 80 M50 80 L170 96" stroke="var(--text-faint)" stroke-dasharray="4 4" fill="none"/>
+          <path d="M50 60 V180" stroke="var(--accent-2)" stroke-width="1.5" stroke-dasharray="6 3"/>
+          <text x="50" y="52" text-anchor="middle" class="t-mono">주평면 H′</text>
+          <path d="M350 104 V136" stroke="var(--text)" stroke-width="3"/><text x="350" y="96" text-anchor="middle" class="t-mono">센서</text>
+          <path d="M50 200 H350" class="s-line"/><text x="200" y="216" text-anchor="middle" class="t-dim">초점거리 f (렌즈 앞까지 뻗음)</text>
+          <path d="M81 186 H350" stroke="var(--accent)" stroke-width="1.5"/><text x="230" y="180" class="t-mono">전장 &lt; f</text>
+          <text x="170" y="172" text-anchor="middle" class="t-mono">오목 군</text>
+        </g>
+      </svg>
+      <figcaption><b>그림 3-4.</b> 초점거리는 렌즈 어딘가가 아니라 '주평면' H′에서 센서까지의 거리다. 앞에 오목 군을 두면 주평면이 렌즈 뒤로 빠져 렌즈를 센서에서 멀리 둘 수 있고(레트로포커스), 뒤에 오목 군을 두면 주평면이 렌즈 앞으로 나가 경통을 짧게 만들 수 있다(망원형). 앞쪽 연장선(점선)이 꺾인 광선과 만나는 곳이 H′이다.</figcaption>
+    </figure>
+
+    <p>이제 실제로 광선을 쏴 봅시다. 아래 추적기는 근사 공식이 아니라 각 구면에서 스넬의 법칙을 벡터 형태로 풀어 광선 하나하나의 경로를 계산합니다.</p>
+    <div class="sim" id="sim-ray">
+      <div class="sim-head"><span class="sim-tag">SIMULATOR</span><h3>광선 추적기: 렌즈 구성별 초점과 스폿</h3></div>
+      <div class="sim-body side">
+        <div class="sim-view"><canvas id="cv-ray"></canvas></div>
+        <div class="sim-controls">
+          <div class="ctrl"><span>렌즈 구성</span><div class="seg" id="rt-pre"><button data-value="single" class="on">단렌즈</button><button data-value="doublet">색지움 2장</button><button data-value="cooke">쿡 트리플렛</button><button data-value="retro">레트로포커스</button></div></div>
+          <div class="ctrl"><span>물체 거리</span><div class="seg" id="rt-obj"><button data-value="inf" class="on">무한대</button><button data-value="2000">2 m</button><button data-value="600">0.6 m</button></div></div>
+          <label class="ctrl"><span>조리개 <output id="rt-ap-out"></output></span><input type="range" id="rt-ap" min="15" max="100" value="100"></label>
+          <label class="ctrl"><span>화각(반각) <output id="rt-fld-out"></output></span><input type="range" id="rt-fld" min="0" max="100" value="0"></label>
+          <div class="ctrl"><span>파장</span><div class="wl-row">
+            <label class="check"><input type="checkbox" id="rt-r" checked><i style="background:var(--red)"></i>656 nm</label>
+            <label class="check"><input type="checkbox" id="rt-g" checked><i style="background:var(--green)"></i>588 nm</label>
+            <label class="check"><input type="checkbox" id="rt-b" checked><i style="background:var(--blue)"></i>486 nm</label>
+          </div></div>
+        </div>
+      </div>
+      <div class="sim-readout">
+        <div class="stat"><span class="k">초점거리 (EFL)</span><span class="v" id="rt-efl">—</span></div>
+        <div class="stat"><span class="k">F값 (무한대 기준)</span><span class="v" id="rt-fn">—</span></div>
+        <div class="stat"><span class="k">후초점 (BFL)</span><span class="v" id="rt-bfl">—</span></div>
+        <div class="stat"><span class="k">스폿 크기 (RMS)</span><span class="v" id="rt-rms">—</span></div>
+        <div class="stat"><span class="k">축상 색수차 (파랑−빨강)</span><span class="v" id="rt-ca">—</span></div>
+        <div class="stat"><span class="k">상 높이</span><span class="v" id="rt-yh">—</span></div>
+      </div>
+      <div class="sim-note"><b>모델:</b> 구면마다 교점을 정확히 구하고 \(\mathbf{t} = \mu\mathbf{d} + (\mu\cos\theta_i - \sqrt{1-\mu^2\sin^2\theta_i})\,\mathbf{n}\) (\(\mu = n_1/n_2\))로 굴절시킵니다. 굴절률은 유리의 \(n_d\)와 아베수에 맞춘 코시 식 \(n(\lambda) = A + B/\lambda^2\)으로 근사했습니다. 자오 단면(그림 평면) 광선만 추적하므로 스폿은 자오 방향 퍼짐의 RMS입니다. 센서 면은 화면 중앙(축상, 588 nm)의 RMS가 최소가 되는 위치에 고정하고, 화각을 바꿔도 그대로 둡니다. 렌즈 테두리나 조리개에 걸린 광선은 흐리게 끊깁니다(비네팅). 처방은 교과서형 예시로, 쿡 트리플렛은 공개된 50 mm f/5 예제, 나머지는 이 장을 위해 계산한 것입니다. 오른쪽 아래 '광선 팬'은 동공 위치(가로)에 따라 광선이 센서에서 얼마나 빗나가는지(세로, µm)를, 왼쪽 아래 확대 창은 광속의 평균 방향을 따라 기울인 좌표로 초점 부근을 그린 것입니다. <b>해볼 것:</b> ① 단렌즈에서 세 파장을 켜면 파랑이 1.5 mm 이상 앞에 모입니다. 색지움 2장으로 바꾸면 거의 일치합니다. ② 색지움 2장의 화각을 올리면 축 밖 성능이 무너집니다. 망원경 대물렌즈처럼 좁은 화각용이기 때문입니다. ③ 쿡 트리플렛은 3장만으로 ±20°를 수십 µm 이하로 유지합니다. ④ 레트로포커스의 BFL이 EFL보다 긴 것을 확인하세요.</div>
+    </div>
+    <div class="callout deep"><strong>렌즈 설계는 최적화 문제</strong>현대 렌즈 설계는 곡률·두께·간격·유리 종류를 변수로 두고, 수천 개의 광선과 여러 파장·화각·초점 거리에서 스폿과 MTF를 계산해 '평가 함수'를 최소화하는 수치 최적화입니다. 15~20장짜리 줌 렌즈에는 변수가 100개를 넘고, 제조 공차(각 면이 수 µm 어긋날 때의 성능 저하)까지 함께 최적화합니다. 위 추적기의 계산이 그 내부 루프의 한 바퀴입니다.</div>
+  </section>
+
+  <!-- =============================================================== 4 -->
+  <section id="coating">
+    <h2>코팅과 플레어·고스트</h2>
+    <p>그림 3-1에서 봤듯이 빛은 경계면을 지날 때 일부가 반사됩니다. 수직으로 들어올 때의 반사율은 <span class="term">프레넬 반사</span><span class="en">(Fresnel Reflection)</span> 식으로 구합니다.</p>
+    <div class="formula">$$R = \left(\frac{n-1}{n+1}\right)^2, \qquad T_{\text{total}} \approx (1-R)^m$$
+      <div class="where">\(n = 1.52\)이면 \(R \approx 4.3\%\), 고굴절 유리 \(n = 1.9\)면 약 9.6%. \(m\)은 공기와 맞닿은 유리 면의 수. 흡수와 비스듬한 입사는 무시했다.</div>
+    </div>
+    <p>4%는 작아 보이지만 렌즈 15장(공기-유리 면 24~30개)을 지나면 사정이 다릅니다. 코팅 없는 면 30개의 투과율은 0.957³⁰ ≈ 27%로, 빛의 4분의 3을 잃습니다. 더 나쁜 것은 잃은 빛이 사라지지 않는다는 점입니다. 두 번 반사된 빛은 다시 센서 쪽으로 향해 엉뚱한 곳에 밝은 상(<span class="term">고스트</span><span class="en">(Ghost)</span>)을 만들거나, 화면 전체에 뿌연 막(<span class="term">베일링 플레어</span><span class="en">(Veiling Flare)</span>)을 씌워 어두운 부분의 대비를 무너뜨립니다.</p>
+    <figure class="diagram">
+      <svg viewBox="0 0 800 220" role="img" aria-label="반사 방지 코팅의 간섭 원리와 고스트 경로">
+        <g>
+          <text x="190" y="22" text-anchor="middle" class="t-acc">1/4 파장 코팅: 두 반사가 서로 지운다</text>
+          <rect x="20" y="120" width="340" height="80" fill="var(--accent-2-soft)"/>
+          <rect x="20" y="104" width="340" height="16" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1"/>
+          <text x="352" y="116" text-anchor="end" class="t-mono">코팅 두께 = λ/(4n_c)</text>
+          <text x="352" y="194" text-anchor="end" class="t-mono">유리</text>
+          <path d="M60 40 L130 104 L150 120 L190 168" class="s-acc"/>
+          <path d="M130 104 L190 50" stroke="var(--accent)" stroke-width="1.5" fill="none"/>
+          <path d="M150 120 L166 104 L226 50" stroke="var(--accent-2)" stroke-width="1.5" fill="none"/>
+          <path d="M190 64 q8 -8 16 0 t16 0" stroke="var(--accent)" fill="none"/>
+          <path d="M210 72 q8 8 16 0 t16 0" stroke="var(--accent-2)" fill="none"/>
+          <text x="250" y="66" class="t-dim">반 파장 어긋남 → 상쇄</text>
+        </g>
+        <g transform="translate(410,0)">
+          <text x="190" y="22" text-anchor="middle" class="t-acc">고스트: 두 번 반사된 빛</text>
+          <path d="M10 120 H380" class="s-axis"/>
+          <ellipse cx="90" cy="120" rx="10" ry="60" class="glass-c"/>
+          <ellipse cx="200" cy="120" rx="10" ry="55" class="glass-c"/>
+          <path d="M340 70 V170" stroke="var(--text)" stroke-width="3"/><text x="340" y="190" text-anchor="middle" class="t-mono">센서</text>
+          <path d="M10 80 L92 84 L340 120" class="s-acc"/>
+          <path d="M10 80 L92 84 L192 92" stroke="var(--accent-2)" stroke-width="1.6" fill="none"/>
+          <path d="M192 92 L100 108" stroke="var(--accent-2)" stroke-width="1.6" fill="none" stroke-dasharray="5 3"/>
+          <path d="M100 108 L340 152" stroke="var(--accent-2)" stroke-width="1.6" fill="none" stroke-dasharray="5 3"/>
+          <circle cx="340" cy="152" r="9" fill="var(--accent-2-soft)" stroke="var(--accent-2)"/>
+          <text x="214" y="160" class="t-dim">엉뚱한 곳의 흐린 상</text>
+        </g>
+      </svg>
+      <figcaption><b>그림 3-5.</b> 왼쪽: 굴절률이 낮은 얇은 막의 위아래에서 반사된 두 빛은 왕복 경로가 반 파장 차이 나서 서로 지운다. 한 층은 한 파장에서만 잘 듣고, 굴절률이 다른 층을 여러 겹 쌓으면 가시광 전체에서 반사를 줄일 수 있다. 오른쪽: 면 m개에서 두 번 반사되는 경로는 m(m−1)/2가지다.</figcaption>
+    </figure>
+    <p>그래서 오늘날 렌즈의 모든 공기-유리 면에는 <span class="term">반사 방지 코팅</span><span class="en">(Anti-reflection Coating)</span>이 입혀져 있습니다. 불화마그네슘 한 층은 반사를 1~2%로, 수십~수백 nm 두께의 층을 여러 겹 쌓은 <span class="term">다층 코팅</span><span class="en">(Multi-coating)</span>은 0.5% 아래로, 파장보다 작은 돌기 구조로 굴절률을 서서히 바꾸는 나노 구조 코팅은 0.1% 안팎까지 낮춥니다. 렌즈 앞알이 보라·초록빛으로 보이는 것은 코팅이 모든 색을 똑같이 지우지 못해 남은 반사의 색입니다.</p>
+
+    <div class="sim" id="sim-coat">
+      <div class="sim-head"><span class="sim-tag">SIMULATOR</span><h3>면 수와 코팅: 투과율과 고스트</h3></div>
+      <div class="sim-body side">
+        <div class="sim-view"><canvas id="cv-coat"></canvas></div>
+        <div class="sim-controls">
+          <label class="ctrl"><span>렌즈 매수 <output id="ct-n-out"></output></span><input type="range" id="ct-n" min="1" max="25" value="15"></label>
+          <label class="ctrl"><span>접합한 쌍 <output id="ct-c-out"></output></span><input type="range" id="ct-c" min="0" max="6" value="3"></label>
+          <div class="ctrl"><span>코팅</span><div class="seg" id="ct-k"><button data-value="none">없음</button><button data-value="single">단층</button><button data-value="multi" class="on">다층</button><button data-value="nano">나노 구조</button></div></div>
+          <label class="ctrl"><span>유리 굴절률(무코팅일 때) <output id="ct-idx-out"></output></span><input type="range" id="ct-idx" min="1.45" max="1.95" step="0.01" value="1.6"></label>
+        </div>
+      </div>
+      <div class="sim-readout">
+        <div class="stat"><span class="k">공기-유리 면</span><span class="v" id="ct-m">—</span></div>
+        <div class="stat"><span class="k">면당 반사율</span><span class="v" id="ct-r">—</span></div>
+        <div class="stat"><span class="k">총 투과율</span><span class="v" id="ct-t">—</span></div>
+        <div class="stat"><span class="k">빛 손실</span><span class="v" id="ct-loss">—</span></div>
+        <div class="stat"><span class="k">이중 반사 경로</span><span class="v" id="ct-p">—</span></div>
+        <div class="stat"><span class="k">고스트 빛 (상 대비)</span><span class="v" id="ct-g">—</span></div>
+      </div>
+      <div class="sim-note"><b>모델:</b> 공기-유리 면 수 \(m = 2\times\)매수 \(-\,2\times\)접합 쌍(접합면은 굴절률 차가 작아 반사를 무시). 투과율 \(T = (1-R)^m\), 고스트 빛은 이중 반사 경로 수 \(\binom{m}{2}\)에 각각 \(R^2\)를 곱한 1차 근사로, \(mR \ll 1\)일 때 맞고 무코팅처럼 \(mR\)이 크면 과대평가됩니다. 코팅 반사율은 가시광 평균의 대표값(단층 1.5%, 다층 0.3%, 나노 0.1%)입니다. 오른쪽 장면은 고스트·베일의 세기를 정성적으로 보여 주는 그림입니다. <b>해볼 것:</b> ① 코팅 없음 + 15장이면 빛을 몇 스톱 잃는지 보세요. ② 같은 15장에서 다층 코팅으로 바꾸면 투과율이 90% 근처로 돌아옵니다. ③ 고스트는 \(R^2\)에 비례해서, 반사율을 1/10로 줄이면 고스트는 1/100이 됩니다.</div>
+    </div>
+    <div class="callout tip"><strong>코팅이 막지 못하는 플레어</strong>경통 내벽, 조리개 날, 렌즈 가장자리(코바)에서 튄 빛과 센서 표면·커버 유리에서 되돌아온 빛도 플레어를 만듭니다. 그래서 내부는 무광 검정 처리와 차광 홈을 두고, 렌즈 후드로 화면 밖의 빛이 들어오는 것 자체를 막습니다. 역광에서 후드를 끼우는 것만으로 대비가 눈에 띄게 좋아지는 이유입니다(<a href="flash.html">21장</a>의 역광 촬영 참고).</div>
+  </section>
+
+  <!-- =============================================================== 5 -->
+  <section id="mtf">
+    <h2>성능을 숫자로: MTF와 회절 한계</h2>
+    <p>"이 렌즈가 얼마나 선명한가"를 하나의 숫자로 말하기는 어렵습니다. 그래서 광학에서는 <span class="term">MTF</span><span class="en">(Modulation Transfer Function)</span>를 씁니다. 검정·흰색 줄무늬를 찍었을 때 상에서 줄무늬의 대비가 원래 대비의 몇 %로 남는지를, 줄무늬의 촘촘함(공간 주파수, 1 mm에 들어가는 선 쌍의 수 lp/mm)마다 그린 곡선입니다. 1이면 완벽 전달, 0이면 회색 덩어리입니다.</p>
+    <h3>제조사 MTF 차트 읽기</h3>
+    <figure class="diagram">
+      <svg viewBox="0 0 800 280" role="img" aria-label="렌즈 MTF 차트 예시">
+        <rect x="80" y="20" width="560" height="210" class="f-elev"/>
+        <path d="M80 230 H640 M80 20 V230" class="s-axis"/>
+        <path d="M80 62 H640 M80 104 H640 M80 146 H640 M80 188 H640" stroke="var(--grid)"/>
+        <path d="M80 38 C250 39 420 44 520 56 S620 76 640 84" stroke="var(--accent)" stroke-width="2.5" fill="none"/>
+        <path d="M80 38 C250 42 380 58 480 82 S600 120 640 132" stroke="var(--accent)" stroke-width="2.5" stroke-dasharray="7 5" fill="none"/>
+        <path d="M80 74 C240 80 380 96 480 118 S600 150 640 160" stroke="var(--accent-2)" stroke-width="2.5" fill="none"/>
+        <path d="M80 74 C220 90 340 128 440 160 S580 196 640 200" stroke="var(--accent-2)" stroke-width="2.5" stroke-dasharray="7 5" fill="none"/>
+        <text x="72" y="24" text-anchor="end" class="t-mono">1.0</text><text x="72" y="128" text-anchor="end" class="t-mono">0.5</text><text x="72" y="234" text-anchor="end" class="t-mono">0</text>
+        <text x="80" y="250" text-anchor="middle" class="t-mono">0</text><text x="347" y="250" text-anchor="middle" class="t-mono">10</text><text x="613" y="250" text-anchor="middle" class="t-mono">20 mm</text>
+        <text x="360" y="272" text-anchor="middle" class="t">화면 중심에서의 거리 (풀프레임 귀퉁이 ≈ 21.6 mm)</text>
+        <text x="652" y="58" class="t-mono">10 lp/mm</text><text x="652" y="72" class="t-dim">→ 대비</text>
+        <text x="652" y="166" class="t-mono">30 lp/mm</text><text x="652" y="180" class="t-dim">→ 해상</text>
+        <path d="M652 112 h28" stroke="var(--text-dim)" stroke-width="2"/><text x="686" y="116" class="t-mono">실선: 구결(S)</text>
+        <path d="M652 132 h28" stroke="var(--text-dim)" stroke-width="2" stroke-dasharray="6 4"/><text x="686" y="136" class="t-mono">점선: 자오(M)</text>
+      </svg>
+      <figcaption><b>그림 3-6.</b> 렌즈 제조사가 공개하는 MTF 차트의 전형적인 모양(가상의 예). 가로축이 주파수가 아니라 <b>화면 위치</b>라는 점에 주의. 위의 곡선(흔히 10 lp/mm)은 사진의 전체적인 대비감, 아래 곡선(30 lp/mm, 제조사에 따라 20·40·50)은 미세한 해상력을 나타낸다. 실선과 점선이 벌어지는 곳은 비점수차가 있다는 뜻이고, 이런 곳의 흐림 모양은 보케를 거칠게 만들기도 한다. 보통 조리개 개방 값으로 그리며, 계산값인지 측정값인지 확인해야 한다.</figcaption>
+    </figure>
+    <h3>회절: 조여도 넘을 수 없는 한계</h3>
+    <p>수차가 하나도 없는 완벽한 렌즈라도 점을 점으로 찍지 못합니다. 빛이 둥근 구멍을 지나며 퍼지는 <span class="term">회절</span> 때문에 점의 상은 동심원 무늬가 있는 원반, <span class="term">에어리 원반</span><span class="en">(Airy Disk)</span>이 됩니다. 그 크기는 렌즈의 초점거리나 구조와 상관없이 F값과 파장만으로 정해집니다.</p>
+    <div class="formula">$$d_{\text{Airy}} \approx 2.44\,\lambda N, \qquad \nu_c = \frac{1}{\lambda N}$$
+      <div class="where">첫 번째 어두운 고리까지의 지름. 초록빛(λ = 0.55 µm)에서 f/2는 2.7 µm, f/8은 10.7 µm, f/16은 21.5 µm. \(\nu_c\)는 회절 한계 렌즈가 대비를 전달할 수 있는 최고 주파수(차단 주파수)로, f/8에서 약 227 lp/mm다.</div>
+    </div>
+    <p>센서 쪽에도 한계가 있습니다. 화소 간격(피치) \(p\)인 센서는 \(1/(2p)\)보다 촘촘한 줄무늬를 기록할 수 없고, 이 값을 <span class="term">나이퀴스트 주파수</span><span class="en">(Nyquist Frequency)</span>라고 합니다. 2400만 화소 풀프레임(피치 약 6 µm)은 83 lp/mm, 6100만 화소(약 3.76 µm)는 133 lp/mm, 스마트폰의 1 µm 화소는 500 lp/mm입니다. 렌즈의 MTF가 나이퀴스트 근처에서 어느 정도 남아 있어야 화소 수가 의미를 갖습니다.</p>
+
+    <div class="sim" id="sim-mtf">
+      <div class="sim-head"><span class="sim-tag">SIMULATOR</span><h3>MTF 곡선: 회절 · 수차 · 화소</h3></div>
+      <div class="sim-body side">
+        <div class="sim-view"><canvas id="cv-mtf"></canvas></div>
+        <div class="sim-controls">
+          <label class="ctrl"><span>조리개 <output id="mt-n-out"></output></span><input type="range" id="mt-n"></label>
+          <div class="ctrl"><span>파장</span><div class="seg" id="mt-l"><button data-value="0.45">450 nm</button><button data-value="0.55" class="on">550 nm</button><button data-value="0.65">650 nm</button></div></div>
+          <label class="ctrl"><span>화소 피치 <output id="mt-p-out"></output></span><input type="range" id="mt-p" min="0.8" max="8" step="0.1" value="3.8"></label>
+          <label class="ctrl"><span>잔류 수차 (f/1.4에서 RMS) <output id="mt-ab-out"></output></span><input type="range" id="mt-ab" min="0" max="10" step="0.5" value="4"></label>
+          <label class="ctrl"><span>디포커스 <output id="mt-dz-out"></output></span><input type="range" id="mt-dz" min="0" max="60" value="0"></label>
+          <label class="check"><input type="checkbox" id="mt-px" checked> 화소 개구 MTF 포함</label>
+        </div>
+      </div>
+      <div class="sim-readout">
+        <div class="stat"><span class="k">에어리 원반 지름</span><span class="v" id="mt-airy">—</span></div>
+        <div class="stat"><span class="k">회절 차단 주파수</span><span class="v" id="mt-nc">—</span></div>
+        <div class="stat"><span class="k">나이퀴스트</span><span class="v" id="mt-nq">—</span></div>
+        <div class="stat"><span class="k">나이퀴스트에서 MTF</span><span class="v" id="mt-atnq">—</span></div>
+        <div class="stat"><span class="k">MTF50 (시스템)</span><span class="v" id="mt-50">—</span></div>
+        <div class="stat"><span class="k">에어리 = 화소 2개인 F값</span><span class="v" id="mt-dla">—</span></div>
+      </div>
+      <div class="sim-note"><b>모델:</b> 시스템 MTF = 회절 × 수차 × 디포커스 × 화소. 회절은 원형 구멍의 무수차 MTF \(\tfrac{2}{\pi}(\arccos x - x\sqrt{1-x^2})\), \(x = \nu\lambda N\). 잔류 수차는 RMS \(\sigma\)인 가우시안 블러 \(e^{-2\pi^2\sigma^2\nu^2}\)로 단순화하고, \(\sigma\)가 \((1.4/N)^2\)로 줄어든다고 가정했습니다(실제로는 수차 종류마다 1~3제곱). 디포커스는 지름 \(\Delta z/N\)인 균일 원반의 MTF \(|2J_1(\pi D\nu)/(\pi D\nu)|\)로, 디포커스가 파장보다 충분히 클 때 맞는 기하광학 근사입니다. 화소는 개구율 100%의 \(|\mathrm{sinc}(\pi p\nu)|\). 나이퀴스트 위쪽(회색 영역)은 센서가 제대로 기록할 수 없고 모아레로 바뀝니다. <b>해볼 것:</b> ① 피치 3.8 µm에서 조리개를 f/1.4 → f/22로 옮기며 MTF50이 언제 최대인지 찾아보세요. ② 피치를 1 µm(스마트폰)로 바꾸면 f/2만 돼도 회절이 나이퀴스트를 깎습니다. 그래서 폰 카메라에는 조리개가 거의 없습니다. ③ 디포커스 30 µm를 주고 조리개를 조이면 심도가 깊어지듯 곡선이 회복됩니다.</div>
+    </div>
+    <div class="callout warn"><strong>"회절 때문에 f/11 이상은 쓰면 안 된다"?</strong>회절은 조리개를 조일수록 서서히 커지는 연속적인 효과이지, 어느 F값에서 갑자기 생기는 문턱이 아닙니다. 화소가 작을수록 더 일찍 눈에 띌 뿐, 같은 크기로 출력하면 작은 화소 센서의 사진이 큰 화소 센서보다 나빠지지도 않습니다. 풍경에서 심도가 필요하면 f/11~f/16을 쓰는 것이 맞는 선택일 때가 많습니다. 조리개 선택의 실전은 <a href="aperture.html">11장</a>에서, 센서 쪽 해상력과 샘플링은 SensorBook의 <a href="https://semi.euiyun.com/sensor/chapters/iq.html">화질 평가</a>와 <a href="https://semi.euiyun.com/sensor/chapters/optics.html">센서 광학</a>에서 더 깊이 다룹니다.</div>
+  </section>
+
+  <!-- =============================================================== 6 -->
+  <section id="mount">
+    <h2>마운트와 플랜지 백, 텔레센트릭성</h2>
+    <p>렌즈 교환식 카메라에서 렌즈와 바디가 만나는 기계적·전기적 접점이 <span class="term">마운트</span><span class="en">(Mount)</span>입니다. 마운트 면에서 센서까지의 거리를 <span class="term">플랜지 백</span><span class="en">(Flange Focal Distance)</span>이라 하고, 이 값과 마운트 안쪽 지름이 그 시스템에서 만들 수 있는 렌즈의 모양을 정합니다. 렌즈는 정확히 이 거리를 전제로 설계되므로, 마운트 면과 센서의 평행도·거리는 수 µm 수준으로 관리됩니다.</p>
+    <figure class="diagram">
+      <svg viewBox="0 0 800 280" role="img" aria-label="DSLR과 미러리스의 플랜지 백, 센서 가장자리 입사각">
+        <g>
+          <text x="180" y="22" text-anchor="middle" class="t-acc">DSLR: 플랜지 백 약 38~47 mm</text>
+          <rect x="140" y="50" width="180" height="150" rx="10" class="f-surface"/>
+          <path d="M140 60 V190" stroke="var(--text)" stroke-width="4"/>
+          <path d="M175 165 L260 80" stroke="var(--accent-2)" stroke-width="3"/>
+          <text x="232" y="150" class="t-mono">거울</text>
+          <path d="M300 70 V180" stroke="var(--text)" stroke-width="4"/><text x="300" y="196" text-anchor="middle" class="t-mono">센서</text>
+          <ellipse cx="80" cy="125" rx="10" ry="44" class="glass-c"/><ellipse cx="118" cy="125" rx="9" ry="40" class="glass-c"/>
+          <path d="M140 225 H300" class="s-line"/><path d="M140 218 v14 M300 218 v14" class="s-line"/>
+          <text x="220" y="250" text-anchor="middle" class="t-dim">거울이 움직일 공간만큼 렌즈가 멀다</text>
+        </g>
+        <g transform="translate(400,0)">
+          <text x="190" y="22" text-anchor="middle" class="t-acc">미러리스: 약 16~20 mm</text>
+          <rect x="190" y="50" width="70" height="150" rx="10" class="f-surface"/>
+          <path d="M190 60 V190" stroke="var(--text)" stroke-width="4"/>
+          <path d="M245 70 V180" stroke="var(--text)" stroke-width="4"/><text x="245" y="196" text-anchor="middle" class="t-mono">센서</text>
+          <ellipse cx="80" cy="125" rx="10" ry="46" class="glass-c"/><ellipse cx="150" cy="125" rx="12" ry="50" class="glass-c"/><ellipse cx="176" cy="125" rx="9" ry="44" class="glass-c"/>
+          <path d="M176 92 L245 72" stroke="var(--accent)" stroke-width="2"/>
+          <path d="M80 112 L245 74" stroke="var(--accent-2)" stroke-width="2" stroke-dasharray="5 3"/>
+          <text x="262" y="84" class="t-mono">CRA</text>
+          <path d="M190 225 H245" class="s-line"/><path d="M190 218 v14 M245 218 v14" class="s-line"/>
+          <text x="217" y="250" text-anchor="middle" class="t-dim">뒤알을 센서 가까이 둘 수 있다</text>
+          <text x="300" y="130" class="t-dim">가까울수록 가장자리</text><text x="300" y="148" class="t-dim">빛이 비스듬해진다</text>
+        </g>
+      </svg>
+      <figcaption><b>그림 3-7.</b> 거울을 없애면 렌즈 뒤 끝을 센서 가까이 둘 수 있다. 광각에서 레트로포커스의 부담이 줄고, 큰 뒤알로 밝은 렌즈를 만들기 쉬워지며, 다른 시스템 렌즈를 어댑터로 끼울 여유(플랜지 백 차이)도 생긴다. 대가는 센서 가장자리에 닿는 주광선의 각도(CRA)가 커질 수 있다는 것이다. 값은 대표적인 범위다.</figcaption>
+    </figure>
+    <p>필름은 비스듬히 들어온 빛도 거의 똑같이 받아들였지만, 디지털 센서는 그렇지 않습니다. 각 화소 위에는 빛을 포토다이오드로 모아 주는 <span class="term">마이크로렌즈</span><span class="en">(Microlens)</span>와 컬러 필터가 있고, 그 아래 수 µm 깊이의 배선층·우물을 지나야 합니다. 빛이 너무 비스듬하면 옆 화소로 새거나(크로스토크) 포토다이오드를 빗나가서, 귀퉁이가 어둡고 색이 틀어집니다. 그래서 디지털용 렌즈는 화면 가장자리의 <span class="term">주광선 입사각</span><span class="en">(CRA, Chief Ray Angle)</span>을 작게, 즉 사출동을 센서에서 멀리 두어 주광선이 센서에 거의 수직으로 닿는 <span class="term">상측 텔레센트릭</span><span class="en">(Image-side Telecentric)</span>에 가깝게 설계합니다.</p>
+    <p>완전한 텔레센트릭은 뒤쪽 렌즈 군이 센서보다 커야 해서 비현실적이므로, 실제로는 렌즈 쪽에서 CRA를 적당히 줄이고 센서 쪽에서 가장자리 마이크로렌즈를 중심 방향으로 조금씩 옮겨(오프셋) 남은 각도를 받아 냅니다. 필름 시절 레인지파인더용 대칭형 광각 렌즈를 디지털 바디에 어댑터로 끼우면 귀퉁이가 자홍·청록으로 물드는 일이 생기는 것은, 뒤알이 센서에 너무 가까워 CRA가 크기 때문입니다. 센서 앞의 필터·커버 유리 묶음(두께 1~4 mm)도 광로에 들어가므로, 이 두께를 전제로 설계되지 않은 렌즈는 가장자리에서 수차가 늘기도 합니다. 스마트폰 모듈은 렌즈와 센서를 한 쌍으로 설계해 CRA가 30° 안팎까지 커지는 대신 센서가 이를 맞춰 받는데, 이 이야기는 PhoneBook의 <a href="../../phone/chapters/camera.html">카메라 장</a>과 SensorBook의 <a href="https://semi.euiyun.com/sensor/chapters/module.html">카메라 모듈</a>에서 이어집니다.</p>
+  </section>
+
+  <!-- =============================================================== 7 -->
+  <section id="zoom">
+    <h2>줌과 포커스 군의 움직임</h2>
+    <p>지금까지는 렌즈 군이 고정된 단렌즈를 봤습니다. 실제 렌즈 경통 안에서는 몇 개의 군이 움직이고, 그 움직임 자체가 설계의 일부입니다.</p>
+    <figure class="diagram">
+      <svg viewBox="0 0 800 270" role="img" aria-label="줌 렌즈의 군 이동과 내부 초점">
+        <text x="40" y="34" class="t-dim">광각 끝</text><text x="40" y="164" class="t-dim">망원 끝</text>
+        <path d="M120 70 H780 M120 200 H780" class="s-axis"/>
+        <path d="M760 50 V90 M760 180 V220" stroke="var(--text)" stroke-width="3"/>
+        <!-- wide -->
+        <ellipse cx="200" cy="70" rx="9" ry="34" class="glass-c"/>
+        <path d="M250 44 Q262 70 250 96 L268 96 Q258 70 268 44 Z" class="glass-f"/><path d="M284 46 Q294 70 284 94 L298 94 Q290 70 298 46 Z" class="glass-f"/>
+        <path d="M560 54 V86" stroke="var(--text-dim)" stroke-width="3"/>
+        <ellipse cx="590" cy="70" rx="9" ry="24" class="glass-c"/><ellipse cx="612" cy="70" rx="7" ry="22" class="glass-c"/>
+        <ellipse cx="680" cy="70" rx="6" ry="20" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.6"/>
+        <!-- tele -->
+        <ellipse cx="150" cy="200" rx="9" ry="34" class="glass-c"/>
+        <path d="M400 174 Q412 200 400 226 L418 226 Q408 200 418 174 Z" class="glass-f"/><path d="M434 176 Q444 200 434 224 L448 224 Q440 200 448 176 Z" class="glass-f"/>
+        <path d="M510 184 V216" stroke="var(--text-dim)" stroke-width="3"/>
+        <ellipse cx="540" cy="200" rx="9" ry="24" class="glass-c"/><ellipse cx="562" cy="200" rx="7" ry="22" class="glass-c"/>
+        <ellipse cx="680" cy="200" rx="6" ry="20" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.6"/>
+        <!-- motion arrows -->
+        <path d="M200 108 L150 162" stroke="var(--accent-2)" stroke-dasharray="4 3" fill="none"/>
+        <path d="M274 108 L424 162" stroke="var(--accent-2)" stroke-dasharray="4 3" fill="none"/>
+        <path d="M600 98 L551 172" stroke="var(--accent-2)" stroke-dasharray="4 3" fill="none"/>
+        <text x="96" y="124" class="t-mono">1군 (앞으로)</text>
+        <text x="330" y="124" class="t-mono">변배군 (배율 바꿈)</text>
+        <text x="560" y="128" class="t-mono">보정군 (초점면 유지)</text>
+        <text x="680" y="250" text-anchor="middle" class="t-acc">포커스 군</text>
+        <path d="M664 200 h-14 M696 200 h14" stroke="var(--accent)" stroke-width="2"/>
+        <path d="M654 196 l-6 4 l6 4 M706 196 l6 4 l-6 4" fill="none" stroke="var(--accent)" stroke-width="2"/>
+        <text x="760" y="248" text-anchor="middle" class="t-mono">센서</text>
+      </svg>
+      <figcaption><b>그림 3-8.</b> 전형적인 표준 줌의 군 이동(개념도). 경통의 캠 홈이 각 군을 서로 다른 곡선으로 움직여, 변배군은 배율(초점거리)을 바꾸고 보정군은 그 사이 초점면이 움직이지 않게 한다. 초점은 뒤쪽의 작고 가벼운 군 하나(주황)만 움직여 맞춘다(내부 초점).</figcaption>
+    </figure>
+    <div class="cards">
+      <div><b>변배군과 보정군</b>초점거리를 바꾸는 군(변배군, Variator)을 움직이면 상이 맺히는 면도 따라 움직이므로, 다른 군(보정군, Compensator)을 비선형으로 함께 움직여 상면을 붙잡습니다. 줌 링을 돌릴 때 경통 안의 캠 홈이 이 곡선을 기계적으로 구현합니다.</div>
+      <div><b>내부 초점 (IF)</b>렌즈 전체를 밀어내는 대신 안쪽의 작은 군 하나만 움직입니다. 움직이는 질량이 수 g~수십 g이라 AF가 빠르고 조용하며, 경통 길이가 변하지 않고 앞알도 돌지 않습니다(편광 필터에 유리). 구동 모터는 <a href="mechanism.html">4장</a>에서 다룹니다.</div>
+      <div><b>플로팅 초점</b>가까운 거리에 초점을 맞추면 수차 균형이 깨지므로, 두 개 이상의 군을 서로 다른 양만큼 움직여 근거리에서도 보정을 유지합니다. 접사 렌즈와 밝은 광각에서 흔합니다.</div>
+      <div><b>포커스 브리딩</b>초점 군이 움직이면 실제 초점거리도 조금 변해 화각이 숨쉬듯 바뀝니다. 사진에서는 거의 문제가 없지만 동영상에서 초점을 옮길 때 눈에 띄어, 영상용 렌즈는 이를 억제합니다(<a href="video.html">22장</a>).</div>
+    </div>
+    <p>줌 렌즈는 초점거리마다 수차 균형이 달라지므로, 모든 초점거리에서 좋은 단렌즈만큼 보정하려면 장수가 늘어납니다. 대구경 표준 줌이 15~20장, 단렌즈가 8~14장 정도인 이유입니다. 요즘은 이 부담 일부를 카메라에 넘깁니다. 왜곡·배율 색수차·주변 감광처럼 '점을 옮기거나 밝기만 바꾸는' 수차는 영상 처리로 되돌리기 쉬워서, 렌즈가 보정 데이터를 바디에 보내고 처리 엔진(<a href="engine.html">6장</a>)이 이를 지우도록 설계 단계부터 분담하기도 합니다. 초점거리에 따라 화각과 원근이 어떻게 바뀌는지는 <a href="focal.html">17장</a>에서, 초점을 맞추는 제어는 <a href="control.html">7장</a>과 <a href="focus.html">16장</a>에서 다룹니다.</p>
+    <div class="callout deep"><strong>광학 보정 vs 디지털 보정의 경계</strong>왜곡을 소프트웨어로 펴면 가장자리 화소가 늘어나 그만큼 해상력이 줄고, 배럴 왜곡이 큰 렌즈는 화면을 조금 잘라야 합니다. 반면 구면수차·코마·비점처럼 점을 흐리는 수차는 정보 자체가 섞여 버려 소프트웨어로 되돌리기 어렵습니다. 그래서 렌즈 설계자는 '흐림은 광학으로, 옮김은 일부 디지털로'라는 방향으로 예산을 나눕니다.</div>
+  </section>
+
+  <section class="keypoints" id="summary">
+    <h2>핵심 정리</h2>
+    <ol>
+      <li>렌즈는 스넬의 법칙에 따른 굴절을 곡면으로 조직해 빛을 모은다. 얇은 렌즈 공식 \(1/f = 1/s + 1/s'\)은 축 가까운 광선에서만 맞는 근사다.</li>
+      <li>한 장의 렌즈에는 구면·코마·비점·상면만곡·왜곡의 다섯 자이델 수차와 축상·배율 색수차가 남는다. 조리개를 조이면 흐림형 수차는 줄지만 왜곡과 배율 색수차는 그대로다.</li>
+      <li>크라운·플린트를 짝지은 색지움 렌즈, 비구면, ED·형석 유리, 대칭형 배치가 수차를 상쇄하고, 레트로포커스·망원형 구성은 주평면을 옮겨 후초점과 전장을 바꾼다.</li>
+      <li>코팅 없는 면은 4% 안팎을 반사해 15장 렌즈의 투과율을 30% 아래로 떨어뜨린다. 다층 코팅은 면당 0.5% 미만으로 줄이고, 고스트는 반사율의 제곱으로 줄어든다.</li>
+      <li>MTF는 줄무늬 대비 전달률이다. 회절은 에어리 원반 지름 2.44λN으로 해상력의 상한을 정하고, 센서는 나이퀴스트 1/(2p)로 또 다른 상한을 정한다.</li>
+      <li>짧은 플랜지 백은 렌즈 설계의 자유를 넓히지만, 디지털 센서는 비스듬한 빛에 약해 렌즈는 텔레센트릭에 가깝게, 센서는 마이크로렌즈 오프셋으로 맞춘다. 줌은 군들이 캠 곡선으로 함께 움직이고, 초점은 가벼운 내부 군이 맡는다.</li>
+    </ol>
+  </section>
+
+  <section class="quiz-sec" id="quiz">
+    <h2>확인 퀴즈</h2>
+    <div class="quiz">
+      <div class="quiz-q"><p>코팅 없는 공기-유리 면(면당 반사 약 4%)이 24개인 렌즈의 투과율은 대략?</p><div class="opts">
+        <button class="opt">약 96%</button>
+        <button class="opt" data-correct>약 38%</button>
+        <button class="opt">약 4%</button>
+      </div><div class="quiz-exp">0.96²⁴ ≈ 0.375. 빛을 약 1.4스톱 잃고, 잃은 빛의 일부는 고스트와 플레어가 된다. 다층 코팅(면당 0.3%)이면 0.997²⁴ ≈ 93%.</div></div>
+      <div class="quiz-q"><p>조리개를 f/2에서 f/8로 조여도 거의 변하지 않는 수차는?</p><div class="opts">
+        <button class="opt">구면수차</button>
+        <button class="opt">축상 색수차</button>
+        <button class="opt" data-correct>왜곡</button>
+      </div><div class="quiz-exp">왜곡은 점을 흐리지 않고 위치만 옮기는 수차라서 조리개 지름과 무관하다. 배율 색수차도 마찬가지다. 구면수차는 지름의 세제곱으로 줄어든다.</div></div>
+      <div class="quiz-q"><p>망원 렌즈에 ED 유리나 형석을 쓰는 주된 이유는?</p><div class="opts">
+        <button class="opt">렌즈를 가볍게 하려고</button>
+        <button class="opt" data-correct>분산이 작고 부분 분산 특성이 달라 색수차(2차 스펙트럼)를 줄이려고</button>
+        <button class="opt">반사율을 낮추려고</button>
+      </div><div class="quiz-exp">보통 크라운·플린트 색지움으로 남는 2차 스펙트럼은 초점거리에 비례해 커진다. 아베수가 큰(분산이 작은) 특수 유리로 이를 줄인다.</div></div>
+      <div class="quiz-q"><p>λ = 0.55 µm, f/16일 때 에어리 원반의 지름은 대략?</p><div class="opts">
+        <button class="opt">2 µm</button>
+        <button class="opt" data-correct>21 µm</button>
+        <button class="opt">0.2 mm</button>
+      </div><div class="quiz-exp">2.44 × 0.55 × 16 ≈ 21.5 µm. 화소 피치 4 µm의 다섯 배가 넘어, 화소 단위로 보면 확실히 부드러워진다.</div></div>
+      <div class="quiz-q"><p>DSLR용 광각 렌즈가 레트로포커스 구성을 써야 했던 이유는?</p><div class="opts">
+        <button class="opt">왜곡을 없애기 위해</button>
+        <button class="opt" data-correct>거울이 움직일 공간 때문에 렌즈 뒤 끝을 센서에서 초점거리보다 멀리 둬야 해서</button>
+        <button class="opt">코팅 층을 줄이기 위해</button>
+      </div><div class="quiz-exp">플랜지 백이 40 mm 안팎인데 초점거리 20 mm 렌즈를 만들려면 후초점이 초점거리보다 길어야 한다. 앞에 오목 군을 두면 주평면이 뒤로 빠져 이것이 가능해진다.</div></div>
+      <div class="quiz-q"><p>디지털 센서용 렌즈를 상측 텔레센트릭에 가깝게 설계하는 이유는?</p><div class="opts">
+        <button class="opt">줌 배율을 높이려고</button>
+        <button class="opt">회절을 줄이려고</button>
+        <button class="opt" data-correct>화소의 마이크로렌즈·포토다이오드가 비스듬한 빛을 잘 받지 못해 가장자리가 어두워지고 색이 틀어지기 때문에</button>
+      </div><div class="quiz-exp">주광선이 센서에 거의 수직으로 닿으면 가장자리 화소도 중앙과 비슷하게 빛을 받는다. 남은 각도는 센서의 마이크로렌즈 오프셋으로 보정한다.</div></div>
+    </div>
+  </section>
+</main>
+
+<script>
+/* ================================================================ 1. 수차 스폿 시뮬레이터 */
+(function () {
+  const W = 480, H = 300, cx = W / 2, cy = H / 2, rmax = Math.hypot(cx, cy);
+  const NS = 72, GA = Math.PI * (3 - Math.sqrt(5));
+  const pupil = Array.from({ length: NS }, (_, i) => { const r = Math.sqrt((i + 0.5) / NS), a = i * GA; return [r * Math.cos(a), r * Math.sin(a)]; });
+  const charts = {};
+  function chart(kind) {
+    if (charts[kind]) return charts[kind];
+    const c = CB.offscreen(W, H, (g) => {
+      g.fillStyle = "#000"; g.fillRect(0, 0, W, H); g.fillStyle = "#fff"; g.strokeStyle = "#fff";
+      if (kind === "dots") {
+        for (let i = 0; i < 9; i++) for (let j = 0; j < 6; j++) { g.beginPath(); g.arc(W * (i + 0.5) / 9, H * (j + 0.5) / 6, 1.6, 0, 7); g.fill(); }
+      } else {
+        g.lineWidth = 1.3;
+        for (let x = 20; x < W; x += 40) { g.beginPath(); g.moveTo(x, 0); g.lineTo(x, H); g.stroke(); }
+        for (let y = 10; y < H; y += 40) { g.beginPath(); g.moveTo(0, y); g.lineTo(W, y); g.stroke(); }
+        for (let k = 0; k < 24; k++) { const a = (k / 24) * Math.PI * 2; g.beginPath(); g.moveTo(cx, cy); g.arc(cx, cy, 52, a, a + Math.PI / 24); g.closePath(); g.fill(); }
+        g.font = "bold 26px sans-serif"; g.textAlign = "center"; g.fillText("CAMERA", W * 0.83, H * 0.9); g.fillText("LENS", W * 0.17, H * 0.12);
+      }
+    });
+    const d = c.getContext("2d").getImageData(0, 0, W, H).data, pts = [];
+    for (let i = 0; i < W * H; i++) { const v = d[i * 4] / 255; if (v > 0.03) pts.push(i % W, (i / W) | 0, v); }
+    return (charts[kind] = pts);
+  }
+  const out = [new Float32Array(W * H), new Float32Array(W * H), new Float32Array(W * H)];
+  const off = document.createElement("canvas"); off.width = W; off.height = H;
+  const octx = off.getContext("2d"), img = octx.createImageData(W, H);
+  const upd = CB.throttle(() => { render(); cv.redraw(); });
+  const TYPE = document.getElementById("ab-type"); TYPE.addEventListener("change", upd);
+  const S = CB.range("ab-s", (v) => v + "%", upd);
+  const A = CB.range("ab-a", (v) => Math.round(v) + "%", upd);
+  const D = CB.range("ab-d", (v) => CB.signed(v, 1) + " px", upd);
+  const CH = CB.seg("ab-chart", upd);
+  const CHS = [1, 0, -1]; // R, G, B 부호
+  // 한 광선(동공 pt, ps)의 횡수차 [εt, εs] (px). H: 화각(0~1), c: 채널
+  function eps(type, s, pt, ps, Hh, c, dz) {
+    const r2 = pt * pt + ps * ps;
+    let et = dz * pt, es = dz * ps;
+    if (type === "sph") { const k = 14 * s; et += k * r2 * pt; es += k * r2 * ps; }
+    else if (type === "coma") { const k = 16 * s * Hh; et += k * (ps * ps + 3 * pt * pt) / 3; es += k * 2 * ps * pt / 3; }
+    else if (type === "astig") { et += 12 * s * Hh * Hh * pt; }
+    else if (type === "curv") { const k = 12 * s * Hh * Hh; et += k * pt; es += k * ps; }
+    else if (type === "barrel") et -= 0.06 * rmax * s * Hh * Hh * Hh;
+    else if (type === "pin") et += 0.06 * rmax * s * Hh * Hh * Hh;
+    else if (type === "axial") { const k = 8 * s * CHS[c]; et += k * pt; es += k * ps; }
+    else if (type === "lateral") et += 5 * s * CHS[c] * Hh;
+    return [et, es];
+  }
+  const chromatic = (t) => t === "axial" || t === "lateral";
+  function rmsAt(type, s, a, Hh, dz) {
+    let sx = 0, sy = 0, sxx = 0, n = 0;
+    const chans = chromatic(type) ? [0, 1, 2] : [1];
+    chans.forEach((c) => pupil.forEach(([px, py]) => { const e = eps(type, s, px * a, py * a, Hh, c, dz); sx += e[0]; sy += e[1]; sxx += e[0] * e[0] + e[1] * e[1]; n++; }));
+    const mx = sx / n, my = sy / n;
+    return { rms: Math.sqrt(Math.max(0, sxx / n - mx * mx - my * my)), shift: Math.hypot(mx, my) };
+  }
+  function render() {
+    const type = TYPE.value, s = S() / 100, a = A() / 100, dz = D();
+    const pts = chart(CH());
+    const chans = chromatic(type) ? [0, 1, 2] : [1];
+    out.forEach((o) => o.fill(0));
+    const inv = 1 / NS;
+    for (let i = 0; i < pts.length; i += 3) {
+      const x = pts[i], y = pts[i + 1], v = pts[i + 2] * inv;
+      const hx = (x - cx) / rmax, hy = (y - cy) / rmax, Hh = Math.hypot(hx, hy);
+      const ux = Hh > 1e-6 ? hx / Hh : 1, uy = Hh > 1e-6 ? hy / Hh : 0;
+      for (const c of chans) {
+        const o = out[c];
+        for (let k = 0; k < NS; k++) {
+          const px = pupil[k][0] * a, py = pupil[k][1] * a;
+          const pt = px * ux + py * uy, ps = -px * uy + py * ux;
+          const e = eps(type, s, pt, ps, Hh, c, dz);
+          const X = Math.round(x + e[0] * ux - e[1] * uy), Y = Math.round(y + e[0] * uy + e[1] * ux);
+          if (X >= 0 && X < W && Y >= 0 && Y < H) o[Y * W + X] += v;
+        }
+      }
+    }
+    if (chans.length === 1) { out[0].set(out[1]); out[2].set(out[1]); }
+    const gain = CH() === "dots" ? 3.2 : 1.6, px = img.data;
+    for (let i = 0; i < W * H; i++) for (let c = 0; c < 3; c++) px[i * 4 + c] = 255 * CB.linToSrgb(1 - Math.exp(-gain * out[c][i]));
+    for (let i = 0; i < W * H; i++) px[i * 4 + 3] = 255;
+    octx.putImageData(img, 0, 0);
+    const c0 = rmsAt(type, s, a, 0, dz), c1 = rmsAt(type, s, a, 1, dz);
+    CB.stat("ab-c", c0.rms.toFixed(1) + "<small>px</small>");
+    CB.stat("ab-e", c1.rms.toFixed(1) + "<small>px</small>");
+    const dist = type === "barrel" || type === "pin" ? (type === "barrel" ? -1 : 1) * 6 * s : null;
+    CB.stat("ab-shift", dist != null ? CB.signed(dist, 1) + "<small>% 왜곡</small>" : c1.shift.toFixed(1) + "<small>px</small>");
+    const dep = { none: "—", sph: "∝ D³ · 화각 무관", coma: "∝ D² · H", astig: "∝ D · H²", curv: "∝ D · H²", barrel: "D 무관 · ∝ H³", pin: "D 무관 · ∝ H³", axial: "∝ D · 화각 무관", lateral: "D 무관 · ∝ H" }[type];
+    CB.stat("ab-dep", dep);
+  }
+  const cv = CB.canvas("#cv-ab", (ctx, w, h) => {
+    ctx.imageSmoothingEnabled = true; ctx.drawImage(off, 0, 0, w, h);
+    ctx.fillStyle = "rgba(255,255,255,0.7)"; ctx.font = "12px " + CB.color("mono"); ctx.textAlign = "left";
+    ctx.fillText("화면 중심 H=0 · 귀퉁이 H=1", 8, h - 8);
+  }, { aspect: H / W });
+  render(); cv.redraw();
+})();
+
+/* ================================================================ 2. 광선 추적기 */
+(function () {
+  const GLASS = { BK7: { nd: 1.5168, V: 64.17, f: 0 }, SK16: { nd: 1.6204, V: 60.32, f: 0 }, F2: { nd: 1.62, V: 36.37, f: 1 } };
+  const LAM = [0.6563, 0.5876, 0.4861]; // R(C), G(d), B(F) µm
+  function nAt(g, lam) {
+    if (!g) return 1;
+    const G = GLASS[g], B = (G.nd - 1) / G.V / (1 / (0.4861 * 0.4861) - 1 / (0.6563 * 0.6563));
+    return G.nd + B * (1 / (lam * lam) - 1 / (0.5876 * 0.5876));
+  }
+  // [R(mm, 0=평면), 다음 면까지 두께, 다음 매질(유리), 반지름(sd), 조리개?]
+  const PRE = {
+    single: { h: 12.5, fmax: 10, s: [[0, 2, null, 12.6, 1], [103.4, 5, "BK7", 13.6], [-103.4, 0, null, 13.6]] },
+    doublet: { h: 12.5, fmax: 10, s: [[0, 2, null, 12.6, 1], [44.9, 5, "BK7", 13.4], [-42.07, 2.5, "F2", 13.4], [-693, 0, null, 13.4]] },
+    cooke: { h: 5, fmax: 20, s: [[22.01359, 3.25896, "SK16", 9.4], [-435.7604, 6.007582, null, 9.4], [-22.21328, 0.99, "F2", 4.6], [20.29192, 4.75, null, 4.6, 1], [79.6836, 2.952, "SK16", 7.4], [-18.39533, 0, null, 7.6]] },
+    retro: { h: 4.4, fmax: 25, s: [[19.44, 2.5, "BK7", 15.6], [14.42, 20.93, null, 13.4], [83.85, 4, "SK16", 9.4], [212.4, 7.86, null, 9.4], [0, 2, null, 6, 1], [248, 5, "SK16", 6.4], [-9.357, 1.5, "F2", 6.8], [-24.98, 0, null, 7.6]] },
+  };
+  let sys = null;
+  function load(key) {
+    const p = PRE[key];
+    let z = 0;
+    const surf = p.s.map(([R, t, g, sd, stop]) => { const o = { R, c: R ? 1 / R : 0, t, g, sd, stop: !!stop, z }; z += t; return o; });
+    const iStop = surf.findIndex((s) => s.stop);
+    sys = { key, surf, iStop, h: p.h, fmax: p.fmax, zLast: surf[surf.length - 1].z };
+    surf[iStop].ap = 1e9;
+    const r = trace([-1, p.h], [1, 0], LAM[1], iStop, true);
+    surf[iStop].ap = Math.abs(r.P[1]) * 1.002;
+    const pG = paraxial(Infinity, LAM[1]);
+    sys.efl = pG.efl; sys.bfl = pG.zf - sys.zLast;
+  }
+  // 정확한 광선 추적: P 시작점, D 단위 방향. upto: 이 면까지만, free: 테두리 무시
+  function trace(P, D, lam, upto, free) {
+    let [pz, py] = P, [dz, dy] = D, n1 = 1;
+    const path = [[pz, py]], S = sys.surf, last = upto != null ? upto : S.length - 1;
+    for (let i = 0; i <= last; i++) {
+      const s = S[i], c = s.c, qz = pz - s.z, qy = py;
+      const B = dz - c * (qz * dz + qy * dy), C = c * (qz * qz + qy * qy) - 2 * qz, disc = B * B - c * C;
+      if (disc < 0 || B + Math.sqrt(disc) === 0) return { path, ok: false };
+      const t = C / (B + Math.sqrt(disc));
+      pz += t * dz; py += t * dy; path.push([pz, py]);
+      if (!free && (Math.abs(py) > s.sd || (s.stop && Math.abs(py) > s.ap))) return { path, ok: false };
+      const n2 = nAt(s.g, lam);
+      if (n2 !== n1) {
+        let nz = c * (pz - s.z) - 1, ny = c * py; const L = Math.hypot(nz, ny); nz /= L; ny /= L;
+        let ci = -(nz * dz + ny * dy); if (ci < 0) { nz = -nz; ny = -ny; ci = -ci; }
+        const mu = n1 / n2, s2 = mu * mu * (1 - ci * ci);
+        if (s2 > 1) return { path, ok: false }; // 전반사
+        const k = mu * ci - Math.sqrt(1 - s2);
+        dz = mu * dz + k * nz; dy = mu * dy + k * ny; const L2 = Math.hypot(dz, dy); dz /= L2; dy /= L2;
+      }
+      n1 = n2;
+    }
+    return { path, ok: true, P: [pz, py], D: [dz, dy] };
+  }
+  // 근축(아주 가는) 광선으로 초점 위치와 초점거리
+  function paraxial(obj, lam) {
+    const e = 1e-3;
+    const L = obj === Infinity ? { P: [-1, e], D: [1, 0] } : (() => { const l = Math.hypot(obj, e); return { P: [-obj, 0], D: [obj / l, e / l] }; })();
+    const r = trace(L.P, L.D, lam, null, true);
+    if (!r.ok) return { efl: NaN, zf: NaN };
+    const m = r.D[1] / r.D[0];
+    return { efl: -e / m, zf: r.P[0] - r.P[1] / m };
+  }
+  // z=0 평면의 높이 y0를 지나도록 광선을 만든다
+  function launch(obj, th, y0) {
+    if (obj === Infinity) { const D = [Math.cos(th), Math.sin(th)]; return { P: [-30, y0 - 30 * Math.tan(th)], D }; }
+    const O = [-obj, -obj * Math.tan(th)], dz = obj, dy = y0 - O[1], l = Math.hypot(dz, dy);
+    return { P: O, D: [dz / l, dy / l] };
+  }
+  function stopY(obj, th, y0) { const L = launch(obj, th, y0); const r = trace(L.P, L.D, LAM[1], sys.iStop, true); return r.ok ? r.P[1] : NaN; }
+  function chief(obj, th) { // 조리개 중심을 지나는 주광선 (시컨트법)
+    let a = 0, b = 0.5, fa = stopY(obj, th, a), fb = stopY(obj, th, b);
+    for (let i = 0; i < 25 && isFinite(fb) && Math.abs(fb) > 1e-9 && fb !== fa; i++) { const c = b - fb * (b - a) / (fb - fa); a = b; fa = fb; b = c; fb = stopY(obj, th, b); }
+    return isFinite(b) ? b : 0;
+  }
+  function fan(obj, th, h, lam, y0, n) {
+    const out = [];
+    for (let i = 0; i < n; i++) {
+      const k = n === 1 ? 0 : -1 + (2 * i) / (n - 1), L = launch(obj, th, y0 + k * h), r = trace(L.P, L.D, lam);
+      const ray = { k, path: r.path, ok: r.ok };
+      if (r.ok) { ray.b = r.D[1] / r.D[0]; ray.a = r.P[1] - r.P[0] * ray.b; }
+      out.push(ray);
+    }
+    return out;
+  }
+  function bestFocus(rays) { // y = a + b z 직선들의 분산이 최소인 z (닫힌 해)
+    const ok = rays.filter((r) => r.ok); if (ok.length < 3) return NaN;
+    let ma = 0, mb = 0; ok.forEach((r) => { ma += r.a; mb += r.b; }); ma /= ok.length; mb /= ok.length;
+    let cab = 0, vb = 0; ok.forEach((r) => { cab += (r.a - ma) * (r.b - mb); vb += (r.b - mb) ** 2; });
+    return vb > 0 ? -cab / vb : NaN;
+  }
+
+  const upd = CB.throttle(() => { compute(); cv.redraw(); });
+  const PREK = CB.seg("rt-pre", (v) => { load(v); upd(); });
+  const OBJ = CB.seg("rt-obj", upd);
+  const AP = CB.range("rt-ap", (v) => (sys ? CB.fmtN(sys.efl / (2 * sys.h * v / 100)) : v + "%"), upd);
+  const FLD = CB.range("rt-fld", (v) => (sys ? (sys.fmax * v / 100).toFixed(1) + "°" : v + "%"), upd);
+  const WL = ["rt-r", "rt-g", "rt-b"].map((id) => CB.check(id, upd));
+  let st = null;
+  function compute() {
+    const obj = OBJ() === "inf" ? Infinity : +OBJ();
+    const h = sys.h * AP() / 100, th = (sys.fmax * FLD() / 100) * Math.PI / 180;
+    AP.set(AP(), false); FLD.set(FLD(), false); // 출력 문구 갱신
+    const yA = chief(obj, 0), axis = fan(obj, 0, h, LAM[1], yA, 41);
+    let zImg = bestFocus(axis);
+    if (!isFinite(zImg)) zImg = paraxial(obj, LAM[1]).zf;
+    const y0 = chief(obj, th);
+    let on = WL.map((g) => g()); if (!on.some(Boolean)) on = [false, true, false];
+    const draw = [], metric = [];
+    LAM.forEach((lam, i) => { if (!on[i]) return; draw.push({ i, rays: fan(obj, th, h, lam, y0, 11) }); metric.push({ i, rays: fan(obj, th, h, lam, y0, 41) }); });
+    const cG = fan(obj, th, 0, LAM[1], y0, 1)[0];
+    const yChief = cG.ok ? cG.a + cG.b * zImg : NaN;
+    const ys = []; metric.forEach((m) => m.rays.forEach((r) => { if (r.ok) ys.push(r.a + r.b * zImg); }));
+    let rms = NaN, mean = NaN;
+    if (ys.length >= 3) { mean = ys.reduce((s, v) => s + v, 0) / ys.length; rms = Math.sqrt(ys.reduce((s, v) => s + (v - mean) ** 2, 0) / ys.length); }
+    const pR = paraxial(obj, LAM[0]), pB = paraxial(obj, LAM[2]);
+    st = { obj, h, th, zImg, draw, metric, yChief, mean, rms, ca: pB.zf - pR.zf, ys };
+    const um = (v) => (Math.abs(v) >= 1 ? v.toFixed(2) + "<small>mm</small>" : Math.round(v * 1000) + "<small>µm</small>");
+    CB.stat("rt-efl", sys.efl.toFixed(1) + "<small>mm</small>");
+    CB.stat("rt-fn", CB.fmtN(sys.efl / (2 * h)));
+    CB.stat("rt-bfl", sys.bfl.toFixed(1) + "<small>mm</small>");
+    CB.stat("rt-rms", isFinite(rms) ? um(rms) : "—");
+    CB.stat("rt-ca", isFinite(st.ca) ? (st.ca < 0 ? "−" : "+") + um(Math.abs(st.ca)) : "—");
+    CB.stat("rt-yh", isFinite(yChief) ? Math.abs(yChief).toFixed(2) + "<small>mm</small>" : "—");
+  }
+  const COLS = (P) => [P.red, P.green, P.blue];
+  const cv = CB.canvas("#cv-ray", (ctx, w, h) => {
+    if (!st) return;
+    const P = CB.palette(), cols = COLS(P), S = sys.surf, mono = "11px " + CB.color("mono");
+    const stack = w < 560, mainH = Math.round(stack ? h * 0.5 : h * 0.6);
+    // ---- 본 화면: 동일 축척
+    const zMin = Math.min(-12, -0.16 * st.zImg), zMax = st.zImg + Math.max(4, 0.05 * st.zImg);
+    let yMax = 0; S.forEach((s) => (yMax = Math.max(yMax, s.sd))); if (isFinite(st.yChief)) yMax = Math.max(yMax, Math.abs(st.yChief) + 2); yMax *= 1.12;
+    const sc = Math.min((w - 24) / (zMax - zMin), (mainH - 26) / (2 * yMax));
+    const X0 = (w - (zMax - zMin) * sc) / 2, Yc = mainH / 2 + 6;
+    const X = (z) => X0 + (z - zMin) * sc, Y = (y) => Yc - y * sc;
+    const sag = (s, y) => (s.c ? (s.c * y * y) / (1 + Math.sqrt(Math.max(0, 1 - s.c * s.c * y * y))) : 0);
+    ctx.strokeStyle = P.faint; ctx.setLineDash([5, 4]); ctx.beginPath(); ctx.moveTo(4, Yc); ctx.lineTo(w - 4, Yc); ctx.stroke(); ctx.setLineDash([]);
+    for (let i = 0; i < S.length - 1; i++) {
+      const a = S[i], b = S[i + 1]; if (!a.g) continue;
+      ctx.beginPath();
+      for (let k = 0; k <= 24; k++) { const y = -a.sd + (2 * a.sd * k) / 24; ctx[k ? "lineTo" : "moveTo"](X(a.z + sag(a, y)), Y(y)); }
+      for (let k = 0; k <= 24; k++) { const y = b.sd - (2 * b.sd * k) / 24; ctx.lineTo(X(b.z + sag(b, y)), Y(y)); }
+      ctx.closePath();
+      ctx.fillStyle = GLASS[a.g].f ? "rgba(150,110,220,0.30)" : "rgba(80,160,230,0.22)"; ctx.fill();
+      ctx.strokeStyle = GLASS[a.g].f ? "#8a6fd6" : P.accent2; ctx.lineWidth = 1.2; ctx.stroke();
+    }
+    const sp = S[sys.iStop]; // 조리개 날 (근축 비례로 표시)
+    const stopR = sp.ap * (AP() / 100), outer = Math.max(sp.sd, sp.ap) + yMax * 0.12;
+    ctx.strokeStyle = P.text; ctx.lineWidth = 2.5;
+    const zS = sp.z + sag(sp, stopR);
+    ctx.beginPath(); ctx.moveTo(X(zS), Y(stopR)); ctx.lineTo(X(zS), Y(outer)); ctx.moveTo(X(zS), Y(-stopR)); ctx.lineTo(X(zS), Y(-outer)); ctx.stroke();
+    // 센서 면
+    ctx.strokeStyle = P.text; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(X(st.zImg), Y(yMax * 0.92)); ctx.lineTo(X(st.zImg), Y(-yMax * 0.92)); ctx.stroke();
+    ctx.fillStyle = P.dim; ctx.font = mono; ctx.textAlign = "center"; ctx.fillText("센서 면", X(st.zImg), 12);
+    ctx.textAlign = "left"; ctx.fillText(st.obj === Infinity ? "물체: 무한대" : "물체: " + st.obj / 1000 + " m (화면 밖)", 6, 12);
+    // 광선
+    ctx.lineWidth = 1;
+    st.draw.forEach(({ i, rays }) => {
+      ctx.strokeStyle = cols[i];
+      rays.forEach((r) => {
+        const pts = r.path.slice();
+        if (pts[0][0] < zMin) { const [z1, y1] = pts[0], [z2, y2] = pts[1]; pts[0] = [zMin, y1 + ((y2 - y1) * (zMin - z1)) / (z2 - z1)]; }
+        ctx.globalAlpha = r.ok ? 0.8 : 0.3; ctx.beginPath();
+        pts.forEach(([z, y], k) => ctx[k ? "lineTo" : "moveTo"](X(z), Y(y)));
+        if (r.ok) ctx.lineTo(X(zMax), Y(r.a + r.b * zMax));
+        ctx.stroke();
+      });
+    });
+    ctx.globalAlpha = 1;
+    // ---- 아래 패널 두 개
+    const pw = stack ? w : w / 2, ph = stack ? (h - mainH) / 2 : h - mainH;
+    const boxes = stack ? [{ x: 0, y: mainH }, { x: 0, y: mainH + ph }] : [{ x: 0, y: mainH }, { x: pw, y: mainH }];
+    ctx.strokeStyle = P.border; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(0, mainH); ctx.lineTo(w, mainH); if (stack) { ctx.moveTo(0, mainH + ph); ctx.lineTo(w, mainH + ph); } else { ctx.moveTo(pw, mainH); ctx.lineTo(pw, h); } ctx.stroke();
+    // (a) 초점 부근 확대
+    const bx = boxes[0].x + 10, by = boxes[0].y + 22, bw = pw - 20, bh = ph - 32;
+    ctx.fillStyle = P.dim; ctx.font = "12px " + CB.color("font"); ctx.textAlign = "left"; ctx.fillText("초점 부근 확대", bx, by - 7);
+    const okRays = []; st.metric.forEach((m) => m.rays.forEach((r) => { if (r.ok) okRays.push([m.i, r]); }));
+    if (okRays.length >= 3 && isFinite(st.mean)) {
+      // 평균 광선을 따라 기울인 좌표: 축 밖 광속도 창 안에 머문다
+      let dev = 0, mb = 0; st.ys.forEach((v) => (dev = Math.max(dev, Math.abs(v - st.mean))));
+      okRays.forEach(([, r]) => (mb += r.b)); mb /= okRays.length;
+      let du = 0; okRays.forEach(([, r]) => (du = Math.max(du, Math.abs(r.b - mb)))); const u = Math.max(0.01, du);
+      const Hy = Math.max(dev * 1.6, 0.004);
+      let Wz = (1.4 * Hy) / u; Wz = Math.min(Wz, Math.max(0.05, st.zImg - sys.zLast - 0.05));
+      const zx = (z) => bx + ((z - (st.zImg - Wz)) / (2 * Wz)) * bw;
+      const yy = (y, z) => by + bh / 2 - ((y - st.mean - mb * (z - st.zImg)) / Hy) * (bh / 2);
+      ctx.save(); ctx.beginPath(); ctx.rect(bx, by, bw, bh); ctx.clip();
+      okRays.forEach(([i, r]) => { const z1 = st.zImg - Wz, z2 = st.zImg + Wz; ctx.strokeStyle = cols[i]; ctx.globalAlpha = 0.55; ctx.beginPath(); ctx.moveTo(bx, yy(r.a + r.b * z1, z1)); ctx.lineTo(bx + bw, yy(r.a + r.b * z2, z2)); ctx.stroke(); });
+      ctx.globalAlpha = 1; ctx.strokeStyle = P.text; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(zx(st.zImg), by); ctx.lineTo(zx(st.zImg), by + bh); ctx.stroke();
+      ctx.restore();
+      ctx.strokeStyle = P.border; ctx.lineWidth = 1; ctx.strokeRect(bx, by, bw, bh);
+      ctx.font = mono; ctx.textAlign = "right";
+      const lbl = `세로 ±${Math.round(Hy * 1000)} µm · 가로 ±${Wz >= 1 ? Wz.toFixed(1) + " mm" : Math.round(Wz * 1000) + " µm"}`;
+      ctx.fillStyle = P.elev; ctx.fillRect(bx + bw - ctx.measureText(lbl).width - 8, by + bh - 19, ctx.measureText(lbl).width + 7, 18);
+      ctx.fillStyle = P.dim; ctx.fillText(lbl, bx + bw - 4, by + bh - 6);
+    } else { ctx.fillStyle = P.faint; ctx.fillText("광선이 모두 가려졌습니다", bx + 8, by + 20); }
+    // (b) 광선 팬 그래프
+    const fx = boxes[1].x + 52, fy = boxes[1].y + 24, fw = pw - 66, fh = ph - 52;
+    ctx.fillStyle = P.dim; ctx.font = "12px " + CB.color("font"); ctx.textAlign = "left"; ctx.fillText("광선 팬: 동공 위치 → 센서에서의 빗나감", boxes[1].x + 10, fy - 9);
+    if (isFinite(st.yChief)) {
+      const series = []; let m = 1;
+      st.metric.forEach(({ i, rays }) => { const d = rays.filter((r) => r.ok).map((r) => [r.k, (r.a + r.b * st.zImg - st.yChief) * 1000]); d.forEach((p) => (m = Math.max(m, Math.abs(p[1])))); series.push({ data: d, color: cols[i], width: 2 }); });
+      const nice = [2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000]; const lim = nice.find((v) => v >= m * 1.05) || m;
+      CB.chart(ctx, { x: fx, y: fy, w: fw, h: fh }, { x: [-1, 1], y: [-lim, lim], xTicks: [-1, 0, 1], yTicks: [-lim, 0, lim], yFmt: (v) => v + "µm", series, hlines: [{ y: 0, color: P.faint, dash: [] }] });
+    }
+  }, { aspect: (w) => (w < 560 ? 1.5 : 0.78), maxHeight: 820 });
+  load("single"); compute(); cv.redraw();
+})();
+
+/* ================================================================ 3. 코팅 */
+(function () {
+  const upd = CB.throttle(() => { calc(); cv.redraw(); });
+  const NE = CB.range("ct-n", (v) => v + "장", () => { if (NC() > Math.floor(NE() / 2)) NC.set(Math.floor(NE() / 2), false); upd(); });
+  const NC = CB.range("ct-c", (v) => v + "쌍", () => { if (NC() > Math.floor(NE() / 2)) NC.set(Math.floor(NE() / 2), false); upd(); });
+  const K = CB.seg("ct-k", upd);
+  const IDX = CB.range("ct-idx", (v) => v.toFixed(2), upd);
+  const Rof = (k) => (k === "none" ? Math.pow((IDX() - 1) / (IDX() + 1), 2) : { single: 0.015, multi: 0.003, nano: 0.001 }[k]);
+  let st = {};
+  calc();
+  function calc() {
+    const m = Math.max(2, 2 * NE() - 2 * NC()), R = Rof(K()), T = Math.pow(1 - R, m), pairs = (m * (m - 1)) / 2, g = pairs * R * R;
+    st = { m, R, T, pairs, g };
+    CB.stat("ct-m", m + "<small>개</small>");
+    CB.stat("ct-r", (R * 100).toFixed(R < 0.01 ? 2 : 1) + "<small>%</small>");
+    CB.stat("ct-t", (T * 100).toFixed(1) + "<small>%</small>");
+    CB.stat("ct-loss", (-Math.log2(T)).toFixed(2) + "<small>스톱</small>");
+    CB.stat("ct-p", pairs + "<small>가지</small>");
+    CB.stat("ct-g", (g >= 0.1 ? (g * 100).toFixed(0) : g >= 0.001 ? (g * 100).toFixed(2) : (g * 100).toFixed(4)) + "<small>%" + (m * R > 0.3 ? " (근사 한계)" : "") + "</small>");
+  }
+  const cv = CB.canvas("#cv-coat", (ctx, w, h) => {
+    const P = CB.palette(), stack = w < 560;
+    const cw = stack ? w : w * 0.58, ch = stack ? h * 0.52 : h;
+    const KS = [["none", "없음", P.bad], ["single", "단층", P.warn], ["multi", "다층", P.accent], ["nano", "나노", P.ok]];
+    CB.chart(ctx, { x: 50, y: 14, w: cw - 66, h: ch - 50 }, {
+      x: [0, 40], y: [0, 100], xTicks: [0, 10, 20, 30, 40], yFmt: (v) => v + "%",
+      series: KS.map(([k, , c]) => ({ data: Array.from({ length: 41 }, (_, i) => [i, Math.pow(1 - Rof(k), i) * 100]), color: c, width: k === K() ? 3 : 1.5, dash: k === K() ? [] : [4, 3] })),
+      vlines: [{ x: st.m, color: P.text, label: st.m + "면" }],
+      points: [{ x: st.m, y: st.T * 100, color: P.text, r: 4 }],
+    });
+    ctx.fillStyle = P.dim; ctx.font = "12px " + CB.color("font"); ctx.textAlign = "center";
+    ctx.fillText("공기-유리 면 수 → 투과율", 50 + (cw - 66) / 2, ch - 8);
+    ctx.textAlign = "left"; ctx.font = "11px " + CB.color("mono");
+    KS.forEach(([, n, c], i) => { ctx.fillStyle = c; ctx.fillText("■ " + n, 58 + i * 52, ch - 44); });
+    // 역광 장면
+    const sx = stack ? 10 : cw + 8, sy = stack ? ch + 6 : 10, sw = stack ? w - 20 : w - cw - 18, sh = stack ? h - ch - 14 : h - 20;
+    ctx.save(); ctx.beginPath(); ctx.rect(sx, sy, sw, sh); ctx.clip();
+    const gr = ctx.createLinearGradient(0, sy, 0, sy + sh); gr.addColorStop(0, "#14223a"); gr.addColorStop(0.7, "#3a2c3e"); gr.addColorStop(1, "#1a1418");
+    ctx.fillStyle = gr; ctx.fillRect(sx, sy, sw, sh);
+    ctx.fillStyle = "#07080a"; ctx.beginPath(); ctx.moveTo(sx, sy + sh * 0.78);
+    for (let i = 0; i <= 12; i++) ctx.lineTo(sx + (sw * i) / 12, sy + sh * (0.72 + 0.06 * Math.sin(i * 1.7)));
+    ctx.lineTo(sx + sw, sy + sh); ctx.lineTo(sx, sy + sh); ctx.fill();
+    const sunX = sx + sw * 0.24, sunY = sy + sh * 0.28, ccx = sx + sw / 2, ccy = sy + sh / 2;
+    const glow = ctx.createRadialGradient(sunX, sunY, 0, sunX, sunY, sw * 0.25); glow.addColorStop(0, "rgba(255,250,230,1)"); glow.addColorStop(0.12, "rgba(255,230,170,0.9)"); glow.addColorStop(1, "rgba(255,200,120,0)");
+    ctx.fillStyle = glow; ctx.fillRect(sx, sy, sw, sh);
+    const ga = CB.clamp(st.R * st.R * 2500, 0, 0.6), n = Math.min(st.pairs, 9), tints = ["120,255,170", "180,140,255", "120,200,255", "255,170,110"];
+    for (let i = 0; i < n; i++) {
+      const k = -1.3 + (2.1 * i) / Math.max(1, n - 1), gx = ccx + (sunX - ccx) * -k, gy = ccy + (sunY - ccy) * -k, r = sw * (0.025 + 0.05 * ((i * 7) % 5) / 4);
+      ctx.fillStyle = `rgba(${tints[i % 4]},${ga * (0.5 + 0.5 * ((i * 3) % 4) / 3)})`;
+      ctx.beginPath(); for (let j = 0; j < 6; j++) { const a = (j / 6) * Math.PI * 2 + 0.3; ctx[j ? "lineTo" : "moveTo"](gx + r * Math.cos(a), gy + r * Math.sin(a)); } ctx.closePath(); ctx.fill();
+    }
+    ctx.fillStyle = `rgba(200,190,180,${CB.clamp(st.g * 8, 0, 0.5)})`; ctx.fillRect(sx, sy, sw, sh);
+    ctx.restore();
+    ctx.fillStyle = P.faint; ctx.font = "11px " + CB.color("mono"); ctx.textAlign = "right"; ctx.fillText("고스트·베일(정성적)", sx + sw - 4, sy + sh - 6);
+  }, { aspect: (w) => (w < 560 ? 1.05 : 0.5), maxHeight: 520 });
+  cv.redraw();
+})();
+
+/* ================================================================ 4. MTF */
+(function () {
+  const upd = CB.throttle(() => cv.redraw());
+  const NS = CB.APERTURES.filter((v) => v >= 1.4);
+  const N = CB.steps("mt-n", NS, CB.fmtN, 5.6, upd);
+  const LM = CB.seg("mt-l", upd);
+  const PP = CB.range("mt-p", (v) => v.toFixed(1) + " µm", upd);
+  const AB = CB.range("mt-ab", (v) => v.toFixed(1) + " µm", upd);
+  const DZ = CB.range("mt-dz", (v) => v + " µm", upd);
+  const PX = CB.check("mt-px", upd);
+  function J1(x) { // Numerical Recipes 근사
+    const ax = Math.abs(x);
+    if (ax < 8) {
+      const y = x * x;
+      const a = x * (72362614232.0 + y * (-7895059235.0 + y * (242396853.1 + y * (-2972611.439 + y * (15704.4826 + y * -30.16036606)))));
+      const b = 144725228442.0 + y * (2300535178.0 + y * (18583304.74 + y * (99447.43394 + y * (376.9991397 + y))));
+      return a / b;
+    }
+    const z = 8 / ax, y = z * z, xx = ax - 2.356194491;
+    const a = 1 + y * (0.183105e-2 + y * (-0.3516396496e-4 + y * (0.2457520174e-5 + y * -0.240337019e-6)));
+    const b = 0.04687499995 + y * (-0.2002690873e-3 + y * (0.8449199096e-5 + y * (-0.88228987e-6 + y * 0.105787412e-6)));
+    const ans = Math.sqrt(0.636619772 / ax) * (Math.cos(xx) * a - z * Math.sin(xx) * b);
+    return x < 0 ? -ans : ans;
+  }
+  function parts(nu) { // nu: lp/mm
+    const n = N(), lam = +LM() / 1000, p = PP() / 1000; // mm
+    const x = nu * lam * n;
+    const dif = x >= 1 ? 0 : (2 / Math.PI) * (Math.acos(x) - x * Math.sqrt(1 - x * x));
+    const sig = (AB() / 1000) * Math.pow(1.4 / n, 2);
+    const ab = Math.exp(-2 * Math.PI * Math.PI * sig * sig * nu * nu);
+    const D = DZ() / 1000 / n, u = Math.PI * D * nu;
+    const de = u < 1e-6 ? 1 : Math.abs((2 * J1(u)) / u);
+    const pu = Math.PI * p * nu, pix = pu < 1e-6 ? 1 : Math.abs(Math.sin(pu) / pu);
+    const lens = dif * ab * de;
+    return { dif, lens, sys: lens * (PX() ? pix : 1) };
+  }
+  const cv = CB.canvas("#cv-mtf", (ctx, w) => {
+    const P = CB.palette(), n = N(), lam = +LM(), p = PP();
+    const nq = 1000 / (2 * p), nc = 1000 / (lam * n);
+    const xmax = CB.clamp(Math.ceil((2.2 * nq) / 50) * 50, 100, 700);
+    const xs = Array.from({ length: 241 }, (_, i) => (xmax * i) / 240), pr = xs.map(parts);
+    const d = (k) => xs.map((x, i) => [x, pr[i][k]]);
+    const series = [{ data: d("dif"), color: P.faint, width: 1.6, dash: [5, 4] }, { data: d("lens"), color: P.accent, width: 2.5 }];
+    if (PX()) series.push({ data: d("sys"), color: P.accent2, width: 2.5 });
+    CB.chart(ctx, null, { x: [0, xmax], y: [0, 1], xLabel: "공간 주파수 (lp/mm)", yLabel: "MTF (대비 전달)", series,
+      bands: [{ x0: Math.min(nq, xmax), x1: xmax, color: P.grid }],
+      vlines: [{ x: Math.min(nq, xmax), color: P.bad, label: "나이퀴스트 " + Math.round(nq) }].concat(nc < xmax ? [{ x: nc, color: P.faint, label: "회절 차단" }] : []),
+      hlines: [{ y: 0.5, color: P.faint }] });
+    ctx.font = "12px " + CB.color("font"); ctx.textAlign = "right";
+    [["점선: 회절만", P.dim], ["주황: 렌즈", P.accent]].concat(PX() ? [["청록: 렌즈+화소", P.accent2]] : []).forEach(([t, c], i) => { ctx.fillStyle = c; ctx.fillText(t, w - 24, 32 + i * 17); });
+    // 읽기 값
+    const airy = 2.44 * lam * n;
+    CB.stat("mt-airy", airy.toFixed(1) + "<small>µm = " + (airy / p).toFixed(1) + "화소</small>");
+    CB.stat("mt-nc", Math.round(nc) + "<small>lp/mm</small>");
+    CB.stat("mt-nq", Math.round(nq) + "<small>lp/mm</small>");
+    CB.stat("mt-atnq", parts(nq).sys.toFixed(2));
+    let m50 = NaN; for (let i = 1; i < 2000; i++) { const nu = (nc * i) / 2000; if (parts(nu).sys < 0.5) { m50 = nu; break; } }
+    CB.stat("mt-50", isFinite(m50) ? Math.round(m50) + "<small>lp/mm</small>" : "—");
+    const dla = (2 * p) / (2.44 * lam);
+    CB.stat("mt-dla", CB.fmtN(dla));
+  }, { aspect: 0.62, minHeight: 300, maxHeight: 460 });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,932 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<title>이미지 센서와 판독 · CameraBook</title>
+<meta name="description" content="광자가 전자가 되고 숫자가 되기까지. 센서 적층 구조, 픽셀의 양자 효율·우물 용량·변환 이득, 베이어 컬러 필터와 디모자이크, 행 단위 판독과 롤링 셔터, 데이터량과 적층형 센서, 센서 크기와 위상차 AF 픽셀을 시뮬레이터로 분해한다.">
+<link rel="canonical" href="https://system.euiyun.com/camera/chapters/sensor.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="CameraBook">
+<meta property="og:title" content="이미지 센서와 판독 · CameraBook">
+<meta property="og:description" content="광자가 전자가 되고 숫자가 되기까지. 센서 적층 구조, 픽셀의 양자 효율·우물 용량·변환 이득, 베이어 컬러 필터와 디모자이크, 행 단위 판독과 롤링 셔터, 데이터량과 적층형 센서, 센서 크기와 위상차 AF 픽셀을 시뮬레이터로 분해한다.">
+<meta property="og:url" content="https://system.euiyun.com/camera/chapters/sensor.html">
+<meta property="og:image" content="https://system.euiyun.com/camera/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="ko_KR">
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","headline":"이미지 센서와 판독","name":"이미지 센서와 판독 · CameraBook","url":"https://system.euiyun.com/camera/chapters/sensor.html","mainEntityOfPage":"https://system.euiyun.com/camera/chapters/sensor.html","inLanguage":"ko","isAccessibleForFree":true,"learningResourceType":"interactive textbook chapter","position":5,"image":"https://system.euiyun.com/camera/og.png","dateModified":"2026-11-07","isPartOf":{"@type":"Book","@id":"https://system.euiyun.com/camera/#book","name":"CameraBook — 인터랙티브 카메라 교과서","url":"https://system.euiyun.com/camera/"},"publisher":{"@type":"Organization","name":"CameraBook","url":"https://system.euiyun.com/camera/"},"description":"광자가 전자가 되고 숫자가 되기까지. 센서 적층 구조, 픽셀의 양자 효율·우물 용량·변환 이득, 베이어 컬러 필터와 디모자이크, 행 단위 판독과 롤링 셔터, 데이터량과 적층형 센서, 센서 크기와 위상차 AF 픽셀을 시뮬레이터로 분해한다."},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"CameraBook","item":"https://system.euiyun.com/camera/"},{"@type":"ListItem","position":2,"name":"05 이미지 센서와 판독","item":"https://system.euiyun.com/camera/chapters/sensor.html"}]}]}</script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<link rel="stylesheet" href="../css/style.css">
+<script src="../js/common.js"></script>
+<style>
+  .sb-links { display: grid; gap: 8px; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); margin: 18px 0; padding: 0 !important; list-style: none; }
+  .sb-links li { margin: 0 !important; background: var(--bg-elev); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; font-size: 14.5px; line-height: 1.5; }
+  .sb-links li a { font-weight: 700; }
+  .sb-links li span { display: block; color: var(--text-dim); font-size: 13.5px; }
+  svg .f-r { fill: rgba(224, 68, 62, 0.55); stroke: var(--border); }
+  svg .f-g { fill: rgba(45, 164, 78, 0.55); stroke: var(--border); }
+  svg .f-b { fill: rgba(47, 111, 224, 0.55); stroke: var(--border); }
+  svg .f-pd { fill: var(--accent-2-soft); stroke: var(--accent-2); }
+  svg .f-metal { fill: var(--text-faint); }
+  svg .s-light { stroke: var(--warn); stroke-width: 1.6; fill: none; }
+  svg .s-dash { stroke: var(--text-faint); stroke-dasharray: 4 3; fill: none; }
+  .sim-view canvas { touch-action: pan-y; }
+</style>
+<link rel="stylesheet" href="../../shared/css/book-shell.css">
+<script defer src="../../shared/js/book-shell.js" data-book="camera"></script>
+</head>
+<body data-chapter="sensor">
+<main class="chapter">
+  <header class="chapter-hero">
+    <div class="eyebrow">Chapter 05</div>
+    <h1>이미지 센서와 판독</h1>
+    <p class="lead">렌즈가 모은 빛은 우표만 한 실리콘 칩 위에서 수천만 개의 작은 양동이에 나뉘어 담깁니다. 양동이마다 광자를 전자로 바꾸어 세고, 그 전하를 전압으로, 다시 숫자로 바꾼 뒤, 한 줄씩 칩 밖으로 내보냅니다. 이 장에서는 이 일을 하는 부품, 이미지 센서를 층별로 뜯어 보고 각 단계가 화질과 속도를 어떻게 정하는지 숫자로 따라갑니다. 반도체 물리는 자매편 <a href="https://semi.euiyun.com/sensor/">SensorBook</a>에서 깊게 다루므로, 여기서는 카메라 시스템의 한 부품으로서 센서를 봅니다.</p>
+    <ul class="objectives">
+      <li>커버 글라스부터 로직 층까지 센서의 적층 구조와 BSI·적층형 센서가 나온 이유를 설명한다.</li>
+      <li>픽셀의 양자 효율, 우물 용량, 변환 이득, 읽기 노이즈가 신호 대 잡음비와 다이내믹 레인지를 어떻게 정하는지 안다.</li>
+      <li>베이어 컬러 필터 배열에서 색이 어떻게 '추정'되는지, 왜 가짜 색이 생기는지 이해한다.</li>
+      <li>행 단위 판독 시간이 롤링 셔터 왜곡과 연사·동영상 성능을 어떻게 제한하는지 계산한다.</li>
+      <li>센서 크기·화소 피치·위상차 AF 픽셀이 시스템 설계에서 무엇을 주고받는지 정리한다.</li>
+    </ul>
+  </header>
+
+  <!-- =============================================================== 1 -->
+  <section id="stack">
+    <h2>센서 한 장의 구조</h2>
+    <p><span class="term">이미지 센서</span><span class="en">(Image Sensor)</span>는 빛을 전기 신호로 바꾸는 반도체 칩입니다. 오늘날 카메라와 스마트폰은 거의 모두 CMOS 공정으로 만든 센서를 씁니다. 바디 안에서는 렌즈 마운트 바로 뒤, 셔터 유닛(<a href="mechanism.html">04장</a>) 뒤에 놓이고, 손떨림 보정(IBIS)이 있는 카메라라면 센서 자체가 자석과 코일 위에 떠서 움직입니다(<a href="anatomy.html">02장</a>). 칩을 위에서부터 단면으로 자르면 빛이 지나가는 순서대로 다음 층이 나옵니다.</p>
+    <figure class="diagram">
+      <svg viewBox="0 0 800 400" role="img" aria-label="적층형 BSI 이미지 센서의 단면과 FSI·BSI 비교">
+        <!-- incoming light -->
+        <path d="M76 4 v24 M148 4 v24 M220 4 v24 M292 4 v24" class="s-light"/>
+        <!-- cover glass -->
+        <rect x="40" y="30" width="288" height="16" rx="2" fill="rgba(140,190,255,0.22)" stroke="var(--accent-2)"/>
+        <!-- OLPF -->
+        <rect x="40" y="58" width="288" height="14" rx="2" fill="none" stroke="var(--text-faint)" stroke-dasharray="5 3"/>
+        <!-- converging light -->
+        <path d="M58 82 L76 150 L94 82 M130 82 L148 150 L166 82 M202 82 L220 150 L238 82 M274 82 L292 150 L310 82" class="s-light" opacity=".55"/>
+        <!-- microlenses -->
+        <path d="M40 112 Q76 74 112 112 Q148 74 184 112 Q220 74 256 112 Q292 74 328 112 Z" fill="rgba(140,190,255,0.35)" stroke="var(--accent-2)"/>
+        <!-- color filters -->
+        <rect x="40" y="112" width="72" height="16" class="f-r"/><rect x="112" y="112" width="72" height="16" class="f-g"/><rect x="184" y="112" width="72" height="16" class="f-r"/><rect x="256" y="112" width="72" height="16" class="f-g"/>
+        <!-- silicon + photodiodes -->
+        <rect x="40" y="128" width="288" height="70" class="f-surface"/>
+        <rect x="50" y="138" width="52" height="54" rx="6" class="f-pd"/><rect x="122" y="138" width="52" height="54" rx="6" class="f-pd"/><rect x="194" y="138" width="52" height="54" rx="6" class="f-pd"/><rect x="266" y="138" width="52" height="54" rx="6" class="f-pd"/>
+        <path d="M112 128 v70 M184 128 v70 M256 128 v70" stroke="var(--text-dim)" stroke-width="3"/>
+        <!-- wiring -->
+        <rect x="40" y="198" width="288" height="44" class="f-elev"/>
+        <g class="f-metal"><rect x="52" y="206" width="40" height="5"/><rect x="132" y="206" width="30" height="5"/><rect x="200" y="206" width="44" height="5"/><rect x="276" y="206" width="36" height="5"/><rect x="70" y="218" width="70" height="5"/><rect x="170" y="218" width="96" height="5"/><rect x="280" y="218" width="30" height="5"/><rect x="48" y="230" width="270" height="5"/></g>
+        <!-- bonding -->
+        <path d="M40 246 H328" stroke="var(--accent)" stroke-width="2" stroke-dasharray="6 3"/>
+        <!-- logic die -->
+        <rect x="40" y="250" width="288" height="58" rx="2" class="f-acc2-soft"/>
+        <text x="184" y="284" text-anchor="middle" class="t-dim">로직 다이: 열 ADC · 타이밍 · 인터페이스</text>
+        <rect x="40" y="318" width="288" height="34" rx="2" fill="none" stroke="var(--text-faint)" stroke-dasharray="5 3"/>
+        <text x="184" y="340" text-anchor="middle" class="t-dim">(일부 센서) DRAM 다이</text>
+        <!-- labels -->
+        <g class="s-dash"><path d="M330 38 H352"/><path d="M330 65 H352"/><path d="M330 100 H352"/><path d="M330 120 H352"/><path d="M330 162 H352"/><path d="M330 220 H352"/><path d="M330 246 H352"/></g>
+        <text x="358" y="42" class="t">커버 글라스 + IR 컷 필터</text>
+        <text x="358" y="69" class="t">광학 로우패스 필터 <tspan class="t-dim">(선택)</tspan></text>
+        <text x="358" y="104" class="t">마이크로렌즈</text>
+        <text x="358" y="124" class="t">컬러 필터 (R·G·B)</text>
+        <text x="358" y="158" class="t">포토다이오드 (실리콘 수 µm)</text>
+        <text x="358" y="175" class="t-dim">픽셀 사이 격리 벽(DTI)</text>
+        <text x="358" y="224" class="t">금속 배선층</text>
+        <text x="358" y="250" class="t-acc">웨이퍼 접합</text>
+        <text x="358" y="268" class="t-dim">Cu–Cu 하이브리드 본딩 등</text>
+        <text x="40" y="380" class="t-mono">← 픽셀 4개 (실제로는 한 칸이 약 0.6~6 µm)</text>
+        <!-- FSI vs BSI mini -->
+        <g transform="translate(560,40)">
+          <text x="50" y="0" text-anchor="middle" class="t-acc">FSI</text>
+          <text x="170" y="0" text-anchor="middle" class="t-acc">BSI</text>
+          <path d="M50 12 v26 M170 12 v26" class="s-light"/>
+          <path d="M10 60 Q50 30 90 60 Z" fill="rgba(140,190,255,0.35)" stroke="var(--accent-2)"/>
+          <rect x="10" y="60" width="80" height="12" class="f-g"/>
+          <rect x="10" y="72" width="80" height="80" class="f-elev"/>
+          <g class="f-metal"><rect x="10" y="84" width="24" height="6"/><rect x="66" y="84" width="24" height="6"/><rect x="10" y="104" width="20" height="6"/><rect x="70" y="104" width="20" height="6"/><rect x="10" y="124" width="28" height="6"/><rect x="62" y="124" width="28" height="6"/></g>
+          <rect x="10" y="152" width="80" height="60" class="f-surface"/>
+          <rect x="22" y="160" width="56" height="44" rx="6" class="f-pd"/>
+          <path d="M40 64 L48 160 M60 64 L52 160" class="s-light" opacity=".6"/>
+          <path d="M130 60 Q170 30 210 60 Z" fill="rgba(140,190,255,0.35)" stroke="var(--accent-2)"/>
+          <rect x="130" y="60" width="80" height="12" class="f-g"/>
+          <rect x="130" y="72" width="80" height="60" class="f-surface"/>
+          <rect x="142" y="78" width="56" height="48" rx="6" class="f-pd"/>
+          <rect x="130" y="132" width="80" height="80" class="f-elev"/>
+          <g class="f-metal"><rect x="134" y="144" width="70" height="6"/><rect x="140" y="164" width="60" height="6"/><rect x="134" y="184" width="72" height="6"/></g>
+          <path d="M150 64 L166 100 M190 64 L174 100" class="s-light" opacity=".6"/>
+          <text x="50" y="232" text-anchor="middle" class="t-dim">배선 사이로</text>
+          <text x="50" y="248" text-anchor="middle" class="t-dim">빛이 통과</text>
+          <text x="170" y="232" text-anchor="middle" class="t-dim">배선은 뒤로,</text>
+          <text x="170" y="248" text-anchor="middle" class="t-dim">빛은 바로 실리콘에</text>
+        </g>
+      </svg>
+      <figcaption><b>그림 5-1.</b> 적층형 BSI 센서의 단면(왼쪽, 비례 무시)과 전면 조사(FSI)·후면 조사(BSI) 픽셀 비교(오른쪽). BSI는 웨이퍼를 뒤집어 얇게 갈아내고 빛을 배선 반대쪽에서 받는다. 적층형은 그 아래에 회로 전용 웨이퍼를 붙인다.</figcaption>
+    </figure>
+    <div class="cards">
+      <div><b>커버 글라스·IR 컷 필터</b>실리콘은 파장 약 1,100 nm까지 반응해 사람 눈에 안 보이는 근적외선도 '봅니다'. 그대로 두면 색이 틀어지므로 대략 650~700 nm 위를 막는 필터를 센서 앞에 둡니다.</div>
+      <div><b>광학 로우패스 필터</b><span class="en">(OLPF)</span> 복굴절 결정판으로 상을 1픽셀 정도 일부러 번지게 해 무아레와 가짜 색을 줄입니다. 해상도와 맞바꾸는 장치라 고화소 기종에서는 빼기도 합니다.</div>
+      <div><b>마이크로렌즈·컬러 필터</b>픽셀마다 작은 볼록렌즈가 빛을 감광 영역으로 모으고, 그 아래 필터가 한 가지 색만 통과시킵니다.</div>
+      <div><b>포토다이오드·회로</b>실리콘이 광자를 흡수해 전자를 만들고, 픽셀 회로와 열 ADC가 그 전하를 숫자로 바꿉니다.</div>
+    </div>
+    <p>예전 센서는 배선층 위에서 빛을 받는 <span class="term">전면 조사</span><span class="en">(FSI, Front-Side Illumination)</span> 구조였습니다. 픽셀이 작아질수록 배선이 빛을 가리는 비율이 커지자, 웨이퍼를 뒤집어 배선 반대편에서 빛을 받는 <span class="term">후면 조사</span><span class="en">(BSI, Back-Side Illumination)</span> 구조가 표준이 되었습니다. 여기서 한 걸음 더 나간 것이 <span class="term">적층형 센서</span><span class="en">(Stacked Sensor)</span>입니다. 픽셀만 있는 웨이퍼와 ADC·로직 회로만 있는 웨이퍼를 따로 만들어 붙이므로, 픽셀은 빛에, 로직은 속도에 각각 최적화된 공정을 쓸 수 있습니다. 일부 센서는 사이에 DRAM 층까지 끼워 프레임을 칩 안에 잠시 저장합니다. 이 구조가 왜 '빠른 센서'의 열쇠인지는 <a href="#data">5절</a>에서 계산합니다.</p>
+    <figure class="diagram">
+      <svg viewBox="0 0 800 270" role="img" aria-label="이미지 센서 칩의 블록 구성">
+        <defs>
+          <pattern id="sn-grid" width="17" height="17" patternUnits="userSpaceOnUse"><rect width="17" height="17" fill="none" stroke="var(--border)"/></pattern>
+          <marker id="sn-ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="var(--text-dim)"/></marker>
+        </defs>
+        <rect x="20" y="30" width="70" height="90" rx="8" class="f-elev"/>
+        <text x="55" y="70" text-anchor="middle" class="t">타이밍</text><text x="55" y="88" text-anchor="middle" class="t">제어</text>
+        <rect x="104" y="30" width="34" height="170" rx="6" class="f-surface"/>
+        <text x="121" y="115" text-anchor="middle" class="t-dim" transform="rotate(-90 121 115)">행 구동기</text>
+        <rect x="150" y="30" width="340" height="170" fill="url(#sn-grid)" stroke="var(--text-dim)"/>
+        <rect x="150" y="98" width="340" height="17" class="f-acc-soft"/>
+        <text x="320" y="22" text-anchor="middle" class="t">픽셀 배열 (수천 행 × 수천 열)</text>
+        <text x="320" y="111" text-anchor="middle" class="t-acc">지금 읽는 행</text>
+        <path d="M138 106 H150" stroke="var(--accent)" stroke-width="2"/>
+        <g stroke="var(--accent)" stroke-width="1.2" opacity=".7"><path d="M175 115 V212"/><path d="M226 115 V212"/><path d="M277 115 V212"/><path d="M328 115 V212"/><path d="M379 115 V212"/><path d="M430 115 V212"/><path d="M473 115 V212"/></g>
+        <rect x="150" y="212" width="340" height="34" rx="6" class="f-acc2-soft"/>
+        <text x="320" y="234" text-anchor="middle" class="t">열 ADC 뱅크 (열마다 하나씩, 한 행을 동시에 변환)</text>
+        <path d="M490 229 H540" class="s-line" marker-end="url(#sn-ar)"/>
+        <rect x="544" y="208" width="110" height="42" rx="8" class="f-elev"/>
+        <text x="599" y="226" text-anchor="middle" class="t">직렬 출력</text>
+        <text x="599" y="242" text-anchor="middle" class="t-mono">N 레인 × Gbps</text>
+        <path d="M654 229 H700" class="s-line" marker-end="url(#sn-ar)"/>
+        <text x="745" y="226" text-anchor="middle" class="t-acc">ISP</text>
+        <text x="745" y="243" text-anchor="middle" class="t-dim">(06장)</text>
+        <path d="M90 75 H104" class="s-line"/>
+        <text x="520" y="60" class="t-dim">적층형 센서에서는</text>
+        <text x="520" y="78" class="t-dim">ADC·타이밍·출력 회로가</text>
+        <text x="520" y="96" class="t-dim">픽셀 배열 바로 아래</text>
+        <text x="520" y="114" class="t-dim">다른 웨이퍼에 들어간다.</text>
+      </svg>
+      <figcaption><b>그림 5-2.</b> 센서 칩의 블록 구성. 행 구동기가 한 행을 고르면 그 행의 모든 픽셀이 세로 신호선(열)에 동시에 값을 내놓고, 열마다 있는 ADC가 한꺼번에 숫자로 바꾼다. 그다음 행, 또 그다음 행. 이 '행 단위 판독'이 롤링 셔터의 근원이다.</figcaption>
+    </figure>
+  </section>
+
+  <!-- =============================================================== 2 -->
+  <section id="pixel">
+    <h2>픽셀이 하는 일</h2>
+    <p>픽셀 하나는 '빗물 받는 양동이'에 비유할 수 있습니다. 노출 동안 떨어진 광자 중 일부가 실리콘에서 전자를 하나씩 만들고, 전자는 포토다이오드에 고입니다. 이때 들어온 광자 중 전자로 바뀐 비율을 <span class="term">양자 효율</span><span class="en">(QE, Quantum Efficiency)</span>이라 합니다. 최신 BSI 센서는 컬러 필터를 포함해 녹색 기준 대략 50~80 % 수준입니다. 양동이에는 크기가 있어서, 담을 수 있는 최대 전자 수를 <span class="term">우물 용량</span><span class="en">(FWC, Full Well Capacity)</span>이라고 합니다. 대략 면적에 비례해, 화소 피치 6 µm급 큰 픽셀은 수만 e⁻, 1 µm 안팎의 스마트폰 픽셀은 수천 e⁻ 정도입니다. 그 이상 들어온 빛은 그냥 넘칩니다. 사진의 하이라이트가 하얗게 날아가는 클리핑이 이것입니다(<a href="histogram.html">15장</a>).</p>
+    <p>노출이 끝나면 전하를 숫자로 바꿔야 합니다. 오늘날 표준인 4-트랜지스터(4T) 픽셀은 전하를 <b>플로팅 디퓨전</b>(FD)이라는 작은 축전기로 옮겨 전압으로 바꿉니다. 전자 하나가 만드는 전압을 <span class="term">변환 이득</span><span class="en">(Conversion Gain)</span>이라 하고 µV/e⁻ 단위로 씁니다.</p>
+    <div class="formula">$$\text{CG} = \frac{q}{C_\text{FD}} \qquad \text{예: } \frac{1.6\times10^{-19}\,\text{C}}{2\,\text{fF}} = 80\ \mu\text{V}/e^-$$
+      <div class="where">\(q\): 전자 하나의 전하, \(C_\text{FD}\): 플로팅 디퓨전의 정전 용량. 용량이 작을수록 전자 하나당 전압이 커져 뒤따르는 회로 노이즈에 덜 묻힌다. 대신 FD 전압이 움직일 수 있는 폭(대략 1 V 안팎)이 정해져 있으므로 담을 수 있는 전자 수가 줄어든다.</div>
+    </div>
+    <figure class="diagram">
+      <svg viewBox="0 0 800 230" role="img" aria-label="4T 픽셀 회로와 판독 순서">
+        <defs><marker id="sn-ar2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="var(--text-dim)"/></marker></defs>
+        <rect x="20" y="100" width="80" height="60" rx="8" class="f-pd"/>
+        <text x="60" y="126" text-anchor="middle" class="t">PD</text><text x="60" y="144" text-anchor="middle" class="t-dim">전자 모음</text>
+        <path d="M100 130 H140" class="s-line"/>
+        <rect x="140" y="112" width="56" height="36" rx="6" class="f-elev"/><text x="168" y="135" text-anchor="middle" class="t">TG</text>
+        <path d="M196 130 H250" class="s-line"/>
+        <circle cx="256" cy="130" r="6" class="f-acc"/>
+        <text x="256" y="168" text-anchor="middle" class="t-acc">FD</text><text x="256" y="186" text-anchor="middle" class="t-dim">전하 → 전압</text>
+        <path d="M256 124 V70" class="s-line"/>
+        <rect x="228" y="34" width="56" height="36" rx="6" class="f-elev"/><text x="256" y="57" text-anchor="middle" class="t">RST</text>
+        <text x="256" y="22" text-anchor="middle" class="t-mono">VDD</text>
+        <path d="M262 130 H320" class="s-line"/>
+        <rect x="320" y="112" width="56" height="36" rx="6" class="f-elev"/><text x="348" y="135" text-anchor="middle" class="t">SF</text>
+        <text x="348" y="168" text-anchor="middle" class="t-dim">증폭(버퍼)</text>
+        <path d="M376 130 H420" class="s-line"/>
+        <rect x="420" y="112" width="56" height="36" rx="6" class="f-elev"/><text x="448" y="135" text-anchor="middle" class="t">SEL</text>
+        <text x="448" y="168" text-anchor="middle" class="t-dim">행 선택</text>
+        <path d="M476 130 H520" class="s-line"/>
+        <path d="M526 30 V210" stroke="var(--accent)" stroke-width="2.5"/>
+        <text x="526" y="222" text-anchor="middle" class="t-mono">열 신호선</text>
+        <path d="M526 130 H580" class="s-line" marker-end="url(#sn-ar2)"/>
+        <rect x="584" y="106" width="196" height="48" rx="8" class="f-acc2-soft"/>
+        <text x="682" y="127" text-anchor="middle" class="t">CDS + 열 ADC</text>
+        <text x="682" y="145" text-anchor="middle" class="t-mono">(신호 − 리셋) → 숫자</text>
+        <text x="20" y="214" class="t-dim">① RST로 FD를 비움 → ② 리셋 전압 읽기 → ③ TG를 열어 전하 이동 → ④ 신호 전압 읽기 → ⑤ 두 값의 차</text>
+      </svg>
+      <figcaption><b>그림 5-3.</b> 4T 픽셀 회로(간략화). 리셋 직후 값과 전하 이동 후 값을 둘 다 읽어 빼는 <b>상관 이중 샘플링</b>(CDS)이 리셋 잡음과 픽셀별 오프셋을 지운다. 회로의 자세한 동작은 <a href="https://semi.euiyun.com/sensor/chapters/readout.html">SensorBook 6장</a>.</figcaption>
+    </figure>
+    <p>이 사슬의 모든 단계가 신호에 흔적을 남깁니다. 광자가 도착하는 수 자체가 무작위라서 생기는 <b>샷 노이즈</b>(신호 전자 수의 제곱근), 증폭기와 ADC가 더하는 <b>읽기 노이즈</b>, 연속적인 전압을 계단 모양의 숫자로 자르면서 생기는 <b>양자화 오차</b>입니다. 아래 시뮬레이터에서 픽셀 한 개를 같은 조건으로 4,096번 촬영해 그 결과를 모아 봅니다.</p>
+
+    <div class="sim" id="sim-pixel">
+      <div class="sim-head"><span class="sim-tag">SIMULATOR</span><h3>픽셀 하나의 일생: 광자 → 전자 → 전압 → 숫자</h3></div>
+      <div class="sim-body side">
+        <div class="sim-view"><canvas id="cv-pixel"></canvas></div>
+        <div class="sim-controls">
+          <label class="ctrl"><span>노출 중 들어온 광자 <output id="px-ph-out"></output></span><input type="range" id="px-ph" min="0" max="5.3" step="0.05" value="3.3"></label>
+          <label class="ctrl"><span>양자 효율 QE <output id="px-qe-out"></output></span><input type="range" id="px-qe" min="20" max="95" step="1" value="70"></label>
+          <label class="ctrl"><span>포토다이오드 우물 용량 <output id="px-fw-out"></output></span><input type="range" id="px-fw" min="2" max="100" step="1" value="40"></label>
+          <label class="ctrl"><span>변환 이득 <output id="px-cg-out"></output></span><input type="range" id="px-cg" min="10" max="200" step="5" value="30"></label>
+          <label class="ctrl"><span>FD 쪽 회로 노이즈 <output id="px-rn-out"></output></span><input type="range" id="px-rn" min="10" max="300" step="5" value="60"></label>
+          <label class="ctrl"><span>아날로그 게인(ISO) <output id="px-iso-out"></output></span><input type="range" id="px-iso"></label>
+          <div class="ctrl"><span>ADC 비트 수</span><div class="seg" id="px-bits"><button data-value="10">10</button><button data-value="12">12</button><button data-value="14" class="on">14</button></div></div>
+        </div>
+      </div>
+      <div class="sim-readout">
+        <div class="stat"><span class="k">평균 신호</span><span class="v" id="px-o-s">—</span></div>
+        <div class="stat"><span class="k">샷 / 읽기 노이즈</span><span class="v" id="px-o-noise">—</span></div>
+        <div class="stat"><span class="k">양자화 스텝</span><span class="v" id="px-o-q">—</span></div>
+        <div class="stat"><span class="k">SNR</span><span class="v" id="px-o-snr">—</span></div>
+        <div class="stat"><span class="k">포화 픽셀</span><span class="v" id="px-o-clip">—</span></div>
+        <div class="stat"><span class="k">다이내믹 레인지</span><span class="v" id="px-o-dr">—</span></div>
+      </div>
+      <div class="sim-note">모델: 신호 전자 = Poisson(QE × 광자), 우물 용량과 FD 전압 폭(1 V ÷ 변환 이득) 중 작은 쪽에서 잘림. 읽기 노이즈(e⁻) = √(0.5² + (FD 쪽 노이즈 ÷ CG)² + (ADC 쪽 120 µV ÷ (CG × 게인))²). ADC 풀스케일은 ISO 100에서 FD 기준 1 V, 게인 m배이면 1/m V. 양자화 스텝 = 풀스케일 전자 수 ÷ 2^비트, 양자화 노이즈 = 스텝/√12. 블랙 레벨 오프셋이 있어 0 아래 값도 잘리지 않는다고 가정했고, 암전류·고정 패턴 노이즈·비선형성은 뺐습니다. 왼쪽 회색 패치는 평균이 중간 회색이 되게 밝기를 맞춘 것, 붉은 칸은 포화 픽셀입니다. 해볼 것: ① 광자를 10개 수준으로 줄이고 ISO를 올려 읽기 노이즈가 줄어드는 것을 확인. ② 변환 이득을 30 → 120으로 올리면(고변환 이득) 읽기 노이즈는 줄지만 포화 전자 수도 줄어듭니다. ③ 10비트로 낮추고 ISO 100에서 광자를 적게: 히스토그램이 빗살처럼 끊어집니다.</div>
+    </div>
+
+    <div class="callout deep"><strong>이중 변환 이득 (DCG)</strong><p>위 시뮬레이터에서 보듯 변환 이득은 '많이 담기'(낮은 CG)와 '조용히 읽기'(높은 CG) 사이의 저울입니다. 그래서 많은 센서가 FD에 스위치로 축전기를 하나 더 붙였다 뗐다 하는 <span class="term">이중 변환 이득</span><span class="en">(DCG, Dual Conversion Gain)</span>을 씁니다. 밝은 장면(낮은 ISO)에서는 용량을 붙여 우물을 크게 쓰고, 어두운 장면(높은 ISO)에서는 떼어 읽기 노이즈를 줄입니다. 일부 카메라가 말하는 '듀얼 네이티브 ISO'의 정체가 대개 이것이고, 그 문턱 ISO에서 노이즈가 갑자기 좋아지는 것도 이 때문입니다(<a href="iso.html">13장</a>). 한 노출에서 두 이득으로 동시에 읽어 합치면 HDR 판독이 됩니다(<a href="https://semi.euiyun.com/sensor/chapters/shutter.html">SensorBook 9장</a>).</p></div>
+    <ul class="sb-links">
+      <li><a href="https://semi.euiyun.com/sensor/chapters/photodiode.html">SensorBook 2장 · 포토다이오드</a><span>광자 흡수 깊이, 양자 효율 스펙트럼</span></li>
+      <li><a href="https://semi.euiyun.com/sensor/chapters/pixel.html">SensorBook 3장 · 픽셀 구조</a><span>4T 픽셀, 공유 픽셀, DTI</span></li>
+      <li><a href="https://semi.euiyun.com/sensor/chapters/noise.html">SensorBook 7장 · 노이즈와 DR</a><span>노이즈 예산, 광자 전달 곡선</span></li>
+    </ul>
+  </section>
+
+  <!-- =============================================================== 3 -->
+  <section id="cfa">
+    <h2>컬러 필터 배열</h2>
+    <p>포토다이오드는 색을 모릅니다. 들어온 광자의 개수만 셀 뿐입니다. 그래서 픽셀마다 빨강·초록·파랑 중 한 가지만 통과시키는 필터를 얹은 <span class="term">컬러 필터 배열</span><span class="en">(CFA, Color Filter Array)</span>을 쓰고, 그중 가장 널리 쓰이는 배열이 2×2 단위로 R·G·G·B를 반복하는 <span class="term">베이어 패턴</span><span class="en">(Bayer Pattern)</span>입니다. 초록이 두 배인 이유는 사람 눈이 밝기와 디테일을 주로 초록 근처 파장으로 느끼기 때문입니다. 밝기 정보의 대부분을 초록 픽셀이 실어 나르므로, 초록을 촘촘히 두면 같은 화소 수로 더 선명해 보입니다.</p>
+    <figure class="diagram">
+      <svg viewBox="0 0 800 250" role="img" aria-label="베이어와 쿼드 베이어 배열, 센서의 분광 감도">
+        <defs>
+          <pattern id="sn-bayer" width="48" height="48" patternUnits="userSpaceOnUse">
+            <rect width="24" height="24" class="f-r"/><rect x="24" width="24" height="24" class="f-g"/><rect y="24" width="24" height="24" class="f-g"/><rect x="24" y="24" width="24" height="24" class="f-b"/>
+          </pattern>
+          <pattern id="sn-quad" width="96" height="96" patternUnits="userSpaceOnUse">
+            <rect width="24" height="24" class="f-r"/><rect x="24" width="24" height="24" class="f-r"/><rect y="24" width="24" height="24" class="f-r"/><rect x="24" y="24" width="24" height="24" class="f-r"/>
+            <rect x="48" width="24" height="24" class="f-g"/><rect x="72" width="24" height="24" class="f-g"/><rect x="48" y="24" width="24" height="24" class="f-g"/><rect x="72" y="24" width="24" height="24" class="f-g"/>
+            <rect y="48" width="24" height="24" class="f-g"/><rect x="24" y="48" width="24" height="24" class="f-g"/><rect y="72" width="24" height="24" class="f-g"/><rect x="24" y="72" width="24" height="24" class="f-g"/>
+            <rect x="48" y="48" width="24" height="24" class="f-b"/><rect x="72" y="48" width="24" height="24" class="f-b"/><rect x="48" y="72" width="24" height="24" class="f-b"/><rect x="72" y="72" width="24" height="24" class="f-b"/>
+          </pattern>
+        </defs>
+        <text x="116" y="22" text-anchor="middle" class="t-acc">베이어 (RGGB)</text>
+        <rect x="20" y="34" width="192" height="192" fill="url(#sn-bayer)" stroke="var(--text-dim)"/>
+        <rect x="20" y="34" width="48" height="48" fill="none" stroke="var(--accent)" stroke-width="3"/>
+        <text x="354" y="22" text-anchor="middle" class="t-acc">쿼드 베이어</text>
+        <rect x="258" y="34" width="192" height="192" fill="url(#sn-quad)" stroke="var(--text-dim)"/>
+        <rect x="258" y="34" width="48" height="48" fill="none" stroke="var(--accent)" stroke-width="3"/>
+        <!-- spectral sensitivity -->
+        <g transform="translate(490,30)">
+          <text x="140" y="-8" text-anchor="middle" class="t-acc">분광 감도 (개념도)</text>
+          <path d="M0 170 H290 M0 170 V10" class="s-axis"/>
+          <rect x="166" y="10" width="124" height="160" fill="var(--surface)" opacity=".9"/>
+          <text x="228" y="30" text-anchor="middle" class="t-dim">IR 컷이 막는 영역</text>
+          <path d="M10 170 C30 160 40 60 60 60 C80 60 95 150 130 168" fill="none" stroke="var(--blue)" stroke-width="2.2"/>
+          <path d="M40 170 C70 160 75 34 100 34 C125 34 135 150 170 168" fill="none" stroke="var(--green)" stroke-width="2.2"/>
+          <path d="M100 170 C120 150 130 54 150 54 C170 54 175 110 290 150" fill="none" stroke="var(--red)" stroke-width="2.2"/>
+          <path d="M150 54 C170 54 175 110 290 150" fill="none" stroke="var(--red)" stroke-width="2.2" stroke-dasharray="4 4" opacity=".6"/>
+          <text x="0" y="188" class="t-mono">400</text><text x="100" y="188" text-anchor="middle" class="t-mono">550</text><text x="166" y="188" text-anchor="middle" class="t-mono">~650</text><text x="290" y="188" text-anchor="end" class="t-mono">1000 nm</text>
+          <text x="140" y="208" text-anchor="middle" class="t-dim">컬러 필터는 근적외선을 잘 못 막는다</text>
+        </g>
+      </svg>
+      <figcaption><b>그림 5-4.</b> 베이어 배열과 쿼드 베이어 배열(굵은 테두리가 반복 단위의 한 칸). 오른쪽은 R·G·B 필터 + 실리콘의 대략적인 분광 감도. 세 곡선이 넓게 겹치므로 색은 '측정'이 아니라 세 값으로부터 '계산'된다(<a href="color.html">18장</a>).</figcaption>
+    </figure>
+    <p>결과적으로 센서가 내놓는 RAW 데이터는 픽셀마다 숫자가 <b>하나</b>뿐입니다. 빨강 픽셀 자리의 초록·파랑 값은 이웃에서 추정해야 하고, 이 과정을 <span class="term">디모자이크</span><span class="en">(Demosaicing)</span>라고 합니다. 추정이니 틀릴 수 있습니다. 특히 픽셀 간격에 가까운 가는 무늬에서는 존재하지 않는 색이 나타나는 <b>가짜 색</b><span class="en">(False Color)</span>과 무아레가 생깁니다. 실제 카메라의 영상 처리 엔진은 가장자리 방향을 판단하는 훨씬 정교한 알고리즘을 쓰며, 그 내용은 <a href="engine.html">06장</a>에서 파이프라인의 한 단계로 다룹니다.</p>
+
+    <div class="sim" id="sim-bayer">
+      <div class="sim-head"><span class="sim-tag">SIMULATOR</span><h3>모자이크로 찍고 다시 색 채우기</h3></div>
+      <div class="sim-view"><canvas id="cv-bayer"></canvas></div>
+      <div class="sim-controls">
+        <div class="ctrl"><span>장면</span><div class="seg" id="by-scene"><button data-value="edges" class="on">색 경계</button><button data-value="zone">가는 무늬</button><button data-value="photo">인물·꽃</button></div></div>
+        <label class="check"><input type="checkbox" id="by-olpf"> 광학 로우패스 필터(촬영 전 살짝 번짐)</label>
+        <label class="check"><input type="checkbox" id="by-gray"> RAW를 센서가 보는 대로(흑백) 보기</label>
+      </div>
+      <div class="sim-readout">
+        <div class="stat"><span class="k">단순 복원 오차</span><span class="v" id="by-o-n">—</span></div>
+        <div class="stat"><span class="k">쌍선형 오차</span><span class="v" id="by-o-b">—</span></div>
+        <div class="stat"><span class="k">단순 복원 가짜 색</span><span class="v" id="by-o-fcn">—</span></div>
+        <div class="stat"><span class="k">쌍선형 가짜 색</span><span class="v" id="by-o-fc">—</span></div>
+      </div>
+      <div class="sim-note">모델: 72×48 픽셀 장면을 RGGB 베이어로 샘플링합니다. '단순 복원'은 2×2 블록 하나에서 R, G(두 개 평균), B를 꺼내 네 픽셀에 똑같이 칠하고(해상도 절반), '쌍선형'은 각 픽셀의 3×3 이웃 중 같은 색 픽셀들을 평균합니다. 오차는 원본 대비 평균 절대 오차(0~255, sRGB 값 기준), 가짜 색은 색차 (R−G, B−G)의 평균 오차입니다. 계산은 감마가 적용된 값에서 했고 노이즈는 없습니다. 해볼 것: '가는 무늬'에서 바깥쪽(무늬가 촘촘한 곳)에 무지개색이 생기는지 보고, 로패스 필터를 켰을 때 가짜 색이 얼마나 줄고 대신 원본보다 얼마나 흐려지는지 비교해 보세요.</div>
+    </div>
+
+    <p>베이어만 있는 것은 아닙니다. 스마트폰 고화소 센서는 같은 색 필터를 2×2(또는 3×3, 4×4)로 묶은 <span class="term">쿼드 베이어</span><span class="en">(Quad Bayer)</span>를 많이 씁니다. 어두울 때는 같은 색 네 픽셀을 합쳐(<span class="term">픽셀 비닝</span>) 큰 픽셀처럼 쓰고, 밝을 때는 일반 베이어처럼 다시 배열(<b>리모자이크</b>)해 전체 화소를 씁니다. 6×6 단위의 불규칙한 배열로 무아레를 줄이는 방식, 필터 없는 흰색(W) 픽셀을 섞어 감도를 높이는 RGBW, 아예 필터를 빼서 해상도와 감도를 얻는 흑백 전용 센서도 있습니다. 자세한 비교는 <a href="https://semi.euiyun.com/sensor/chapters/color.html">SensorBook 4장</a>에 있습니다.</p>
+  </section>
+
+  <!-- =============================================================== 4 -->
+  <section id="readout">
+    <h2>판독: 행 단위로 읽는다</h2>
+    <p>센서에는 픽셀이 수천만 개 있지만 ADC는 그만큼 없습니다. 보통 <b>열마다</b> ADC를 하나(또는 몇 개) 두고, 행 구동기가 행을 하나씩 골라 그 행 전체를 동시에 변환합니다(그림 5-2). 한 행을 처리하는 시간을 <b>행 시간</b><span class="en">(line time)</span>, 모든 행을 다 읽는 데 걸리는 시간을 <span class="term">판독 시간</span><span class="en">(Readout Time)</span>이라 합니다.</p>
+    <div class="formula">$$T_\text{readout} = N_\text{rows} \times t_\text{line} \qquad \text{예: } 4000 \times 5\,\mu\text{s} = 20\ \text{ms}$$
+      <div class="where">대형 센서의 판독 시간은 구조에 따라 크게 다르다. 일반(비적층) 센서는 대략 수십 ms(20~60 ms 안팎), 적층형 센서는 수 ms 수준이다. 비트 수를 줄이면 ADC가 빨라져 판독이 짧아지므로, 일부 카메라는 고속 연사나 동영상에서 14비트 대신 12비트로 읽는다.</div>
+    </div>
+    <p>전자 셔터로 찍을 때 문제는 노출도 이 순서를 따른다는 점입니다. 각 행은 '읽히기 직전 일정 시간' 동안 빛을 모으므로, 맨 윗행과 맨 아랫행은 판독 시간만큼 서로 다른 순간을 찍습니다. 그 사이 피사체나 카메라가 움직이면 세로선이 기울고 프로펠러가 휘는 <span class="term">롤링 셔터</span><span class="en">(Rolling Shutter)</span> 왜곡이 생깁니다.</p>
+    <figure class="diagram">
+      <svg viewBox="0 0 800 230" role="img" aria-label="롤링 셔터와 글로벌 셔터의 노출 타이밍">
+        <g transform="translate(20,20)">
+          <text x="170" y="0" text-anchor="middle" class="t-acc">롤링 셔터</text>
+          <g class="f-acc-soft">
+            <rect x="40" y="14" width="160" height="16"/><rect x="62" y="34" width="160" height="16"/><rect x="84" y="54" width="160" height="16"/><rect x="106" y="74" width="160" height="16"/><rect x="128" y="94" width="160" height="16"/><rect x="150" y="114" width="160" height="16"/>
+          </g>
+          <g fill="var(--accent-2)"><rect x="200" y="14" width="6" height="16"/><rect x="222" y="34" width="6" height="16"/><rect x="244" y="54" width="6" height="16"/><rect x="266" y="74" width="6" height="16"/><rect x="288" y="94" width="6" height="16"/><rect x="310" y="114" width="6" height="16"/></g>
+          <path d="M203 150 H313" class="s-acc"/><path d="M203 144 v12 M313 144 v12" class="s-acc"/>
+          <text x="258" y="172" text-anchor="middle" class="t-dim">판독 시간</text>
+          <text x="0" y="26" class="t-mono">행 1</text><text x="0" y="126" class="t-mono">행 N</text>
+          <path d="M40 190 H330" class="s-axis"/><text x="330" y="206" text-anchor="end" class="t-mono">시간 →</text>
+        </g>
+        <g transform="translate(440,20)">
+          <text x="170" y="0" text-anchor="middle" class="t-acc">글로벌 셔터</text>
+          <g class="f-acc-soft">
+            <rect x="40" y="14" width="160" height="16"/><rect x="40" y="34" width="160" height="16"/><rect x="40" y="54" width="160" height="16"/><rect x="40" y="74" width="160" height="16"/><rect x="40" y="94" width="160" height="16"/><rect x="40" y="114" width="160" height="16"/>
+          </g>
+          <path d="M200 10 V134" stroke="var(--accent)" stroke-width="2"/>
+          <g fill="var(--accent-2)"><rect x="210" y="14" width="6" height="16"/><rect x="232" y="34" width="6" height="16"/><rect x="254" y="54" width="6" height="16"/><rect x="276" y="74" width="6" height="16"/><rect x="298" y="94" width="6" height="16"/><rect x="320" y="114" width="6" height="16"/></g>
+          <text x="200" y="160" text-anchor="middle" class="t-dim">모든 행이 동시에 노출 종료</text>
+          <text x="200" y="176" text-anchor="middle" class="t-dim">→ 픽셀 속 저장소에 보관 후 차례로 판독</text>
+          <path d="M40 190 H340" class="s-axis"/><text x="340" y="206" text-anchor="end" class="t-mono">시간 →</text>
+        </g>
+      </svg>
+      <figcaption><b>그림 5-5.</b> 주황 막대는 각 행의 노출, 청록 칸은 판독. 롤링 셔터는 노출 창 자체가 판독 속도로 비스듬히 밀린다. 글로벌 셔터는 노출을 한꺼번에 끝내고 전하를 픽셀 안의 저장소로 옮겨 둔 뒤 천천히 읽는다.</figcaption>
+    </figure>
+
+    <div class="sim" id="sim-readout">
+      <div class="sim-head"><span class="sim-tag">SIMULATOR</span><h3>판독 시간과 롤링 셔터 왜곡</h3></div>
+      <div class="sim-body side">
+        <div class="sim-view"><canvas id="cv-readout"></canvas></div>
+        <div class="sim-controls">
+          <div class="ctrl"><span>피사체</span><div class="seg" id="rd-sub"><button data-value="prop" class="on">프로펠러</button><button data-value="pan">지나가는 버스</button></div></div>
+          <label class="ctrl"><span>피사체 속도 <output id="rd-v-out"></output></span><input type="range" id="rd-v" min="0" max="100" step="1" value="25"></label>
+          <label class="ctrl"><span>판독 시간 <output id="rd-t-out"></output></span><input type="range" id="rd-t" min="0" max="100" step="1" value="72"></label>
+          <div class="ctrl"><span>셔터 방식</span><div class="seg" id="rd-mode"><button data-value="rolling" class="on">롤링(행 순차)</button><button data-value="global">글로벌(동시)</button></div></div>
+        </div>
+      </div>
+      <div class="sim-readout">
+        <div class="stat"><span class="k">위↔아래 시간차</span><span class="v" id="rd-o-dt">—</span></div>
+        <div class="stat"><span class="k">행 시간 (4,000행)</span><span class="v" id="rd-o-line">—</span></div>
+        <div class="stat"><span class="k">왜곡</span><span class="v" id="rd-o-skew">—</span></div>
+      </div>
+      <div class="sim-note">모델: 프레임의 y번째 행은 t + (y/행수) × 판독 시간의 순간을 찍습니다. 노출 시간은 아주 짧다고(모션 블러 없음) 가정했고, 왼쪽 '실제'와 오른쪽 '찍힌 프레임' 모두 화면에서는 1/50로 느리게 재생합니다(촬영 계산은 실제 속도). 프로펠러 왜곡은 판독 중 회전각 = rpm/60 × 판독 시간 × 360°, 버스의 기울기는 판독 중 이동 거리를 프레임 높이로 나눈 각도입니다. 해볼 것: 판독 시간을 25 ms 근처(일반 센서)에서 3 ms 근처(적층형)로 줄여 보고, 글로벌로 바꿔 왜곡이 0이 되는 것을 확인하세요. 기계식 포컬 플레인 셔터도 막이 센서를 지나가는 데 수 ms가 걸려 작은 롤링 효과가 있습니다(<a href="mechanism.html">04장</a>).</div>
+    </div>
+
+    <p>롤링 셔터를 피하는 길은 두 가지입니다. 하나는 판독을 아주 빠르게 하는 것(적층형 센서), 다른 하나는 모든 픽셀의 노출을 동시에 끝내는 <span class="term">글로벌 셔터</span><span class="en">(Global Shutter)</span>입니다. 글로벌 셔터는 픽셀마다 전하를 잠시 보관할 저장소(저장 노드나 커패시터)와 트랜지스터를 더 넣어야 하므로 공짜가 아닙니다.</p>
+    <div class="table-wrap"><table>
+      <tr><th>방식</th><th>장점</th><th>대가</th></tr>
+      <tr><td><b>기계식 셔터 + 센서</b></td><td>왜곡이 작다(막 이동 수 ms). 센서는 천천히 읽어도 됨</td><td>소리·진동·마모, 연사 속도 한계, 플래시 동조 속도 제한(<a href="flash.html">21장</a>)</td></tr>
+      <tr><td><b>롤링 전자 셔터</b></td><td>무음, 기계 마모 없음, 초고속 셔터 가능</td><td>판독 시간만큼의 왜곡, 인공조명 아래 줄무늬(<a href="shutter.html">12장</a>)</td></tr>
+      <tr><td><b>글로벌 전자 셔터</b></td><td>왜곡 없음, 모든 셔터 속도에서 플래시 동조</td><td>픽셀 면적 일부를 저장소에 씀 → 우물 용량·다이내믹 레인지 감소, 노이즈 증가 경향, 저장 중 빛이 새는 문제(PLS) 관리 필요, 비용</td></tr>
+    </table></div>
+    <p>롤링 셔터를 '촬영 요령'으로 다루는 법은 <a href="shutter.html">12장</a>, 플리커와 HDR 판독 같은 심화 주제는 <a href="https://semi.euiyun.com/sensor/chapters/shutter.html">SensorBook 9장</a>에서 다룹니다.</p>
+  </section>
+
+  <!-- =============================================================== 5 -->
+  <section id="data">
+    <h2>데이터량과 적층형 센서</h2>
+    <p>판독 속도는 결국 '1초에 몇 비트를 칩 밖으로 내보낼 수 있느냐'의 문제이기도 합니다. 센서가 만드는 데이터량은 간단히 곱하면 나옵니다.</p>
+    <div class="formula">$$\text{데이터율} = \text{화소 수} \times \text{비트 수} \times \text{초당 프레임}$$
+      <div class="where">예: 24 MP × 14 bit × 30 fps ≈ 10 Gbit/s. 24 MP 14비트 RAW 한 장은 압축 없이 약 42 MB이다. 8K(약 33 MP) 12비트 60p 동영상 판독이면 약 24 Gbit/s가 된다.</div>
+    </div>
+    <p>센서는 이 데이터를 MIPI CSI-2 같은 고속 직렬 링크로 보냅니다. 링크는 여러 개의 <b>레인</b>으로 이루어지고 레인 하나가 대략 수 Gbit/s를 나르며, 동기화·패킷 헤더·행 사이 공백 같은 오버헤드가 있습니다. 링크가 느리면 센서 안에서 행을 빨리 읽어도 내보낼 곳이 없으므로 판독이 길어집니다. 적층형 센서는 두 가지 방법으로 이 병목을 풉니다. 로직 웨이퍼에 ADC를 더 많이, 더 빠르게 넣어 행 시간을 줄이고, DRAM 층이 있으면 픽셀 배열을 몇 ms 만에 통째로 읽어 칩 안에 저장해 둔 뒤 링크 속도에 맞춰 천천히 내보냅니다. 이때 롤링 왜곡을 정하는 것은 링크가 아니라 '픽셀 배열을 비우는 속도'가 됩니다.</p>
+
+    <div class="sim" id="sim-datarate">
+      <div class="sim-head"><span class="sim-tag">SIMULATOR</span><h3>센서 데이터 예산: 인터페이스가 따라가는가</h3></div>
+      <div class="sim-body side">
+        <div class="sim-view"><canvas id="cv-data"></canvas></div>
+        <div class="sim-controls">
+          <label class="ctrl"><span>화소 수 <output id="dr-mp-out"></output></span><input type="range" id="dr-mp" min="8" max="100" step="1" value="24"></label>
+          <div class="ctrl"><span>ADC 비트 수</span><div class="seg" id="dr-bits"><button data-value="10">10</button><button data-value="12">12</button><button data-value="14" class="on">14</button></div></div>
+          <label class="ctrl"><span>목표 프레임 속도 <output id="dr-fps-out"></output></span><input type="range" id="dr-fps" min="1" max="120" step="1" value="20"></label>
+          <div class="ctrl"><span>인터페이스 레인 수</span><div class="seg" id="dr-lanes"><button data-value="2">2</button><button data-value="4">4</button><button data-value="8" class="on">8</button><button data-value="16">16</button></div></div>
+          <label class="ctrl"><span>레인당 속도 <output id="dr-gbps-out"></output></span><input type="range" id="dr-gbps" min="0.5" max="10" step="0.25" value="2.5"></label>
+          <div class="ctrl"><span>센서 구조</span><div class="seg" id="dr-arch"><button data-value="conv" class="on">일반</button><button data-value="stack">적층형</button><button data-value="dram">적층+DRAM</button></div></div>
+        </div>
+      </div>
+      <div class="sim-readout">
+        <div class="stat"><span class="k">한 장 크기</span><span class="v" id="dr-o-mb">—</span></div>
+        <div class="stat"><span class="k">필요 대역폭</span><span class="v" id="dr-o-need">—</span></div>
+        <div class="stat"><span class="k">링크 실효 용량</span><span class="v" id="dr-o-have">—</span></div>
+        <div class="stat"><span class="k">판독 시간(롤링 왜곡)</span><span class="v" id="dr-o-ro">—</span></div>
+        <div class="stat"><span class="k">최대 연속 fps</span><span class="v" id="dr-o-max">—</span></div>
+      </div>
+      <div class="sim-msg" id="dr-msg"></div>
+      <div class="sim-note">모델(교육용 단순화): 3:2 화면이라 행 수 = √(화소 수 × 2/3). 12비트 기준 행 시간은 일반 4 µs, 적층형 0.8 µs로 두고, 단일 기울기 ADC가 비트가 늘수록 느려지는 효과를 2비트당 2배로 근사했습니다. 링크 실효 용량 = 레인 × 레인당 속도 × 0.8(프로토콜·공백 오버헤드), RAW는 압축 없음. 일반·적층형은 읽는 즉시 내보내므로 판독 시간 = max(ADC 시간, 전송 시간), DRAM이 있으면 판독 시간 = ADC 시간이고 전송은 그 뒤에 이어집니다. 최대 연속 fps = 1 / max(ADC 시간, 전송 시간). 실제 제품의 수치는 이와 다를 수 있습니다. 해볼 것: 45 MP·14비트·20 fps에서 '일반'과 '적층+DRAM'의 판독 시간을 비교하고, 레인 수를 줄였을 때 어느 구조가 왜곡 측면에서 버티는지 보세요.</div>
+    </div>
+    <div class="callout tip"><strong>연사 성능은 센서에서 끝나지 않는다</strong>센서가 초당 30장을 내보내도, 처리 엔진이 그 속도로 RAW를 받아 압축하고 버퍼와 메모리 카드가 받아 주어야 연사가 이어집니다. 데이터가 센서를 떠난 뒤의 여정은 <a href="engine.html">06장</a>, 버퍼가 차는 체감은 <a href="stabilization.html#burst">20장</a>에서 이어집니다.</div>
+  </section>
+
+  <!-- =============================================================== 6 -->
+  <section id="size">
+    <h2>센서 크기와 화소 피치</h2>
+    <p>센서 크기는 카메라 시스템 전체의 첫 번째 설계 변수입니다. 같은 화각을 얻는 초점거리, 렌즈의 크기와 무게, 바디 두께, 그리고 한 장에 모이는 빛의 총량이 모두 여기서 정해집니다. 아래 그림은 흔한 형식을 같은 축척으로 놓은 것입니다.</p>
+    <figure class="diagram">
+      <svg viewBox="0 0 800 250" role="img" aria-label="센서 형식 크기 비교(같은 축척)">
+        <g transform="translate(12,0)">
+          <rect x="0" y="40" width="234" height="156" rx="3" class="f-acc-soft"/>
+          <text x="117" y="218" text-anchor="middle" class="t">풀프레임</text><text x="117" y="236" text-anchor="middle" class="t-mono">36×24</text>
+          <rect x="250" y="95" width="153" height="101" rx="3" class="f-acc2-soft"/>
+          <text x="326" y="218" text-anchor="middle" class="t">APS-C</text><text x="326" y="236" text-anchor="middle" class="t-mono">≈23.5×15.6</text>
+          <rect x="419" y="111" width="112" height="85" rx="3" class="f-surface"/>
+          <text x="475" y="218" text-anchor="middle" class="t">포서드</text><text x="475" y="236" text-anchor="middle" class="t-mono">17.3×13</text>
+          <rect x="547" y="139" width="86" height="57" rx="3" class="f-surface"/>
+          <text x="590" y="218" text-anchor="middle" class="t">1형</text><text x="590" y="236" text-anchor="middle" class="t-mono">13.2×8.8</text>
+          <rect x="649" y="148" width="64" height="48" rx="3" class="f-elev"/>
+          <text x="681" y="218" text-anchor="middle" class="t">1/1.3형</text><text x="681" y="236" text-anchor="middle" class="t-mono">≈9.8×7.4</text>
+          <rect x="729" y="169" width="36" height="27" rx="2" class="f-elev"/>
+          <text x="747" y="218" text-anchor="middle" class="t-dim">1/2.55형</text><text x="747" y="236" text-anchor="middle" class="t-mono">≈5.6×4.2</text>
+          <text x="0" y="24" class="t-mono">단위 mm · 같은 축척 · 오른쪽 둘은 스마트폰 메인/보조 카메라에 흔한 크기</text>
+        </g>
+      </svg>
+      <figcaption><b>그림 5-6.</b> 센서 형식 비교. '1형', '1/1.3형' 같은 인치 표기는 옛 촬상관 지름에서 온 관습이라 실제 대각선은 표기의 약 2/3 정도다.</figcaption>
+    </figure>
+    <p>같은 면적을 몇 개의 픽셀로 나누느냐가 <span class="term">화소 피치</span><span class="en">(Pixel Pitch)</span>, 즉 픽셀 한 칸의 폭입니다. 화소 수 ≈ 센서 면적 ÷ 피치²이므로, 풀프레임 24 MP는 약 6 µm, 같은 크기의 60 MP급은 약 3.8 µm, 1/1.3형 50 MP 스마트폰 센서는 약 1.2 µm, 2억 화소급 폰 센서는 0.6 µm 수준까지 내려갑니다.</p>
+    <div class="table-wrap"><table>
+      <tr><th>예</th><th>센서</th><th>화소 수</th><th>피치</th><th>우물 용량(대략)</th></tr>
+      <tr><td>풀프레임 일반</td><td>36×24 mm</td><td>24 MP</td><td>~6 µm</td><td>수만 e⁻</td></tr>
+      <tr><td>풀프레임 고화소</td><td>36×24 mm</td><td>45~61 MP</td><td>~3.8~4.4 µm</td><td>수만 e⁻ 이하</td></tr>
+      <tr><td>APS-C</td><td>≈23.5×15.6 mm</td><td>24~40 MP</td><td>~3~4 µm</td><td>1만~수만 e⁻</td></tr>
+      <tr><td>스마트폰 메인</td><td>≈9.8×7.4 mm</td><td>50 MP</td><td>~1.2 µm</td><td>수천 e⁻</td></tr>
+      <tr><td>스마트폰 초고화소</td><td>1/1.4형 안팎</td><td>200 MP</td><td>~0.6 µm</td><td>수천 e⁻ 이하</td></tr>
+    </table></div>
+    <p>작은 픽셀은 하나하나가 담는 빛이 적어 시끄럽지만, 사진을 같은 크기로 보면 중요한 것은 픽셀이 아니라 <b>센서 전체가 모은 빛의 양</b>입니다. 작은 픽셀 네 개를 합치면 큰 픽셀 하나와 샷 노이즈가 같아지고, 차이는 읽기 노이즈가 네 번 더해진다는 점 정도입니다. 최신 센서의 읽기 노이즈가 1~3 e⁻ 수준으로 낮아진 덕분에 고화소의 불이익은 생각보다 작습니다. 이 '같은 총광량' 관점은 <a href="basics.html">09장</a>과 <a href="iso.html">13장</a>에서 촬영 쪽으로 이어지고, 스마트폰 모듈의 크기 제약은 PhoneBook <a href="../../phone/chapters/camera.html">카메라 모듈</a> 장에서 다룹니다.</p>
+    <div class="callout warn"><strong>회절은 픽셀 크기가 아니라 F값의 문제</strong>픽셀이 작으면 회절 흐림이 '더 일찍 보이는' 것은 맞지만, 같은 크기로 출력한 사진에서 회절로 흐려지는 정도는 센서 크기와 F값이 정합니다. 고화소 센서가 회절 때문에 손해를 보는 일은 없고, 이득이 줄어들 뿐입니다(<a href="aperture.html">11장</a>).</div>
+  </section>
+
+  <!-- =============================================================== 7 -->
+  <section id="pdaf">
+    <h2>위상차 AF 픽셀</h2>
+    <p>미러리스 카메라와 스마트폰은 초점을 맞추는 센서도 이미지 센서 안에 들어 있습니다. 렌즈의 왼쪽 절반을 지난 빛과 오른쪽 절반을 지난 빛을 따로 받으면, 초점이 맞았을 때는 두 상이 겹치고 어긋났을 때는 서로 반대 방향으로 벌어집니다. 벌어진 거리와 방향에서 '얼마나, 어느 쪽으로' 초점이 어긋났는지 한 번에 알 수 있으므로, 렌즈를 이리저리 움직여 보는 콘트라스트 AF보다 훨씬 빠릅니다. 이것이 <span class="term">위상차 AF</span>입니다.</p>
+    <figure class="diagram">
+      <svg viewBox="0 0 800 250" role="img" aria-label="듀얼 픽셀과 차폐형 위상차 픽셀, 위상차 신호">
+        <g transform="translate(20,20)">
+          <text x="100" y="0" text-anchor="middle" class="t-acc">듀얼 픽셀</text>
+          <rect x="20" y="14" width="160" height="14" rx="7" fill="none" stroke="var(--text-faint)"/>
+          <rect x="20" y="14" width="80" height="14" rx="7" fill="rgba(255,138,76,.35)"/><rect x="100" y="14" width="80" height="14" rx="7" fill="rgba(59,201,219,.35)"/>
+          <text x="100" y="44" text-anchor="middle" class="t-mono">렌즈 출사동(왼쪽 | 오른쪽)</text>
+          <path d="M60 28 L125 128 M140 28 L75 128" stroke-width="2" fill="none"/>
+          <path d="M60 28 L125 128" stroke="var(--accent)" stroke-width="2"/><path d="M140 28 L75 128" stroke="var(--accent-2)" stroke-width="2"/>
+          <path d="M40 140 Q100 100 160 140 Z" fill="rgba(140,190,255,0.35)" stroke="var(--accent-2)"/>
+          <rect x="40" y="140" width="120" height="10" class="f-g"/>
+          <rect x="44" y="154" width="54" height="50" rx="5" class="f-pd"/><rect x="102" y="154" width="54" height="50" rx="5" class="f-pd"/>
+          <text x="71" y="184" text-anchor="middle" class="t">A</text><text x="129" y="184" text-anchor="middle" class="t">B</text>
+          <text x="100" y="224" text-anchor="middle" class="t-dim">마이크로렌즈 하나 아래 PD 두 개</text>
+        </g>
+        <g transform="translate(270,20)">
+          <text x="110" y="0" text-anchor="middle" class="t-acc">차폐형 PDAF 픽셀</text>
+          <path d="M20 140 Q60 108 100 140 Z M120 140 Q160 108 200 140 Z" fill="rgba(140,190,255,0.35)" stroke="var(--accent-2)"/>
+          <rect x="20" y="140" width="80" height="10" class="f-g"/><rect x="120" y="140" width="80" height="10" class="f-g"/>
+          <rect x="20" y="152" width="40" height="6" fill="var(--text)"/><rect x="160" y="152" width="40" height="6" fill="var(--text)"/>
+          <rect x="26" y="160" width="68" height="44" rx="5" class="f-pd"/><rect x="126" y="160" width="68" height="44" rx="5" class="f-pd"/>
+          <text x="110" y="224" text-anchor="middle" class="t-dim">금속으로 절반을 가린 픽셀 쌍</text>
+          <text x="110" y="60" text-anchor="middle" class="t-dim">전체 픽셀의 일부(수 % 이하)만</text>
+          <text x="110" y="78" text-anchor="middle" class="t-dim">AF 전용으로 쓴다</text>
+        </g>
+        <g transform="translate(520,20)">
+          <text x="130" y="0" text-anchor="middle" class="t-acc">A·B 신호 비교</text>
+          <path d="M10 100 H250 M10 200 H250" class="s-axis"/>
+          <path d="M20 98 C80 98 90 40 130 40 C170 40 180 98 240 98" fill="none" stroke="var(--accent)" stroke-width="2"/>
+          <path d="M20 98 C80 98 90 44 130 44 C170 44 180 98 240 98" fill="none" stroke="var(--accent-2)" stroke-width="2" stroke-dasharray="5 3"/>
+          <text x="250" y="90" text-anchor="end" class="t-dim">초점 맞음: 겹침</text>
+          <path d="M20 198 C60 198 70 150 100 150 C130 150 140 198 180 198" fill="none" stroke="var(--accent)" stroke-width="2"/>
+          <path d="M80 198 C120 198 130 150 160 150 C190 150 200 198 240 198" fill="none" stroke="var(--accent-2)" stroke-width="2" stroke-dasharray="5 3"/>
+          <path d="M100 136 H160" class="s-line"/><path d="M100 130 v12 M160 130 v12" class="s-line"/>
+          <text x="130" y="126" text-anchor="middle" class="t-dim">어긋남 ∝ 디포커스</text>
+        </g>
+      </svg>
+      <figcaption><b>그림 5-7.</b> 왼쪽: 출사동의 왼쪽을 지난 빛은 마이크로렌즈를 거쳐 오른쪽 PD(B)에, 오른쪽을 지난 빛은 왼쪽 PD(A)에 떨어진다. 가운데: 절반을 가린 픽셀 쌍으로 같은 일을 한다. 오른쪽: A 열과 B 열의 신호가 얼마나, 어느 쪽으로 어긋났는지가 초점 이동량과 방향이 된다.</figcaption>
+    </figure>
+    <div class="cards">
+      <div><b>차폐형 PDAF</b>일부 픽셀의 절반을 금속으로 가립니다. 구조가 단순하지만 AF 픽셀은 빛을 절반만 받아 어둡고, 그 자리는 주변에서 보간해 메웁니다. 강한 역광에서 줄무늬 형태로 드러나기도 합니다.</div>
+      <div><b>듀얼 픽셀</b>거의 모든 픽셀을 PD 두 개로 나눕니다. AF에는 A·B를 따로, 사진에는 A+B를 씁니다. 화면 어디서나 위상차를 얻지만 판독할 데이터가 늘어납니다.</div>
+      <div><b>쿼드 픽셀·2×1 OCL</b>마이크로렌즈 하나 아래 2×2 PD를 두면 가로·세로 무늬를 모두 감지합니다. 쿼드 베이어 센서는 같은 색 두 픽셀 위에 렌즈 하나를 얹는 식으로 위상차를 얻습니다.</div>
+    </div>
+    <p>센서가 하는 일은 여기까지, 즉 '얼마나 어긋났는가'를 재는 것입니다. 이 값을 받아 렌즈 모터를 몇 단계로 얼마나 빨리 움직일지, 움직이는 피사체를 어떻게 따라갈지는 제어 루프의 몫이며 <a href="control.html">07장</a>에서 다룹니다. AF 모드와 영역을 고르는 촬영 요령은 <a href="focus.html">16장</a>, 픽셀 수준의 구조는 <a href="https://semi.euiyun.com/sensor/chapters/advanced.html">SensorBook 12장</a>을 참고하세요.</p>
+  </section>
+
+  <section class="keypoints" id="summary">
+    <h2>핵심 정리</h2>
+    <ol>
+      <li>센서는 위에서부터 커버 글라스·IR 컷 필터, (선택) 로패스 필터, 마이크로렌즈, 컬러 필터, 포토다이오드, 배선, (적층형이면) 로직·DRAM 웨이퍼로 쌓인다. BSI는 배선을 빛의 반대편으로 보내 작은 픽셀의 감도를 살렸다.</li>
+      <li>픽셀은 광자를 QE 비율로 전자로 바꾸고, 우물 용량에서 포화한다. 변환 이득(q/C)은 많이 담기와 조용히 읽기 사이의 저울이며, 이중 변환 이득은 ISO에 따라 이 저울을 바꾼다.</li>
+      <li>베이어 배열은 픽셀마다 한 색만 재므로 나머지 두 색은 디모자이크로 추정한다. 초록이 두 배인 것은 밝기 디테일 때문이고, 가는 무늬에서는 가짜 색이 생길 수 있다.</li>
+      <li>센서는 행 단위로 읽는다. 판독 시간 = 행 수 × 행 시간이며 일반 센서는 수십 ms, 적층형은 수 ms 수준이다. 전자 셔터의 롤링 왜곡은 이 시간에 비례한다.</li>
+      <li>데이터율 = 화소 수 × 비트 × fps. 적층형 센서는 빠른 ADC와 칩 내 DRAM으로 판독과 전송을 분리해 왜곡과 연사의 병목을 줄인다.</li>
+      <li>센서 크기는 총광량과 시스템 크기를, 화소 피치는 픽셀당 우물과 해상도를 정한다. 위상차 AF 픽셀은 센서가 초점 오차의 크기와 방향을 직접 재게 한다.</li>
+    </ol>
+  </section>
+
+  <section class="quiz-sec" id="quiz">
+    <h2>확인 퀴즈</h2>
+    <div class="quiz">
+      <div class="quiz-q"><p>BSI(후면 조사) 센서가 FSI보다 유리한 가장 큰 이유는?</p><div class="opts">
+        <button class="opt">컬러 필터가 필요 없어서</button>
+        <button class="opt" data-correct>금속 배선이 포토다이오드 뒤에 있어 빛을 가리지 않아서</button>
+        <button class="opt">픽셀마다 ADC가 하나씩 있어서</button>
+      </div><div class="quiz-exp">BSI는 웨이퍼를 뒤집어 배선 반대편에서 빛을 받는다. 배선이 빛의 길을 막지 않으므로 특히 픽셀이 작을수록 감도와 각도 특성이 좋아진다.</div></div>
+      <div class="quiz-q"><p>변환 이득을 높이면(고변환 이득 모드) 어떤 변화가 생기나?</p><div class="opts">
+        <button class="opt">우물 용량이 커지고 읽기 노이즈도 커진다</button>
+        <button class="opt" data-correct>전자 하나당 전압이 커져 읽기 노이즈(e⁻ 기준)가 줄지만, 담을 수 있는 전자 수는 줄어든다</button>
+        <button class="opt">양자 효율이 올라 같은 빛에서 전자가 더 많이 생긴다</button>
+      </div><div class="quiz-exp">CG = q/C. FD 용량이 작아지면 전자당 전압이 커져 뒤 회로 노이즈의 영향이 작아진다. 대신 FD 전압 폭이 정해져 있어 최대 전자 수가 줄어든다. 그래서 높은 ISO에서 고변환 이득을 쓴다.</div></div>
+      <div class="quiz-q"><p>베이어 배열에서 초록 필터가 빨강·파랑의 두 배인 이유는?</p><div class="opts">
+        <button class="opt">초록 필터가 가장 싸서</button>
+        <button class="opt">실리콘이 초록 빛에 가장 둔감해서 보충하려고</button>
+        <button class="opt" data-correct>사람 눈이 밝기와 디테일을 주로 초록 근처에서 느끼므로, 밝기 정보를 촘촘히 얻으려고</button>
+      </div><div class="quiz-exp">밝기(휘도) 감도는 초록 근처에서 가장 높다. 초록 샘플을 많이 두면 밝기 디테일이 좋아져 같은 화소 수로 더 선명해 보인다.</div></div>
+      <div class="quiz-q"><p>4,000행 센서의 행 시간이 6 µs라면 판독 시간과, 전자 셔터로 1,800 rpm 프로펠러를 찍을 때 판독 중 회전각은 대략?</p><div class="opts">
+        <button class="opt">2.4 ms, 약 26°</button>
+        <button class="opt" data-correct>24 ms, 약 260°</button>
+        <button class="opt">240 ms, 약 2,600°</button>
+      </div><div class="quiz-exp">4,000 × 6 µs = 24 ms. 1,800 rpm = 초당 30회전이므로 0.024 s × 30 × 360° ≈ 259°. 위쪽 행과 아래쪽 행이 거의 한 바퀴 가까이 다른 순간을 찍는다.</div></div>
+      <div class="quiz-q"><p>45 MP, 14비트 RAW를 초당 20장 압축 없이 내보내려면 필요한 대역폭은 대략?</p><div class="opts">
+        <button class="opt">약 1.3 Gbit/s</button>
+        <button class="opt" data-correct>약 12.6 Gbit/s</button>
+        <button class="opt">약 126 Gbit/s</button>
+      </div><div class="quiz-exp">45×10⁶ × 14 × 20 = 1.26×10¹⁰ bit/s ≈ 12.6 Gbit/s. 오버헤드를 고려하면 레인당 2.5 Gbit/s 링크로는 레인이 6~7개 넘게 필요하다.</div></div>
+      <div class="quiz-q"><p>듀얼 픽셀 AF 센서의 구조로 옳은 것은?</p><div class="opts">
+        <button class="opt">AF 전용 픽셀 몇 %만 절반을 금속으로 가린다</button>
+        <button class="opt" data-correct>마이크로렌즈 하나 아래에 포토다이오드 두 개를 두고, AF에는 따로, 사진에는 합쳐서 쓴다</button>
+        <button class="opt">거울 아래 별도의 AF 센서를 둔다</button>
+      </div><div class="quiz-exp">듀얼 픽셀은 거의 모든 픽셀을 둘로 나누어 렌즈 좌우 절반의 상을 따로 받는다. 두 값을 더하면 일반 픽셀과 같은 이미지 신호가 된다.</div></div>
+    </div>
+  </section>
+</main>
+
+<script>
+/* ---------------------------------------------------------------- 1. 픽셀 하나 */
+(function () {
+  const POST_UV = 120, SF_E = 0.5, VSWING_UV = 1e6, N = 4096, SIDE = 64;
+  const upd = CB.throttle(() => { simulate(); cv.redraw(); });
+  const ph = CB.range("px-ph", (v) => CB.fmt(Math.pow(10, v), 3) + "개", upd);
+  const qe = CB.range("px-qe", (v) => v + " %", upd);
+  const fw = CB.range("px-fw", (v) => v + "k e⁻", upd);
+  const cg = CB.range("px-cg", (v) => v + " µV/e⁻", upd);
+  const rn = CB.range("px-rn", (v) => v + " µV", upd);
+  const ISOL = CB.ISOS.filter((s) => s >= 100 && s <= 12800);
+  const iso = CB.steps("px-iso", ISOL, (s) => "ISO " + s + " (×" + CB.fmt(s / 100, 3) + ")", 100, upd);
+  const bits = CB.seg("px-bits", upd);
+  const S = { e: new Float32Array(N), sat: new Uint8Array(N), m: null };
+
+  function model() {
+    const photons = Math.pow(10, ph()), q = qe() / 100, CG = cg(), m = iso() / 100, B = +bits();
+    const mean = q * photons;
+    const wellE = Math.min(fw() * 1000, VSWING_UV / CG);       // 픽셀이 담을 수 있는 전자
+    const adcE = VSWING_UV / (CG * m);                          // ADC 풀스케일(전자 환산)
+    const clipE = Math.min(wellE, adcE);
+    const levels = Math.pow(2, B);
+    const step = adcE / levels;                                 // e⁻/DN
+    const sr = Math.sqrt(SF_E * SF_E + Math.pow(rn() / CG, 2) + Math.pow(POST_UV / (CG * m), 2));
+    const sq = step / Math.sqrt(12);
+    return { photons, mean, wellE, adcE, clipE, levels, step, sr, sq, m, B };
+  }
+  function simulate() {
+    const M = (S.m = model());
+    let nsat = 0;
+    for (let i = 0; i < N; i++) {
+      let e = Math.min(CB.poisson(M.mean), M.wellE);
+      const wellSat = e >= M.wellE;
+      let dn = Math.round((e + M.sr * CB.randn()) / M.step);
+      let sat = wellSat;
+      if (dn >= M.levels - 1) { dn = M.levels - 1; sat = true; }
+      S.e[i] = dn * M.step; S.sat[i] = sat ? 1 : 0; nsat += sat;
+    }
+    const total = Math.sqrt(M.mean + M.sr * M.sr + M.sq * M.sq);
+    const snr = M.mean / total;
+    CB.stat("px-o-s", CB.fmt(M.mean, 3) + "<small>e⁻</small>");
+    CB.stat("px-o-noise", CB.fmt(Math.sqrt(M.mean), 3) + "/" + M.sr.toFixed(1) + "<small>e⁻</small>");
+    CB.stat("px-o-q", CB.fmt(M.step, 3) + "<small>e⁻/DN</small>");
+    const satFrac = nsat / N;
+    CB.stat("px-o-snr", M.mean >= M.clipE * 0.97 ? "포화" : M.mean <= 0 ? "—" : (20 * Math.log10(Math.max(snr, 1e-6))).toFixed(1) + "<small>dB (" + CB.fmt(snr, 2) + "×)</small>");
+    CB.stat("px-o-clip", (satFrac * 100).toFixed(1) + "<small>%</small>");
+    CB.stat("px-o-dr", Math.log2(M.clipE / Math.sqrt(M.sr * M.sr + M.sq * M.sq)).toFixed(1) + "<small>스톱</small>");
+  }
+  const patch = document.createElement("canvas"); patch.width = SIDE; patch.height = SIDE;
+  const pg = patch.getContext("2d"), pid = pg.createImageData(SIDE, SIDE);
+  const cv = CB.canvas("#cv-pixel", (ctx, w, h) => {
+    const P = CB.palette(), M = S.m; if (!M) return;
+    const font = CB.color("font");
+    // 패치
+    const narrow = w < 520;
+    const ps = narrow ? Math.min(120, w * 0.36) : Math.min(h - 40, w * 0.36);
+    const ref = Math.max(M.mean, 1) * 2.18; // 평균 → 선형 0.46 ≈ sRGB 중간 회색
+    for (let i = 0; i < SIDE * SIDE; i++) {
+      const v = CB.clamp(S.e[i] / ref, 0, 1), s = Math.round(255 * CB.linToSrgb(v));
+      const o = i * 4;
+      if (S.sat[i]) { pid.data[o] = 235; pid.data[o + 1] = 70; pid.data[o + 2] = 60; }
+      else { pid.data[o] = s; pid.data[o + 1] = s; pid.data[o + 2] = s; }
+      pid.data[o + 3] = 255;
+    }
+    pg.putImageData(pid, 0, 0);
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(patch, 12, 28, ps, ps);
+    ctx.strokeStyle = P.border; ctx.strokeRect(12.5, 28.5, ps, ps);
+    ctx.fillStyle = P.dim; ctx.font = "12px " + font; ctx.textAlign = "left"; ctx.textBaseline = "alphabetic";
+    ctx.fillText("64×64 같은 픽셀", 12, 18);
+    // 히스토그램 (전자 환산 출력)
+    const c0 = Math.min(M.mean, M.clipE);
+    const sig = Math.sqrt(c0 + M.sr * M.sr + M.sq * M.sq);
+    const spread = Math.max(4.5 * sig, 4 * M.step, 6);
+    let lo = c0 - spread, hi = c0 + spread;
+    if (M.clipE < hi && M.clipE > lo - spread) hi = Math.max(hi, M.clipE * 1.04);
+    const box = narrow ? { x: 24, y: ps + 56, w: w - 38, h: h - ps - 56 - 48 } : { x: 12 + ps + 50, y: 28, w: w - (12 + ps + 50) - 14, h: ps - 30 };
+    if (box.w < 80) return;
+    const NB = Math.max(20, Math.min(90, Math.floor(box.w / 3)));
+    const bins = new Array(NB).fill(0), bw = (hi - lo) / NB;
+    for (let i = 0; i < N; i++) { const b = Math.floor((S.e[i] - lo) / bw); if (b >= 0 && b < NB) bins[b]++; }
+    const mx = Math.max(...bins, 1);
+    const ch = CB.chart(ctx, box, { x: [lo, hi], y: [0, mx * 1.1], xLabel: "출력(전자 환산, e⁻)", yTicks: [], xFmt: (v) => CB.fmt(v, 3) });
+    const bpx = box.w / NB;
+    for (let b = 0; b < NB; b++) {
+      if (!bins[b]) continue;
+      const x = ch.X(lo + b * bw), y = ch.Y(bins[b]);
+      ctx.fillStyle = P.accent2; ctx.fillRect(x, y, Math.max(1, bpx - 0.5), box.y + box.h - y);
+    }
+    const vline = (x, c, label, right) => {
+      if (x < lo || x > hi) return;
+      const px = ch.X(x); ctx.strokeStyle = c; ctx.setLineDash([4, 3]); ctx.beginPath(); ctx.moveTo(px, box.y); ctx.lineTo(px, box.y + box.h); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle = c; ctx.font = "11px " + font; ctx.textAlign = right ? "right" : "left"; ctx.textBaseline = "top"; ctx.fillText(label, px + (right ? -4 : 4), box.y + 2);
+    };
+    vline(M.mean, P.accent, "평균", false);
+    vline(M.clipE, P.bad, "포화", true);
+    // 우물 게이지
+    const gx = narrow ? ps + 28 : box.x, gy = narrow ? 28 + ps / 2 : box.y + box.h + 66, gw = narrow ? w - gx - 14 : box.w;
+    if (gy + 12 < h) {
+      ctx.fillStyle = P.surface; ctx.fillRect(gx, gy, gw, 10);
+      ctx.fillStyle = M.mean >= M.clipE * 0.97 ? P.bad : P.accent; ctx.fillRect(gx, gy, gw * CB.clamp(M.mean / M.clipE, 0, 1), 10);
+      ctx.fillStyle = P.dim; ctx.font = "11px " + font; ctx.textAlign = "left"; ctx.textBaseline = "bottom";
+      ctx.fillText("우물 채움 " + Math.round(100 * Math.min(1, M.mean / M.clipE)) + "%", gx, gy - 3);
+      ctx.textBaseline = "top"; ctx.fillText("포화 " + CB.fmt(M.clipE, 3) + " e⁻", gx, gy + 14);
+    }
+  }, { aspect: (w) => (w < 520 ? (120 + 56 + 170 + 48) / w : 0.56), minHeight: 300, maxHeight: 420 });
+  simulate(); cv.redraw();
+})();
+
+/* ---------------------------------------------------------------- 2. 베이어 */
+(function () {
+  const W = 72, H = 48, SS = 4;
+  const scene = CB.seg("by-scene", build);
+  const olpf = CB.check("by-olpf", build);
+  const gray = CB.check("by-gray", () => cv.redraw());
+  const chan = (x, y) => ((y & 1) === 0 ? ((x & 1) === 0 ? 0 : 1) : ((x & 1) === 0 ? 1 : 2)); // RGGB
+  let src, raw, naive, bil;
+  const mk = () => document.createElement("canvas");
+  const offs = [mk(), mk(), mk(), mk()];
+  offs.forEach((c) => { c.width = W; c.height = H; });
+  // 인물·꽃 장면은 큰 캔버스에 그려 축소
+  const photoSrc = CB.offscreen(W * SS, H * SS, (g, w, h) => {
+    CB.draw.sky(g, w, h, "#6fa6e0", "#d6e8f6", h * 0.62);
+    g.fillStyle = "#5f9150"; g.fillRect(0, h * 0.6, w, h);
+    CB.draw.tree(g, w * 0.12, h * 0.75, h * 0.6, "#3f7d3a", "#5b4033", 3);
+    CB.draw.person(g, w * 0.42, h * 1.02, h * 0.95, { shirt: "#d9480f", stripes: true });
+    CB.draw.flower(g, w * 0.72, h * 0.92, h * 0.16, "#f2c230", 5);
+    CB.draw.flower(g, w * 0.86, h * 0.86, h * 0.12, "#c2398f", 8);
+    g.fillStyle = "#222"; for (let i = 0; i < 6; i++) g.fillRect(w * 0.6 + i * 6, h * 0.08, 3, h * 0.28);
+  });
+  function edgesPix(x, y) { // x,y in pixel units (float)
+    let c = [0.82, 0.82, 0.8];
+    if (y > 30) c = [0.25, 0.3, 0.35];
+    if ((x - 18) ** 2 + (y - 17) ** 2 < 121) c = [0.86, 0.12, 0.1];
+    if (x > 34 && x < 52 && y > 6 && y < 26) c = [0.1, 0.25, 0.85];
+    if (x > 40 && x < 68 && y > 20 && y < 28) c = [0.95, 0.85, 0.1];
+    if (y > 33 && y < 44) { const k = Math.floor((x + 1) / 2) % 2; if (x > 4 && x < 30) c = k ? [1, 1, 1] : [0.05, 0.05, 0.05]; }
+    if (y > 33 && y < 44 && x > 38 && x < 68) { const k = Math.floor((x - 37) / 3) % 2; c = k ? [0.95, 0.95, 0.95] : [0.1, 0.5, 0.15]; }
+    return c;
+  }
+  function zonePix(x, y) {
+    const dx = x - W / 2, dy = y - H / 2, r2 = dx * dx + dy * dy;
+    const a = 0.5 / 43; // 반지름 43 px에서 0.5 cycle/px
+    const v = 0.5 + 0.45 * Math.cos(Math.PI * a * r2);
+    return [v, v, v];
+  }
+  function build() {
+    const s = scene();
+    src = new Float32Array(W * H * 3);
+    if (s === "photo") {
+      const d = photoSrc.getContext("2d").getImageData(0, 0, W * SS, H * SS).data;
+      for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) for (let c = 0; c < 3; c++) {
+        let acc = 0; for (let j = 0; j < SS; j++) for (let i = 0; i < SS; i++) acc += d[((y * SS + j) * W * SS + x * SS + i) * 4 + c];
+        src[(y * W + x) * 3 + c] = acc / (SS * SS * 255);
+      }
+    } else {
+      const f = s === "zone" ? zonePix : edgesPix;
+      for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+        const acc = [0, 0, 0];
+        for (let j = 0; j < SS; j++) for (let i = 0; i < SS; i++) { const c = f(x + (i + 0.5) / SS, y + (j + 0.5) / SS); acc[0] += c[0]; acc[1] += c[1]; acc[2] += c[2]; }
+        for (let c = 0; c < 3; c++) src[(y * W + x) * 3 + c] = acc[c] / (SS * SS);
+      }
+    }
+    // 광학 로우패스: [1 2 1]/4 분리형 블러를 샘플링 전에
+    let cap = src;
+    if (olpf()) {
+      const tmp = new Float32Array(src.length); cap = new Float32Array(src.length);
+      const at = (a, x, y, c) => a[(CB.clamp(y, 0, H - 1) * W + CB.clamp(x, 0, W - 1)) * 3 + c];
+      for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) for (let c = 0; c < 3; c++) tmp[(y * W + x) * 3 + c] = (at(src, x - 1, y, c) + 2 * at(src, x, y, c) + at(src, x + 1, y, c)) / 4;
+      for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) for (let c = 0; c < 3; c++) cap[(y * W + x) * 3 + c] = (at(tmp, x, y - 1, c) + 2 * at(tmp, x, y, c) + at(tmp, x, y + 1, c)) / 4;
+    }
+    raw = new Float32Array(W * H);
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) raw[y * W + x] = cap[(y * W + x) * 3 + chan(x, y)];
+    naive = new Float32Array(W * H * 3);
+    for (let by = 0; by < H; by += 2) for (let bx = 0; bx < W; bx += 2) {
+      const R = raw[by * W + bx], G = (raw[by * W + bx + 1] + raw[(by + 1) * W + bx]) / 2, B = raw[(by + 1) * W + bx + 1];
+      for (let j = 0; j < 2; j++) for (let i = 0; i < 2; i++) { const o = ((by + j) * W + bx + i) * 3; naive[o] = R; naive[o + 1] = G; naive[o + 2] = B; }
+    }
+    bil = new Float32Array(W * H * 3);
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+      const own = chan(x, y);
+      for (let c = 0; c < 3; c++) {
+        let v;
+        if (c === own) v = raw[y * W + x];
+        else {
+          let acc = 0, n = 0;
+          for (let j = -1; j <= 1; j++) for (let i = -1; i <= 1; i++) {
+            const xx = x + i, yy = y + j;
+            if (xx < 0 || yy < 0 || xx >= W || yy >= H) continue;
+            if (chan(xx, yy) === c) { acc += raw[yy * W + xx]; n++; }
+          }
+          v = n ? acc / n : 0;
+        }
+        bil[(y * W + x) * 3 + c] = v;
+      }
+    }
+    const mae = (a) => { let s = 0; for (let i = 0; i < a.length; i++) s += Math.abs(a[i] - src[i]); return (s / a.length) * 255; };
+    const fcErr = (a) => {
+      let fc = 0;
+      for (let i = 0; i < W * H; i++) { const o = i * 3; fc += Math.abs((a[o] - a[o + 1]) - (src[o] - src[o + 1])) + Math.abs((a[o + 2] - a[o + 1]) - (src[o + 2] - src[o + 1])); }
+      return ((fc / (2 * W * H)) * 255).toFixed(1);
+    };
+    CB.stat("by-o-n", mae(naive).toFixed(1));
+    CB.stat("by-o-b", mae(bil).toFixed(1));
+    CB.stat("by-o-fcn", fcErr(naive));
+    CB.stat("by-o-fc", fcErr(bil));
+    cv.redraw();
+  }
+  function paint(cnv, rgb) {
+    const g = cnv.getContext("2d"), id = g.createImageData(W, H);
+    for (let i = 0; i < W * H; i++) { for (let c = 0; c < 3; c++) id.data[i * 4 + c] = Math.round(255 * CB.clamp(rgb(i, c), 0, 1)); id.data[i * 4 + 3] = 255; }
+    g.putImageData(id, 0, 0);
+  }
+  const cv = CB.canvas("#cv-bayer", (ctx, w, h) => {
+    if (!src) return;
+    const P = CB.palette();
+    paint(offs[0], (i, c) => src[i * 3 + c]);
+    const gr = gray();
+    paint(offs[1], (i, c) => { const x = i % W, y = (i / W) | 0, ch = chan(x, y); return gr ? raw[i] : (c === ch ? raw[i] : 0); });
+    paint(offs[2], (i, c) => naive[i * 3 + c]);
+    paint(offs[3], (i, c) => bil[i * 3 + c]);
+    const labels = ["원본 (픽셀마다 3색)", "RAW 모자이크", "단순 복원 (2×2 블록)", "쌍선형 보간"];
+    const cols = w >= 640 ? 4 : 2, gap = 10;
+    const pw = (w - gap * (cols + 1)) / cols, phh = pw * H / W;
+    ctx.imageSmoothingEnabled = false;
+    for (let k = 0; k < 4; k++) {
+      const cx = gap + (k % cols) * (pw + gap), cy = 22 + Math.floor(k / cols) * (phh + 30);
+      ctx.drawImage(offs[k], cx, cy, pw, phh);
+      ctx.strokeStyle = P.border; ctx.strokeRect(cx + 0.5, cy + 0.5, pw - 1, phh - 1);
+      ctx.fillStyle = P.dim; ctx.font = "12px " + CB.color("font"); ctx.textAlign = "left"; ctx.textBaseline = "bottom";
+      ctx.fillText(labels[k], cx, cy - 4);
+    }
+  }, { aspect: (w) => { const cols = w >= 640 ? 4 : 2, pw = (w - 10 * (cols + 1)) / cols; return ((4 / cols) * (pw * H / W + 30) + 4) / w; } });
+  build();
+})();
+
+/* ---------------------------------------------------------------- 3. 롤링 셔터 */
+(function () {
+  const PW = 180, PH = 120, ROWS = 4000, SLOW = 0.02;
+  const sub = CB.seg("rd-sub", () => { spd.set(spd(), false); readouts(); });
+  const mode = CB.seg("rd-mode", () => readouts());
+  const Tms = (v) => 0.5 * Math.pow(160, v / 100); // 0.5~80 ms
+  const tro = CB.range("rd-t", (v) => CB.fmt(Tms(v), 2) + " ms", () => readouts());
+  const spd = CB.range("rd-v", (v) => (sub() === "prop" ? v * 60 + " rpm" : (v * 0.2).toFixed(1) + " 화면폭/초"), () => readouts());
+  const mk = () => { const c = document.createElement("canvas"); c.width = PW; c.height = PH; return c; };
+  const live = mk(), cap = mk();
+  const lg = live.getContext("2d"), cgx = cap.getContext("2d");
+  const lid = lg.createImageData(PW, PH), cid = cgx.createImageData(PW, PH);
+  let simT = 0;
+  const px = [0, 0, 0];
+  function propPix(x, y, t) {
+    const s = PH * 0.46, X = (x + 0.5 - PW / 2) / s, Y = (y + 0.5 - PH / 2) / s, r = Math.hypot(X, Y);
+    const k = y / PH; px[0] = 110 + 80 * k; px[1] = 160 + 60 * k; px[2] = 220 + 25 * k;
+    if (r < 0.13) { px[0] = 70; px[1] = 74; px[2] = 82; return; }
+    if (r > 0.95) return;
+    const phi = (spd() * 60) / 60 * 2 * Math.PI * t;
+    const sec = (2 * Math.PI) / 3;
+    let a = Math.atan2(Y, X) - phi; a = ((a % sec) + sec) % sec - sec / 2;
+    if (Math.abs(a) * r < 0.06 + 0.04 * (1 - r)) {
+      if (r > 0.82) { px[0] = 240; px[1] = 190; px[2] = 40; } else { px[0] = 38; px[1] = 42; px[2] = 50; }
+    }
+  }
+  function panPix(x, y, t) {
+    const u = (x + 0.5) / PW, v = (y + 0.5) / PH, asp = PW / PH;
+    if (v < 0.8) { px[0] = 150 + 60 * v; px[1] = 190 + 40 * v; px[2] = 235; } else { px[0] = 90; px[1] = 92; px[2] = 96; }
+    if (Math.abs(u - 0.06) < 0.008 && v > 0.15 && v < 0.8) { px[0] = 120; px[1] = 120; px[2] = 125; }
+    const vw = spd() * 0.2;
+    const xc = ((0.5 + vw * t) % 1.6 + 1.6) % 1.6 - 0.3;
+    const du = u - xc;
+    for (const wx of [-0.14, 0.14]) { if (Math.hypot((u - (xc + wx)) * asp, v - 0.79) < 0.075) { px[0] = 25; px[1] = 25; px[2] = 28; return; } }
+    if (Math.abs(du) < 0.24 && v > 0.36 && v < 0.78) {
+      px[0] = 214; px[1] = 72; px[2] = 52;
+      if (Math.abs(du) < 0.21 && v > 0.42 && v < 0.58) {
+        const m = (du + 0.21) % 0.07;
+        if (m < 0.014) { px[0] = 60; px[1] = 30; px[2] = 25; } else { px[0] = 175; px[1] = 215; px[2] = 238; }
+      }
+    }
+  }
+  function render(id, timeOfRow) {
+    const f = sub() === "prop" ? propPix : panPix, d = id.data;
+    for (let y = 0; y < PH; y++) {
+      const t = timeOfRow(y);
+      for (let x = 0; x < PW; x++) { f(x, y, t); const o = (y * PW + x) * 4; d[o] = px[0]; d[o + 1] = px[1]; d[o + 2] = px[2]; d[o + 3] = 255; }
+    }
+  }
+  function readouts() {
+    const T = Tms(tro()) / 1000, g = mode() === "global";
+    CB.stat("rd-o-dt", g ? "0<small>ms (동시)</small>" : CB.fmt(T * 1000, 3) + "<small>ms</small>");
+    CB.stat("rd-o-line", CB.fmt((T / ROWS) * 1e6, 3) + "<small>µs</small>");
+    if (sub() === "prop") {
+      const deg = g ? 0 : (spd() * 60) / 60 * T * 360;
+      CB.stat("rd-o-skew", Math.round(deg) + "°<small>판독 중 회전</small>");
+    } else {
+      const dx = g ? 0 : spd() * 0.2 * T; // 화면폭 단위
+      const ang = Math.atan((dx * PW) / PH) * 180 / Math.PI;
+      CB.stat("rd-o-skew", ang.toFixed(1) + "°<small>세로선 기울기</small>");
+    }
+  }
+  const cv = CB.canvas("#cv-readout", (ctx, w, h) => {
+    const P = CB.palette(), T = Tms(tro()) / 1000, g = mode() === "global";
+    render(lid, () => simT); lg.putImageData(lid, 0, 0);
+    render(cid, (y) => (g ? simT : simT + ((y + 0.5) / PH) * T)); cgx.putImageData(cid, 0, 0);
+    const side = w >= 460, gap = 12;
+    const pw = side ? (w - gap * 3) / 2 : w - gap * 2, ph = pw * PH / PW;
+    const pos = side ? [[gap, 24], [gap * 2 + pw, 24]] : [[gap, 24], [gap, 24 + ph + 30]];
+    ctx.imageSmoothingEnabled = true;
+    ctx.drawImage(live, pos[0][0], pos[0][1], pw, ph);
+    ctx.drawImage(cap, pos[1][0], pos[1][1], pw, ph);
+    ctx.fillStyle = P.dim; ctx.font = "12px " + CB.color("font"); ctx.textAlign = "left"; ctx.textBaseline = "bottom";
+    ctx.fillText("실제 장면 (한 순간)", pos[0][0], pos[0][1] - 5);
+    ctx.fillText(g ? "찍힌 프레임: 글로벌" : "찍힌 프레임: 롤링, 위→아래 " + CB.fmt(T * 1000, 2) + " ms", pos[1][0], pos[1][1] - 5);
+    if (!g) {
+      const x = pos[1][0] + pw - 10, y0 = pos[1][1] + 8, y1 = pos[1][1] + ph - 8;
+      ctx.strokeStyle = "rgba(255,255,255,0.85)"; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(x, y0); ctx.lineTo(x, y1); ctx.moveTo(x - 5, y1 - 7); ctx.lineTo(x, y1); ctx.lineTo(x + 5, y1 - 7); ctx.stroke(); ctx.lineWidth = 1;
+    }
+  }, { aspect: (w) => (w >= 460 ? (((w - 36) / 2) * PH / PW + 34) / w : (2 * (w - 24) * PH / PW + 64) / w) });
+  CB.loop(document.getElementById("cv-readout"), (dt) => { simT += dt * SLOW; cv.redraw(); });
+  readouts();
+})();
+
+/* ---------------------------------------------------------------- 4. 데이터 예산 */
+(function () {
+  const EFF = 0.8, LINE = { conv: 4, stack: 0.8, dram: 0.8 }; // µs @12bit
+  const upd = () => { calc(); cv.redraw(); };
+  const mp = CB.range("dr-mp", (v) => v + " MP", upd);
+  const bits = CB.seg("dr-bits", upd);
+  const fps = CB.range("dr-fps", (v) => v + " fps", upd);
+  const lanes = CB.seg("dr-lanes", upd);
+  const gbps = CB.range("dr-gbps", (v) => v.toFixed(2) + " Gbps", upd);
+  const arch = CB.seg("dr-arch", upd);
+  const msg = document.getElementById("dr-msg");
+  let R = null;
+  function calc() {
+    const MP = mp(), B = +bits(), F = fps(), A = arch();
+    const rows = Math.sqrt(MP * 1e6 * 2 / 3);
+    const frameBits = MP * 1e6 * B;
+    const line = LINE[A] * Math.pow(2, (B - 12) / 2);         // µs
+    const tAdc = rows * line / 1000;                          // ms
+    const bw = +lanes() * gbps() * EFF;                       // Gbps
+    const tIf = frameBits / (bw * 1e9) * 1000;                // ms
+    const tRo = A === "dram" ? tAdc : Math.max(tAdc, tIf);
+    const maxF = 1000 / Math.max(tAdc, tIf);
+    const need = frameBits * F / 1e9;
+    R = { MP, B, F, A, tAdc, tIf, tRo, maxF, need, bw, frame: 1000 / F };
+    CB.stat("dr-o-mb", CB.fmt(frameBits / 8 / 1e6, 3) + "<small>MB</small>");
+    CB.stat("dr-o-need", CB.fmt(need, 3) + "<small>Gbps</small>");
+    CB.stat("dr-o-have", CB.fmt(bw, 3) + "<small>Gbps</small>");
+    CB.stat("dr-o-ro", CB.fmt(tRo, 3) + "<small>ms</small>");
+    CB.stat("dr-o-max", CB.fmt(maxF, 3) + "<small>fps</small>");
+    const ok = F <= maxF + 1e-9;
+    const lim = tIf >= tAdc ? "인터페이스 전송" : "픽셀 배열 판독(ADC)";
+    msg.className = "sim-msg " + (ok ? "ok" : "bad");
+    msg.innerHTML = ok
+      ? `목표 ${F} fps 유지 가능. 병목은 <b>${lim}</b>이며 여유는 ${CB.fmt(maxF / F, 2)}배입니다.`
+      : `목표 ${F} fps는 불가능합니다. <b>${lim}</b>이 한 장에 ${CB.fmt(Math.max(tAdc, tIf), 3)} ms를 써서 최대 ${CB.fmt(maxF, 3)} fps입니다.`;
+  }
+  const cv = CB.canvas("#cv-data", (ctx, w, h) => {
+    if (!R) return;
+    const P = CB.palette(), font = CB.color("font");
+    const tmax = Math.max(R.frame, R.tAdc, R.A === "dram" ? R.tAdc + R.tIf : R.tIf) * 1.15;
+    const box = { x: 16, y: 34, w: w - 32, h: h - 80 };
+    const X = (t) => box.x + (t / tmax) * box.w;
+    const rows = [
+      { label: "픽셀 배열 판독 (ADC)", t0: 0, t1: R.tAdc, c: P.accent },
+      { label: R.A === "dram" ? "인터페이스 전송 (DRAM에서)" : "인터페이스 전송 (판독과 동시)", t0: R.A === "dram" ? R.tAdc : 0, t1: (R.A === "dram" ? R.tAdc : 0) + R.tIf, c: P.accent2 },
+      { label: "롤링 왜곡을 만드는 시간", t0: 0, t1: R.tRo, c: P.warn },
+    ];
+    const rh = Math.min(34, box.h / 3 - 22);
+    ctx.font = "12px " + font; ctx.textBaseline = "bottom"; ctx.textAlign = "left";
+    rows.forEach((r, i) => {
+      const y = box.y + i * (rh + 20) + 16;
+      ctx.fillStyle = P.dim; ctx.fillText(r.label + " · " + CB.fmt(r.t1 - r.t0, 3) + " ms", box.x, y - 3);
+      ctx.fillStyle = P.surface; ctx.fillRect(box.x, y, box.w, rh);
+      ctx.fillStyle = r.c; ctx.fillRect(X(r.t0), y, Math.max(1, X(r.t1) - X(r.t0)), rh);
+    });
+    // 프레임 간격
+    const fx = X(R.frame);
+    ctx.strokeStyle = R.F <= R.maxF ? P.ok : P.bad; ctx.lineWidth = 2; ctx.setLineDash([5, 4]);
+    ctx.beginPath(); ctx.moveTo(fx, box.y); ctx.lineTo(fx, box.y + box.h + 6); ctx.stroke(); ctx.setLineDash([]); ctx.lineWidth = 1;
+    ctx.fillStyle = R.F <= R.maxF ? P.ok : P.bad; ctx.textAlign = fx > w - 120 ? "right" : "left"; ctx.textBaseline = "top";
+    ctx.fillText("프레임 간격 1/" + R.F + " s = " + CB.fmt(R.frame, 3) + " ms", fx + (fx > w - 120 ? -4 : 4), box.y + box.h + 8);
+    ctx.strokeStyle = P.axis; ctx.beginPath(); ctx.moveTo(box.x, box.y + box.h + 6); ctx.lineTo(box.x + box.w, box.y + box.h + 6); ctx.stroke();
+    ctx.fillStyle = P.faint; ctx.textAlign = "left"; ctx.textBaseline = "bottom"; ctx.fillText("0 ms", box.x, box.y - 14);
+    ctx.textAlign = "right"; ctx.fillText(CB.fmt(tmax, 3) + " ms", box.x + box.w, box.y - 14);
+  }, { height: 300 });
+  calc(); cv.redraw();
+})();
+</script>
+</body>
+</html>

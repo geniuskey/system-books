@@ -1,0 +1,779 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<title>셔터·조리개·초점 구동부 · CameraBook</title>
+<meta name="description" content="포컬 플레인 셔터의 선막·후막과 슬릿, 미러 박스, 조리개 유닛, AF 모터의 종류와 응답, IBIS 스테이지의 제어 루프까지. 밀리초 단위로 움직이는 카메라 속 기계들을 시뮬레이터로 분해한다.">
+<link rel="canonical" href="https://system.euiyun.com/camera/chapters/mechanism.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="CameraBook">
+<meta property="og:title" content="셔터·조리개·초점 구동부 · CameraBook">
+<meta property="og:description" content="포컬 플레인 셔터의 선막·후막과 슬릿, 미러 박스, 조리개 유닛, AF 모터의 종류와 응답, IBIS 스테이지의 제어 루프까지. 밀리초 단위로 움직이는 카메라 속 기계들을 시뮬레이터로 분해한다.">
+<meta property="og:url" content="https://system.euiyun.com/camera/chapters/mechanism.html">
+<meta property="og:image" content="https://system.euiyun.com/camera/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="ko_KR">
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","headline":"셔터·조리개·초점 구동부","name":"셔터·조리개·초점 구동부 · CameraBook","url":"https://system.euiyun.com/camera/chapters/mechanism.html","mainEntityOfPage":"https://system.euiyun.com/camera/chapters/mechanism.html","inLanguage":"ko","isAccessibleForFree":true,"learningResourceType":"interactive textbook chapter","position":4,"image":"https://system.euiyun.com/camera/og.png","dateModified":"2026-11-07","isPartOf":{"@type":"Book","@id":"https://system.euiyun.com/camera/#book","name":"CameraBook — 인터랙티브 카메라 교과서","url":"https://system.euiyun.com/camera/"},"publisher":{"@type":"Organization","name":"CameraBook","url":"https://system.euiyun.com/camera/"},"description":"포컬 플레인 셔터의 선막·후막과 슬릿, 미러 박스, 조리개 유닛, AF 모터의 종류와 응답, IBIS 스테이지의 제어 루프까지. 밀리초 단위로 움직이는 카메라 속 기계들을 시뮬레이터로 분해한다."},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"CameraBook","item":"https://system.euiyun.com/camera/"},{"@type":"ListItem","position":2,"name":"04 셔터·조리개·초점 구동부","item":"https://system.euiyun.com/camera/chapters/mechanism.html"}]}]}</script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<link rel="stylesheet" href="../css/style.css">
+<script src="../js/common.js"></script>
+<style>
+  .fig-lg svg .t, .fig-lg svg .t-acc { font-size: 15px; }
+  .fig-lg svg .t-dim { font-size: 13.5px; }
+  svg .blade { fill: var(--surface-2); stroke: var(--text-faint); stroke-width: 1; }
+  svg .lit { fill: rgba(255, 190, 70, 0.55); }
+  svg .ray { stroke: #f2a93b; stroke-width: 2; fill: none; }
+  svg .s-acc2 { stroke: var(--accent-2); fill: none; stroke-width: 2; }
+  svg .f-acc2 { fill: var(--accent-2); }
+  svg .f-bad { fill: var(--bad); }
+  svg .s-dash { stroke: var(--text-faint); stroke-dasharray: 5 4; fill: none; stroke-width: 1.2; }
+  svg .bar-a { fill: var(--accent); opacity: .8; }
+  svg .bar-b { fill: var(--accent-2); opacity: .8; }
+  svg .bar-c { fill: var(--warn); opacity: .85; }
+  .tl-legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12.5px; color: var(--text-dim); padding: 10px 18px 0; }
+  .tl-legend i { display: inline-block; width: 12px; height: 10px; border-radius: 2px; vertical-align: -1px; margin-right: 5px; }
+</style>
+<link rel="stylesheet" href="../../shared/css/book-shell.css">
+<script defer src="../../shared/js/book-shell.js" data-book="camera"></script>
+</head>
+<body data-chapter="mechanism">
+<main class="chapter">
+  <header class="chapter-hero">
+    <div class="eyebrow">Chapter 04</div>
+    <h1>셔터·조리개·초점 구동부</h1>
+    <p class="lead">카메라는 전자 기기이기 전에 정밀 기계입니다. 셔터를 한 번 누르면 수백 g의 가속도로 날아가는 셔터 날, 1 mm를 수 ms에 옮기는 초점 렌즈, 1초에 수천 번 위치를 고치는 센서 스테이지가 차례로 움직입니다. 이 장에서는 그 작은 기계들을 하나씩 꺼내 놓고, 무엇이 얼마나 빨리 움직이는지, 그리고 왜 그런 설계가 되었는지 살펴봅니다.</p>
+    <ul class="objectives">
+      <li>카메라 속 액추에이터들의 종류와 각자가 움직이는 시간 척도를 한눈에 정리한다.</li>
+      <li>포컬 플레인 셔터의 선막·후막·슬릿을 이해하고, 플래시 동조 속도가 왜 1/200~1/250초 근처에서 막히는지 설명한다.</li>
+      <li>DSLR의 미러 박스가 한 장을 찍을 때 하는 일과, 미러리스가 그것을 없애며 얻은 것과 잃은 것을 안다.</li>
+      <li>AF 모터(DC·초음파·스테핑·리니어·VCM)의 힘·질량·속도 트레이드오프를 비교한다.</li>
+      <li>IBIS 스테이지가 자이로·코일·홀 센서로 이루는 제어 루프와 그 한계를 이해한다.</li>
+      <li>셔터 쇼크, 작동음, 수명 같은 기계 고유의 문제를 안다.</li>
+    </ul>
+  </header>
+
+  <!-- =============================================================== 1 -->
+  <section id="actuators">
+    <h2>카메라 속 작은 기계들</h2>
+    <p>센서와 처리 엔진이 '전자'라면, 그 앞에서 빛을 다루는 부분은 대부분 '기계'입니다. 무언가를 움직이는 부품을 <span class="term">액추에이터</span><span class="en">(Actuator)</span>라고 부르는데, 렌즈 교환식 카메라 한 대와 렌즈 하나에는 적게는 네다섯, 많게는 열 개 가까운 액추에이터가 들어 있습니다. 그림 4-1은 미러리스 카메라와 렌즈를 옆에서 잘라 본 모습입니다.</p>
+    <figure class="diagram fig-lg">
+      <svg viewBox="0 0 800 300" role="img" aria-label="미러리스 카메라 단면과 주요 액추에이터 위치">
+        <rect x="30" y="70" width="330" height="160" rx="12" class="f-surface"/>
+        <ellipse cx="62" cy="150" rx="12" ry="70" fill="rgba(120,190,255,.35)" stroke="var(--accent-2)"/>
+        <ellipse cx="150" cy="150" rx="9" ry="48" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="2.5"/>
+        <rect x="132" y="84" width="38" height="16" rx="3" class="f-acc"/>
+        <path d="M150 112 v-10" class="s-acc"/>
+        <path d="M128 150 h-14 M172 150 h14" class="s-acc"/><path d="M118 146 l-6 4 l6 4 M182 146 l6 4 l-6 4" class="s-acc"/>
+        <rect x="225" y="98" width="10" height="34" class="f-acc"/><rect x="225" y="168" width="10" height="34" class="f-acc"/>
+        <ellipse cx="290" cy="150" rx="7" ry="36" fill="var(--accent-2-soft)" stroke="var(--accent-2)" stroke-width="2.5"/>
+        <path d="M290 108 v-12 M290 192 v12" class="s-acc2"/><path d="M285 100 l5 -6 l5 6 M285 200 l5 6 l5 -6" class="s-acc2"/>
+        <ellipse cx="335" cy="150" rx="8" ry="44" fill="rgba(120,190,255,.35)" stroke="var(--accent-2)"/>
+        <rect x="362" y="66" width="18" height="168" rx="3" class="f-elev"/>
+        <rect x="380" y="40" width="360" height="232" rx="16" class="f-elev"/>
+        <rect x="520" y="14" width="120" height="40" rx="6" class="f-surface"/>
+        <text x="580" y="39" text-anchor="middle" class="t-dim">EVF</text>
+        <rect x="548" y="82" width="10" height="136" class="blade"/>
+        <rect x="590" y="70" width="34" height="160" rx="4" class="f-acc2-soft"/>
+        <rect x="602" y="96" width="8" height="108" fill="#2c3346"/>
+        <rect x="596" y="76" width="22" height="10" rx="2" class="f-acc2"/><rect x="596" y="214" width="22" height="10" rx="2" class="f-acc2"/>
+        <rect x="660" y="80" width="56" height="140" rx="6" class="f-surface"/>
+        <text x="688" y="154" text-anchor="middle" class="t-dim">기판·</text><text x="688" y="172" text-anchor="middle" class="t-dim">배터리</text>
+        <line x1="20" y1="150" x2="602" y2="150" class="s-dash"/>
+        <g class="t">
+          <text x="150" y="60" text-anchor="middle">① AF 모터 + 초점 그룹</text>
+          <text x="230" y="252" text-anchor="middle">② 조리개 유닛</text>
+          <text x="290" y="60" text-anchor="middle">③ OIS 그룹</text>
+          <text x="470" y="250" text-anchor="middle">④ 셔터 유닛</text>
+          <text x="610" y="292" text-anchor="middle">⑤ IBIS 스테이지 + 센서</text>
+        </g>
+        <path d="M478 236 L548 196" class="s-line"/><path d="M610 278 L607 232" class="s-line"/>
+        <text x="370" y="290" text-anchor="middle" class="t-dim">마운트</text>
+        <text x="40" y="288" class="t-dim">빛 →</text>
+      </svg>
+      <figcaption><b>그림 4-1.</b> 미러리스 카메라와 렌즈 속 주요 액추에이터. 이 밖에 줌 모터(파워 줌 렌즈), 센서 앞 필터를 떠는 먼지 제거 진동자, 셔터 차지 모터, 팝업 플래시·틸트 화면의 기구가 있다. DSLR이라면 마운트와 셔터 사이에 미러 박스가 하나 더 들어간다.</figcaption>
+    </figure>
+    <p>이 기계들은 움직이는 거리도, 걸리는 시간도 크게 다릅니다. 셔터 날은 24 mm를 수 ms에 지나가고, 손떨림 보정 스테이지는 1 ms보다 짧은 주기로 위치를 고치며, 초점 렌즈는 수십 ms에 걸쳐 1 mm 남짓 움직입니다. 그림 4-2는 이 시간 척도를 로그 눈금 하나에 늘어놓은 것입니다.</p>
+    <figure class="diagram">
+      <svg viewBox="0 0 800 270" role="img" aria-label="카메라 액추에이터의 시간 척도">
+        <g class="t-dim">
+          <text x="60" y="26">먼지 제거 초음파 진동 1주기 (수십 kHz)</text>
+          <text x="200" y="54">IBIS·OIS 제어 루프 1회 (수 kHz)</text>
+          <text x="214" y="82">노출 시간 1/8000 ~ 1/30초</text>
+          <text x="382" y="110">셔터 막 주행 2~4 ms</text>
+          <text x="438" y="138">AF 렌즈 이동 (수 ms ~ 수백 ms)</text>
+          <text x="480" y="166">조리개 구동 10~50 ms</text>
+          <text x="560" y="194">DSLR 미러 한 주기 60~120 ms</text>
+        </g>
+        <rect x="60" y="31" width="67" height="10" rx="3" class="bar-b"/>
+        <rect x="200" y="59" width="140" height="10" rx="3" class="bar-b"/>
+        <rect x="214" y="87" width="339" height="10" rx="3" class="bar-c"/>
+        <rect x="382" y="115" width="42" height="10" rx="3" class="bar-a"/>
+        <rect x="438" y="143" width="224" height="10" rx="3" class="bar-a"/>
+        <rect x="480" y="171" width="98" height="10" rx="3" class="bar-a"/>
+        <rect x="589" y="199" width="42" height="10" rx="3" class="bar-a"/>
+        <line x1="60" y1="226" x2="760" y2="226" class="s-axis"/>
+        <g class="t-mono" text-anchor="middle">
+          <line x1="60" y1="222" x2="60" y2="230" class="s-axis"/><text x="60" y="246">10 μs</text>
+          <line x1="200" y1="222" x2="200" y2="230" class="s-axis"/><text x="200" y="246">100 μs</text>
+          <line x1="340" y1="222" x2="340" y2="230" class="s-axis"/><text x="340" y="246">1 ms</text>
+          <line x1="480" y1="222" x2="480" y2="230" class="s-axis"/><text x="480" y="246">10 ms</text>
+          <line x1="620" y1="222" x2="620" y2="230" class="s-axis"/><text x="620" y="246">100 ms</text>
+          <line x1="760" y1="222" x2="760" y2="230" class="s-axis"/><text x="760" y="246">1 s</text>
+        </g>
+        <text x="410" y="266" text-anchor="middle" class="t-dim">주황 = 큰 기계 동작 · 청록 = 전자식 제어/진동 · 노랑 = 참고용 노출 시간</text>
+      </svg>
+      <figcaption><b>그림 4-2.</b> 카메라 속 움직임의 시간 척도(로그 눈금, 대표적인 범위). 다섯 자릿수에 걸쳐 있다. 셔터 막은 노출 시간 대부분보다 느리게 움직인다는 점에 주목하자. 이것이 다음 절의 출발점이다.</figcaption>
+    </figure>
+    <div class="table-wrap"><table>
+      <tr><th>액추에이터</th><th>구동 방식</th><th>움직이는 양</th><th>시간</th></tr>
+      <tr><td>포컬 플레인 셔터</td><td>스프링 + 전자석 래치, 모터로 차지</td><td>24 mm (풀프레임 세로)</td><td>주행 2~4 ms</td></tr>
+      <tr><td>DSLR 미러</td><td>스프링·모터, 캠과 댐퍼</td><td>약 45° 회전</td><td>올리고 내리기 수십 ms</td></tr>
+      <tr><td>조리개</td><td>스테핑 모터 + 날 링</td><td>구멍 지름 수 mm~수십 mm</td><td>10~50 ms</td></tr>
+      <tr><td>AF</td><td>DC·초음파·스테핑·리니어·VCM</td><td>초점 그룹 0.1~수 mm</td><td>수 ms~수백 ms</td></tr>
+      <tr><td>IBIS / OIS</td><td>보이스 코일 + 자석, 홀 센서 피드백</td><td>±1 mm 안팎, 회전 ±1~2°</td><td>제어 주기 &lt; 1 ms</td></tr>
+    </table></div>
+  </section>
+
+  <!-- =============================================================== 2 -->
+  <section id="shutter">
+    <h2>포컬 플레인 셔터</h2>
+    <p>렌즈 교환식 카메라의 기계식 셔터는 센서 바로 앞, 초점면(포컬 플레인)에 붙어 있어서 <span class="term">포컬 플레인 셔터</span><span class="en">(Focal-plane Shutter)</span>라고 부릅니다. 사용법과 셔터 속도의 효과는 <a href="shutter.html">12장</a>에서 다뤘으니, 여기서는 그 안을 열어 봅니다.</p>
+    <p>셔터 유닛에는 두 벌의 '막'이 있습니다. 각 막은 알루미늄 합금이나 탄소 섬유 복합재로 만든 두께 0.1 mm 안팎의 얇은 날 3~5장이 부채처럼 겹쳐진 것입니다. 먼저 움직이는 것이 <span class="term">선막</span><span class="en">(Front Curtain, First Curtain)</span>, 뒤따르는 것이 <span class="term">후막</span><span class="en">(Rear Curtain, Second Curtain)</span>입니다.</p>
+    <figure class="diagram">
+      <svg viewBox="0 0 800 300" role="img" aria-label="셔터 막의 세 가지 상태: 대기, 노출 중 슬릿, 노출 끝">
+        <g transform="translate(40,0)">
+          <text x="90" y="24" text-anchor="middle" class="t-acc">① 차지 완료(대기)</text>
+          <rect x="0" y="52" width="180" height="8" class="blade"/><rect x="0" y="58" width="180" height="8" class="blade"/><rect x="0" y="64" width="180" height="8" class="blade"/>
+          <rect x="0" y="80" width="180" height="120" class="f-acc2-soft"/>
+          <rect x="0" y="80" width="180" height="34" class="blade"/><rect x="0" y="108" width="180" height="34" class="blade"/><rect x="0" y="136" width="180" height="34" class="blade"/><rect x="0" y="164" width="180" height="36" class="blade"/>
+          <text x="90" y="46" text-anchor="middle" class="t-dim">후막 (접혀서 대기)</text>
+          <text x="90" y="145" text-anchor="middle" class="t">선막이 센서를 가림</text>
+        </g>
+        <g transform="translate(310,0)">
+          <text x="90" y="24" text-anchor="middle" class="t-acc">② 노출 중 (슬릿)</text>
+          <rect x="0" y="80" width="180" height="120" class="f-acc2-soft"/>
+          <rect x="0" y="80" width="180" height="22" class="blade"/><rect x="0" y="98" width="180" height="22" class="blade"/>
+          <rect x="0" y="120" width="180" height="22" class="lit"/>
+          <rect x="0" y="142" width="180" height="30" class="blade"/><rect x="0" y="168" width="180" height="32" class="blade"/>
+          <rect x="0" y="206" width="180" height="8" class="blade"/><rect x="0" y="212" width="180" height="8" class="blade"/>
+          <text x="90" y="136" text-anchor="middle" class="t">슬릿 ↓</text>
+          <text x="90" y="72" text-anchor="middle" class="t-dim">후막이 따라 내려옴</text>
+          <text x="90" y="236" text-anchor="middle" class="t-dim">선막이 접히며 내려감</text>
+        </g>
+        <g transform="translate(580,0)">
+          <text x="90" y="24" text-anchor="middle" class="t-acc">③ 노출 끝</text>
+          <rect x="0" y="80" width="180" height="120" class="f-acc2-soft"/>
+          <rect x="0" y="80" width="180" height="34" class="blade"/><rect x="0" y="108" width="180" height="34" class="blade"/><rect x="0" y="136" width="180" height="34" class="blade"/><rect x="0" y="164" width="180" height="36" class="blade"/>
+          <rect x="0" y="206" width="180" height="8" class="blade"/><rect x="0" y="212" width="180" height="8" class="blade"/><rect x="0" y="218" width="180" height="8" class="blade"/>
+          <text x="90" y="145" text-anchor="middle" class="t">후막이 센서를 가림</text>
+          <text x="90" y="246" text-anchor="middle" class="t-dim">선막 (접혀서 정지)</text>
+        </g>
+        <text x="400" y="282" text-anchor="middle" class="t-dim">→ 이후 차지 모터가 두 막을 처음 자리로 되돌리고 스프링을 다시 감는다</text>
+      </svg>
+      <figcaption><b>그림 4-3.</b> 셔터 막의 한 주기(앞에서 본 모습, 간략화). 실제로는 위아래가 반대이거나 막이 지나는 방향이 카메라마다 다르지만, '두 막이 같은 방향으로 시간차를 두고 지나간다'는 원리는 같다.</figcaption>
+    </figure>
+    <p>동작 순서는 이렇습니다. ① 촬영 전, 작은 모터가 캠과 레버로 두 막을 시작 위치에 되돌리고 스프링을 감아 둡니다(<span class="term">셔터 차지</span>). 막은 전자석이 붙잡고 있습니다. ② 셔터를 누르면 선막 전자석의 전류가 끊기고, 스프링에 튕긴 선막이 센서를 드러내며 지나갑니다. ③ 정해진 시간 \(t\)가 지나면 후막 전자석이 풀려 후막이 같은 길을 따라가며 센서를 다시 가립니다. 노출 시간을 정하는 것은 막의 속도가 아니라 <b>두 전자석을 놓는 시간 간격</b>입니다.</p>
+    <p>막이 센서 끝에서 끝까지 지나가는 데 걸리는 시간을 <span class="term">막 주행 시간</span><span class="en">(Curtain Travel Time)</span>이라고 하며, 풀프레임(세로 24 mm)에서 대략 2~4 ms입니다. 24 mm를 3 ms에 지나려면 평균 8 m/s이고, 정지 상태에서 몇 mm 만에 그 속도에 이르려면 순간 가속도가 수백 g에 이릅니다. 셔터 날이 그토록 얇고 가벼워야 하는 이유입니다.</p>
+    <p>노출 시간이 주행 시간보다 짧으면 선막이 다 지나가기도 전에 후막이 출발합니다. 그러면 두 막 사이의 좁은 틈, <span class="term">슬릿</span><span class="en">(Slit)</span>이 센서를 훑고 지나가며 각 줄을 차례로 노출합니다. 막이 일정한 속도로 움직인다고 하면 슬릿의 폭은 다음과 같습니다.</p>
+    <div class="formula">$$w \approx H \cdot \frac{t}{T_\text{주행}}$$
+      <div class="where">\(H\): 막이 지나는 방향의 센서 길이(풀프레임 24 mm), \(t\): 노출 시간, \(T_\text{주행}\): 막 주행 시간. 1/8000초(0.125 ms), 주행 3 ms이면 슬릿 폭은 약 1 mm. 각 줄이 받는 노출 시간은 모두 \(t\)로 같지만, 맨 윗줄과 맨 아랫줄이 노출되는 <b>시각</b>은 \(T_\text{주행}\)만큼 차이 난다.</div>
+    </div>
+
+    <div class="sim" id="sim-curtain">
+      <div class="sim-head"><span class="sim-tag">SIMULATOR</span><h3>선막·후막과 슬릿, 슬로 모션으로 보기</h3></div>
+      <div class="sim-body side">
+        <div class="sim-view"><canvas id="cv-curtain"></canvas></div>
+        <div class="sim-controls">
+          <label class="ctrl"><span>노출 시간 <output id="ct-t-out"></output></span><input type="range" id="ct-t"></label>
+          <label class="ctrl"><span>막 주행 시간 <output id="ct-tr-out"></output></span><input type="range" id="ct-tr" min="1.8" max="8" step="0.1" value="3.2"></label>
+          <label class="check"><input type="checkbox" id="ct-move"> 빠르게 움직이는 막대 찍기</label>
+          <label class="check"><input type="checkbox" id="ct-mis"> 후막이 5% 느릴 때(조정 불량)</label>
+          <button class="btn" id="ct-play">일시정지</button>
+        </div>
+      </div>
+      <div class="sim-readout">
+        <div class="stat"><span class="k">슬릿 폭(화면 중앙)</span><span class="v" id="ct-slit">—</span></div>
+        <div class="stat"><span class="k">전체가 열린 시간</span><span class="v" id="ct-open">—</span></div>
+        <div class="stat"><span class="k">위↔아래 노출 시각 차</span><span class="v" id="ct-skew">—</span></div>
+        <div class="stat"><span class="k">위↔아래 밝기 차</span><span class="v" id="ct-ev">—</span></div>
+        <div class="stat"><span class="k">일반 플래시 동조</span><span class="v" id="ct-sync">—</span></div>
+      </div>
+      <div class="sim-note">모델: 두 막은 같은 가속 곡선 \(s(u)=u(0.6+0.4u)\)(\(u\)=경과 시간/주행 시간)로 움직이고, 후막은 선막보다 정확히 \(t\)만큼 늦게 출발합니다. 그래프의 두 곡선 사이 가로 간격이 각 줄의 노출 시간, 세로 간격이 슬릿 폭입니다. 움직이는 막대는 센서 위에서 1 mm/ms(=1 m/s)로 오른쪽으로 달린다고 가정했습니다. 플래시 섬광 지속 시간과 여유는 무시했습니다. 해볼 것: ① 노출을 1/8000로 두고 슬릿이 얼마나 좁은지 보기 ② 노출 시간을 주행 시간보다 길게 해 '전체가 열린 시간'이 생기는 순간 찾기(이것이 동조 속도) ③ 막대를 켜고 1/8000에서도 막대가 기울어지는 것 확인 ④ 후막 편차를 켜고 고속 셔터에서 아래쪽이 밝아지는 것 보기.</div>
+    </div>
+
+    <p>시뮬레이터에서 확인할 수 있는 세 가지 결론이 있습니다.</p>
+    <div class="cards">
+      <div><b>플래시 동조 한계</b>플래시 섬광은 1 ms 이하로 짧아서, 그 순간 센서 전체가 열려 있어야 합니다. 그러려면 \(t \ge T_\text{주행}\)(+여유)이어야 하므로 동조 속도는 1/200~1/250초 근처에 머뭅니다. 더 빠른 셔터에서 쓰는 HSS는 <a href="flash.html">21장</a>.</div>
+      <div><b>슬릿 왜곡</b>고속 셔터라도 위아래 줄은 주행 시간만큼 다른 순간에 찍힙니다. 아주 빠른 피사체(골프 클럽, 프로펠러)는 기계식 셔터에서도 살짝 기울어집니다. 전자 셔터에서는 이 시간 차가 센서 판독 시간으로 커집니다.</div>
+      <div><b>정밀도</b>1/8000초는 0.125 ms입니다. 후막이 선막보다 0.05 ms만 늦어도 그 줄은 40% 더 노출됩니다. 그래서 셔터는 공장에서 줄 단위로 노출을 측정해 보정하고, 최고 속도가 1/8000에서 멈춥니다.</div>
+    </div>
+
+    <h3>전자 선막과 전자 셔터</h3>
+    <p>미러리스에서는 센서가 평소에 계속 빛을 받고 있으므로, 선막 역할을 센서가 대신할 수 있습니다. 센서의 각 줄을 선막이 지나가는 타이밍에 맞춰 차례로 리셋(전하를 비움)하면, 그 순간부터 그 줄의 노출이 시작됩니다. 이것이 <span class="term">전자 선막</span><span class="en">(EFCS, Electronic First Curtain Shutter)</span>입니다. 기계식 선막이 움직이지 않으니 진동과 소리가 줄고 셔터 지연도 짧아집니다. 다만 전자 리셋은 센서 면에서, 기계식 후막은 그보다 몇 mm 앞에서 일어나므로, 아주 빠른 셔터와 밝은 조리개에서는 빛 원뿔이 잘리며 보케 모양이나 노출이 조금 불균일해질 수 있습니다. 그래서 많은 기종이 고속 셔터에서 자동으로 기계식 선막으로 전환합니다.</p>
+    <p>두 막을 모두 전자식으로 바꾼 것이 <span class="term">전자 셔터</span>입니다. 이때 '막 주행 시간'에 해당하는 것은 센서의 <b>판독 시간</b>이며, 일반 센서에서는 수십 ms로 기계식 막보다 열 배 이상 느려 <span class="term">롤링 셔터</span> 왜곡이 커집니다. 판독 구조와 적층형 센서가 이 시간을 어떻게 줄이는지는 <a href="sensor.html">05장</a>에서, 픽셀 회로 수준의 글로벌·롤링 셔터는 <a href="https://semi.euiyun.com/sensor/chapters/shutter.html">SensorBook의 셔터 장</a>에서 다룹니다.</p>
+  </section>
+
+  <!-- =============================================================== 3 -->
+  <section id="mirror">
+    <h2>미러 박스</h2>
+    <p>DSLR의 이름에 들어 있는 'Reflex'는 거울을 뜻합니다. 렌즈와 셔터 사이에 45°로 기울어진 <span class="term">메인 미러</span>가 빛을 위쪽 펜타프리즘으로 올려 보내 광학 뷰파인더에 상을 보여 줍니다. 메인 미러의 가운데는 반투명이어서 일부 빛이 통과하고, 그 뒤의 작은 <span class="term">서브 미러</span>가 이 빛을 바닥의 전용 위상차 AF 모듈로 내려 보냅니다.</p>
+    <figure class="diagram">
+      <svg viewBox="0 0 800 260" role="img" aria-label="DSLR 미러 박스의 미러 다운과 미러 업 상태">
+        <g transform="translate(30,0)">
+          <text x="160" y="20" text-anchor="middle" class="t-acc">미러 다운 (뷰파인더로 보는 중)</text>
+          <rect x="0" y="95" width="80" height="80" rx="8" class="f-surface"/><text x="40" y="140" text-anchor="middle" class="t-dim">렌즈</text>
+          <path d="M110 40 L230 40 L170 80 Z" class="f-surface"/><text x="170" y="56" text-anchor="middle" class="t-dim">펜타프리즘</text>
+          <rect x="230" y="34" width="50" height="14" rx="3" class="f-elev"/><text x="290" y="45" class="t-dim">눈</text>
+          <path d="M80 135 L150 135 L150 88" class="ray"/>
+          <path d="M150 135 L172 158 L172 214" class="ray" opacity=".55"/>
+          <line x1="108" y1="175" x2="192" y2="91" stroke="var(--text)" stroke-width="3"/>
+          <line x1="158" y1="146" x2="190" y2="160" stroke="var(--text-dim)" stroke-width="2.5"/>
+          <rect x="140" y="214" width="64" height="18" rx="3" class="f-acc2-soft"/><text x="172" y="250" text-anchor="middle" class="t-dim">AF 모듈</text>
+          <rect x="226" y="95" width="6" height="80" class="blade"/><rect x="240" y="95" width="10" height="80" fill="#2c3346"/>
+          <text x="248" y="196" text-anchor="middle" class="t-dim">셔터·센서</text>
+          <text x="98" y="196" class="t-dim">메인 미러</text>
+        </g>
+        <g transform="translate(440,0)">
+          <text x="160" y="20" text-anchor="middle" class="t-acc">미러 업 (노출 중)</text>
+          <rect x="0" y="95" width="80" height="80" rx="8" class="f-surface"/><text x="40" y="140" text-anchor="middle" class="t-dim">렌즈</text>
+          <path d="M110 40 L230 40 L170 80 Z" class="f-surface"/><text x="170" y="56" text-anchor="middle" class="t-dim">펜타프리즘</text>
+          <line x1="108" y1="88" x2="200" y2="88" stroke="var(--text)" stroke-width="3"/>
+          <path d="M80 135 L240 135" class="ray"/>
+          <rect x="226" y="95" width="6" height="80" class="lit"/><rect x="240" y="95" width="10" height="80" fill="#2c3346"/>
+          <text x="150" y="112" text-anchor="middle" class="t-dim">미러가 올라가 길을 비킴</text>
+          <text x="170" y="214" text-anchor="middle" class="t">뷰파인더 블랙아웃 · AF 모듈도 빛을 못 받음</text>
+        </g>
+      </svg>
+      <figcaption><b>그림 4-4.</b> DSLR 미러 박스(옆에서 본 모습, 간략화). 셔터를 누르면 미러가 올라가 길을 비키고, 노출이 끝나면 다시 내려온다. 그동안 뷰파인더는 깜깜하다.</figcaption>
+    </figure>
+    <p>한 장을 찍을 때마다 미러는 올라가고, 튕김이 가라앉기를 기다렸다가, 셔터가 동작한 뒤 다시 내려오고, 다시 튕김이 멎은 다음에야 AF 모듈이 다음 측정을 할 수 있습니다. 수십 g의 거울을 이렇게 빠르게 움직이면 <span class="term">미러 쇼크</span><span class="en">(Mirror Slap)</span>라는 진동이 생겨 망원·접사의 저속 셔터에서 사진을 흐리게 합니다. 그래서 DSLR에는 미러를 미리 올려 두는 <b>미러 업(미러 록업)</b> 기능이 있었습니다.</p>
+    <p>미러리스는 이 상자를 통째로 없앴습니다. 센서가 항상 빛을 받으며 그 영상으로 뷰파인더(EVF)와 AF를 함께 처리합니다. 덕분에 렌즈 마운트에서 센서까지의 거리(<span class="term">플랜지 백</span><span class="en">(Flange Focal Distance)</span>)가 DSLR의 약 44~47 mm에서 16~20 mm로 줄어 바디가 얇아지고 광각 렌즈 설계가 쉬워졌으며(<a href="optics.html">03장</a>), 연사 속도가 미러의 기계적 한계에서 풀려났습니다. 대가는 센서와 EVF가 늘 켜져 있어 전력을 더 쓴다는 점입니다(<a href="body.html">08장</a>).</p>
+
+    <div class="sim" id="sim-mirror">
+      <div class="sim-head"><span class="sim-tag">SIMULATOR</span><h3>한 장을 찍는 동안: DSLR과 미러리스의 시간표</h3></div>
+      <div class="sim-view"><canvas id="cv-mirror"></canvas></div>
+      <div class="tl-legend"><span><i style="background:var(--accent)"></i>기계 동작</span><span><i style="background:var(--accent-2)"></i>전자 동작</span><span><i style="background:var(--warn)"></i>노출</span><span><i style="background:var(--text-faint)"></i>안정화·대기</span><span><i style="background:var(--bad)"></i>블랙아웃</span></div>
+      <div class="sim-controls">
+        <div class="ctrl" style="grid-column:1/-1"><span>셔터 방식</span><div class="seg" id="mr-type"><button data-value="dslr" class="on">DSLR</button><button data-value="mech">미러리스·기계식</button><button data-value="efcs">미러리스·전자 선막</button><button data-value="es">전자 셔터(일반 센서)</button><button data-value="ess">전자 셔터(적층형)</button></div></div>
+        <label class="ctrl"><span>원하는 연사 속도 <output id="mr-fps-out"></output></span><input type="range" id="mr-fps" min="1" max="30" value="10"></label>
+        <label class="check"><input type="checkbox" id="mr-ap" checked> 조리개를 미리 조여 둠(미러리스 라이브 뷰)</label>
+      </div>
+      <div class="sim-readout">
+        <div class="stat"><span class="k">셔터 지연(누름→노출 시작)</span><span class="v" id="mr-lag">—</span></div>
+        <div class="stat"><span class="k">한 장당 블랙아웃</span><span class="v" id="mr-bo">—</span></div>
+        <div class="stat"><span class="k">이 구조의 최대 연사</span><span class="v" id="mr-max">—</span></div>
+        <div class="stat"><span class="k">연사 중 화면이 보이는 비율</span><span class="v" id="mr-vis">—</span></div>
+      </div>
+      <div class="sim-note">모델: 노출 1/1000초, 막 주행 3.5 ms. 각 단계의 시간(미러 업 20 ms, 미러 다운 18 ms와 튕김 6 ms, 미러리스의 선막 닫기 8 ms, 센서 판독 일반 40 ms·적층형 5 ms, 다음 프레임 AF·화면 갱신 등)은 실제 기종들의 공개된 지연·연사 수치에서 거꾸로 짐작한 <b>대표값</b>이며 특정 제품을 뜻하지 않습니다. 실제 카메라는 여러 단계를 더 많이 겹쳐 실행합니다. 처리 엔진의 한계로 연사는 120 fps에서 잘랐습니다. 해볼 것: ① DSLR에서 블랙아웃 비율 보기 ② 미러리스·기계식에서 '선막 닫기' 단계 때문에 셔터 지연이 오히려 늘어나는 것 보기 ③ 전자 선막으로 바꿔 지연이 줄어드는 것 ④ 전자 셔터에서 블랙아웃이 사라지는 대신 노출 구간이 길게 비스듬해지는 것(판독 시간) 확인.</div>
+    </div>
+  </section>
+
+  <!-- =============================================================== 4 -->
+  <section id="aperture">
+    <h2>조리개 유닛</h2>
+    <p>조리개는 렌즈 안에서 여러 장의 얇은 금속 날이 고리 모양으로 겹쳐 구멍을 만드는 장치입니다(<span class="term">아이리스 조리개</span><span class="en">(Iris Diaphragm)</span>). 날은 보통 7~11장이며, 각 날은 한쪽 핀이 고정 링에, 다른 쪽 핀이 회전 링의 홈에 끼워져 있습니다. 회전 링을 조금 돌리면 모든 날이 동시에 안쪽으로 미끄러져 들어와 구멍이 작아집니다. F값이 \(\sqrt{2}\)배 커질 때마다 구멍 지름은 \(1/\sqrt{2}\)배, 면적은 절반이 되도록 링 각도가 설계되어 있습니다. 조리개가 사진에 주는 효과는 <a href="aperture.html">11장</a>에서 다룹니다.</p>
+    <figure class="diagram">
+      <svg viewBox="0 0 660 230" role="img" aria-label="9장 날 조리개의 개방, 직선 날로 조인 모습, 곡선 날로 조인 모습">
+        <g>
+          <circle cx="120" cy="110" r="80" class="f-surface"/>
+          <polygon points="120.0,52.0 157.3,65.6 177.1,99.9 170.2,139.0 139.8,164.5 100.2,164.5 69.8,139.0 62.9,99.9 82.7,65.6" class="lit"/>
+          <path d="M120.0 52.0 L155.7 65.0 M157.3 65.6 L176.3 98.5 M177.1 99.9 L170.5 137.3 M170.2 139.0 L141.1 163.4 M139.8 164.5 L101.8 164.5 M100.2 164.5 L71.1 140.0 M69.8 139.0 L63.2 101.6 M62.9 99.9 L81.9 67.0 M82.7 65.6 L118.4 52.6" class="s-line"/>
+          <text x="120" y="215" text-anchor="middle" class="t">개방 (예: f/2)</text>
+        </g>
+        <g>
+          <circle cx="330" cy="110" r="80" class="f-surface"/>
+          <polygon points="330.0,84.0 346.7,90.1 355.6,105.5 352.5,123.0 338.9,134.4 321.1,134.4 307.5,123.0 304.4,105.5 313.3,90.1" class="lit"/>
+          <path d="M330.0 84.0 L385.3 104.2 M346.7 90.1 L376.1 141.1 M355.6 105.5 L345.3 163.5 M352.5 123.0 L307.4 160.8 M338.9 134.4 L280.0 134.4 M321.1 134.4 L276.0 96.5 M307.5 123.0 L297.3 65.0 M304.4 105.5 L333.9 54.5 M313.3 90.1 L368.7 70.0" class="s-line"/>
+          <text x="330" y="215" text-anchor="middle" class="t">직선 날로 조임 → 9각형</text>
+        </g>
+        <g>
+          <circle cx="540" cy="110" r="80" class="f-surface"/>
+          <path d="M540.0 84.0 A27 27 0 0 1 556.7 90.1 A27 27 0 0 1 565.6 105.5 A27 27 0 0 1 562.5 123.0 A27 27 0 0 1 548.9 134.4 A27 27 0 0 1 531.1 134.4 A27 27 0 0 1 517.5 123.0 A27 27 0 0 1 514.4 105.5 A27 27 0 0 1 523.3 90.1 A27 27 0 0 1 540.0 84.0 Z" class="lit"/>
+          <path d="M540.0 84.0 L595.3 104.2 M556.7 90.1 L586.1 141.1 M565.6 105.5 L555.3 163.5 M562.5 123.0 L517.4 160.8 M548.9 134.4 L490.0 134.4 M531.1 134.4 L486.0 96.5 M517.5 123.0 L507.3 65.0 M514.4 105.5 L543.9 54.5 M523.3 90.1 L578.7 70.0" class="s-line"/>
+          <text x="540" y="215" text-anchor="middle" class="t">곡선 날로 조임 → 거의 원</text>
+        </g>
+      </svg>
+      <figcaption><b>그림 4-5.</b> 9장 날 조리개. 날 가장자리를 곡선으로 깎은 <span class="term">원형 조리개</span><span class="en">(Rounded Aperture Blades)</span>는 두세 스톱 조인 곳까지 구멍이 원에 가깝게 유지되어 빛망울이 둥글다. 날 수가 짝수(n)이면 점광원의 빛 갈래도 n개, 홀수면 2n개가 된다(9장 날 → 18갈래).</figcaption>
+    </figure>
+    <p>옛 DSLR 렌즈는 바디 쪽 레버가 조리개 링을 기계적으로 밀어 조였지만, 지금의 렌즈 대부분은 렌즈 안의 작은 <span class="term">스테핑 모터</span><span class="en">(Stepping Motor)</span>가 링을 직접 돌리는 전자식 조리개입니다. 스테핑 모터는 펄스 하나마다 정해진 각도만큼 돌아서, 위치 센서 없이도 펄스 수만 세면 링 각도를 알 수 있습니다.</p>
+    <p>사진 한 장에서는 조리개를 조이는 10~50 ms가 셔터 지연의 일부일 뿐이지만, <b>동영상</b>에서는 문제가 달라집니다. 녹화 중에 밝기가 바뀌어 조리개가 1/3스톱씩 '딸깍' 움직이면 화면 밝기가 계단처럼 튀고, 날이 움직이는 소리가 내장 마이크에 녹음됩니다. 그래서 동영상을 고려한 렌즈는 모터를 마이크로스텝으로 나눠 1/8스톱 이하로 아주 잘게, 조용히 조리개를 바꿉니다(<a href="video.html">22장</a>). 같은 이유로 미러리스는 라이브 뷰에서도 촬영 조리개를 미리 조여 두는 경우가 많고, 이때는 셔터를 누른 뒤 조리개가 움직일 필요가 없어 지연이 줄어듭니다.</p>
+  </section>
+
+  <!-- =============================================================== 5 -->
+  <section id="af-motor">
+    <h2>AF 구동 모터</h2>
+    <p>초점을 맞춘다는 것은 렌즈 안의 <span class="term">초점 그룹</span><span class="en">(Focus Group)</span>을 광축 방향으로 정확한 위치까지 옮기는 일입니다. 위상차 AF가 '얼마나, 어느 쪽으로'를 계산하면(<a href="control.html">07장</a>, 사용법은 <a href="focus.html">16장</a>), 모터가 그 거리를 실제로 이동합니다. 필요한 정밀도는 상당합니다. f/1.4 렌즈에서 허용 착란원 0.03 mm라면 상 쪽 초점 심도는 대략 \(\pm N c \approx \pm 0.04\) mm이고, 초점 그룹은 그보다 더 정밀하게 멈춰야 합니다.</p>
+    <p>모터가 할 일은 뉴턴의 제2법칙 그대로입니다. 질량 \(m\)인 그룹을 최대 힘 \(F\)로 가속했다가 같은 힘으로 감속하면, 거리 \(d\)를 가는 최소 시간은 다음과 같습니다.</p>
+    <div class="formula">$$t_\text{min} = 2\sqrt{\frac{d}{a}}, \qquad a = \frac{F}{m}$$
+      <div class="where">가속도 100 m/s²(약 10 g)로 1 mm를 가면 약 6.3 ms. 질량이 4배면 시간은 2배. 그래서 렌즈 설계자는 초점 그룹을 가능한 한 가볍게(작은 렌즈 1~2장) 만들고, 큰 그룹이 꼭 필요하면 강한 모터를 여러 개 단다.</div>
+    </div>
+    <div class="table-wrap"><table>
+      <tr><th>방식</th><th>원리</th><th>강점</th><th>약점</th></tr>
+      <tr><td><b>DC 모터 + 기어</b></td><td>작은 회전 모터의 회전을 기어로 줄여 나사로 전진</td><td>싸고 힘이 세다. 옛 바디 구동(스크루 드라이브)도 이 방식</td><td>기어 소음, 기어 이 사이의 유격(백래시), 기어 관성 때문에 느림</td></tr>
+      <tr><td><b>링형 초음파 모터</b></td><td>압전 소자가 고리 모양 고정자에 진행파를 만들어 마찰로 회전자를 돌림</td><td>낮은 속도에서 큰 토크, 조용, 전원이 꺼지면 마찰로 제자리 고정, 상시 수동 초점 가능</td><td>렌즈 지름만 한 링이 필요, 마찰 구동이라 아주 미세한 등속 이동은 까다로움</td></tr>
+      <tr><td><b>스테핑 모터(STM)</b></td><td>펄스마다 한 칸씩 도는 모터 + 리드 스크루</td><td>조용하고 부드러움, 위치 센서 없이도 위치를 앎. 동영상 AF에 적합</td><td>최대 속도·힘이 낮아 무거운 그룹에는 느림, 과부하 시 '탈조'(스텝 누락)</td></tr>
+      <tr><td><b>리니어 모터</b></td><td>코일과 자석(보이스 코일형) 또는 압전 소자로 그룹을 직접 밂</td><td>기어가 없어 매우 빠르고 조용, 응답이 좋음</td><td>위치 센서와 폐루프 제어 필수, 전원이 꺼지면 그룹이 헐거워져 흔들면 소리가 나기도 함</td></tr>
+      <tr><td><b>VCM</b><span class="en">(Voice Coil Motor)</span></td><td>스프링에 매달린 렌즈를 코일 전류로 밀어 힘과 스프링이 균형인 곳에 세움</td><td>작고 싸며 빠름. 스마트폰 카메라 대부분</td><td>수백 mg 렌즈용, 스프링 때문에 출렁임(링잉)이 남기 쉬움</td></tr>
+    </table></div>
+    <p>요즘 렌즈의 초점 링은 대부분 초점 그룹과 기계적으로 연결되어 있지 않습니다. 링은 회전을 재는 엔코더일 뿐이고, 링을 돌린 각도와 속도를 읽어 모터가 그룹을 움직이는 <span class="term">포커스 바이 와이어</span><span class="en">(Focus-by-wire)</span> 방식입니다. 덕분에 AF 모터 하나로 수동 초점까지 처리하지만, 링을 빨리 돌리면 많이, 천천히 돌리면 조금 움직이는 비선형 반응 때문에 수동 초점의 반복성이 떨어질 수 있어 선형 응답을 고를 수 있는 기종도 있습니다. 스마트폰 카메라 모듈의 VCM과 OIS 구조는 <a href="../../phone/chapters/camera.html">PhoneBook의 카메라 장</a>에서 자세히 다룹니다.</p>
+
+    <div class="sim" id="sim-actuator">
+      <div class="sim-head"><span class="sim-tag">SIMULATOR</span><h3>AF 모터 비교: 초점 그룹을 1 mm 옮기기</h3></div>
+      <div class="sim-body side">
+        <div class="sim-view"><canvas id="cv-actuator"></canvas></div>
+        <div class="sim-controls">
+          <div class="ctrl"><span>모터 종류</span><div class="seg" id="ac-type"><button data-value="dc">DC+기어</button><button data-value="usm">링 초음파</button><button data-value="stm">스테핑</button><button data-value="lin" class="on">리니어</button><button data-value="vcm">VCM(폰)</button></div></div>
+          <label class="ctrl"><span>초점 그룹 질량 <output id="ac-m-out"></output></span><input type="range" id="ac-m"></label>
+          <label class="ctrl"><span>이동 거리 <output id="ac-d-out"></output></span><input type="range" id="ac-d" min="0.1" max="3" step="0.1" value="1"></label>
+        </div>
+      </div>
+      <div class="sim-readout">
+        <div class="stat"><span class="k">90% 도달</span><span class="v" id="ac-t90">—</span></div>
+        <div class="stat"><span class="k">정착(±10 μm 안)</span><span class="v" id="ac-settle">—</span></div>
+        <div class="stat"><span class="k">최대 가속도</span><span class="v" id="ac-acc">—</span></div>
+        <div class="stat"><span class="k">오버슈트</span><span class="v" id="ac-over">—</span></div>
+      </div>
+      <div class="sim-note" id="ac-note">—</div>
+    </div>
+  </section>
+
+  <!-- =============================================================== 6 -->
+  <section id="ibis">
+    <h2>손떨림 보정 액추에이터</h2>
+    <p>카메라가 각도 \(\theta\)만큼 흔들리면 센서 위의 상은 대략 \(\Delta = f\,\theta\)만큼 미끄러집니다(\(f\): 초점거리). 손떨림 보정은 이 \(\Delta\)를 실시간으로 계산해 센서(IBIS)나 렌즈 안의 보정 그룹(OIS)을 반대로 움직이는 제어 시스템입니다. 보정을 어떻게 쓰고 '5스톱'이 무슨 뜻인지는 <a href="stabilization.html">20장</a>에서 다뤘으니, 여기서는 그 기계와 제어 루프를 봅니다.</p>
+    <figure class="diagram">
+      <svg viewBox="0 0 800 290" role="img" aria-label="IBIS 스테이지 구조와 제어 루프 블록도">
+        <g transform="translate(20,20)">
+          <rect x="0" y="10" width="250" height="200" rx="12" class="f-surface"/>
+          <rect x="40" y="45" width="170" height="130" rx="8" class="f-acc2-soft"/>
+          <rect x="70" y="72" width="110" height="76" fill="#2c3346"/>
+          <text x="125" y="115" text-anchor="middle" fill="#fff" font-size="12">센서</text>
+          <rect x="52" y="152" width="34" height="18" rx="3" class="f-acc"/><rect x="164" y="152" width="34" height="18" rx="3" class="f-acc"/>
+          <rect x="188" y="88" width="18" height="44" rx="3" class="f-acc"/>
+          <circle cx="62" cy="60" r="6" class="f-acc2"/><circle cx="188" cy="60" r="6" class="f-acc2"/><circle cx="125" cy="164" r="6" class="f-acc2"/>
+          <text x="125" y="232" text-anchor="middle" class="t">떠 있는 센서 판(앞에서 본 모습)</text>
+          <text x="125" y="252" text-anchor="middle" class="t-dim">주황 = 코일+자석 · 청록 점 = 홀 센서</text>
+        </g>
+        <g transform="translate(300,30)" class="t">
+          <rect x="0" y="0" width="110" height="44" rx="8" class="f-elev"/><text x="55" y="27" text-anchor="middle">자이로</text>
+          <rect x="150" y="0" width="140" height="44" rx="8" class="f-elev"/><text x="220" y="20" text-anchor="middle">적분 + 고역 필터</text><text x="220" y="37" text-anchor="middle" class="t-dim">각속도 → 각도</text>
+          <rect x="330" y="0" width="130" height="44" rx="8" class="f-elev"/><text x="395" y="20" text-anchor="middle">× 초점거리</text><text x="395" y="37" text-anchor="middle" class="t-dim">목표 위치 f·θ</text>
+          <rect x="330" y="96" width="130" height="44" rx="8" class="f-acc-soft"/><text x="395" y="123" text-anchor="middle">위치 제어기</text>
+          <rect x="150" y="96" width="140" height="44" rx="8" class="f-elev"/><text x="220" y="123" text-anchor="middle">코일 드라이버</text>
+          <rect x="0" y="96" width="110" height="44" rx="8" class="f-acc2-soft"/><text x="55" y="123" text-anchor="middle">센서 스테이지</text>
+          <rect x="150" y="192" width="140" height="44" rx="8" class="f-elev"/><text x="220" y="219" text-anchor="middle">홀 센서</text>
+          <path d="M110 22 h40 M290 22 h40 M395 44 v52 M330 118 h-40 M150 118 h-40 M55 140 v74 h95 M290 214 h135 v-74" class="s-line"/>
+          <path d="M144 18 l6 4 l-6 4 M324 18 l6 4 l-6 4 M391 90 l4 6 l4 -6 M296 114 l-6 4 l6 4 M116 114 l-6 4 l6 4 M144 210 l6 4 l-6 4 M421 146 l4 -6 l4 6" class="s-line"/>
+          <text x="440" y="190" class="t-dim">피드백</text>
+          <text x="62" y="180" class="t-dim">실제 위치</text>
+        </g>
+      </svg>
+      <figcaption><b>그림 4-6.</b> IBIS의 구조(왼쪽)와 제어 루프(오른쪽). 센서 판은 자석과 코일로 공중에 떠 있다시피 하며, 코일 세 개 이상으로 상하·좌우 이동과 회전을 만든다. 홀 센서가 판의 실제 위치를 재서 제어기에 되돌려 준다.</figcaption>
+    </figure>
+    <p><b>5축 보정</b>은 다섯 가지 흔들림을 말합니다. 피치(위아래 기울기)와 요(좌우 기울기)는 상을 각각 위아래·좌우로 미끄러뜨리므로 센서를 평행 이동해 상쇄합니다. 롤(광축을 중심으로 한 회전)은 센서 판을 돌려서, 카메라가 통째로 위아래·좌우로 밀리는 평행 이동 흔들림(접사에서 중요)은 가속도 센서 정보를 더해 상쇄합니다. 렌즈의 OIS는 보정 그룹을 위아래·좌우로만 움직이므로 보통 2축이며, 바디와 렌즈가 축을 나눠 맡는 <b>협조 보정</b>도 있습니다.</p>
+    <p>한계는 세 가지입니다. 첫째, <b>이동 범위</b>. 스테이지는 대략 ±1 mm 남짓 움직이는데, 400 mm 렌즈에서 0.15°(2.6 mrad)만 흔들려도 필요한 이동은 \(400 \times 0.0026 \approx 1\) mm입니다. 망원에서 IBIS가 OIS보다 약한 이유입니다. 센서를 많이 옮기면 렌즈의 이미지 서클 가장자리를 쓰게 되어 구석이 어두워지는 문제도 있습니다. 둘째, <b>제어 대역폭</b>. 손떨림의 주성분은 약 1~10 Hz이고 생리적 떨림은 8~12 Hz 근처에 있습니다. 스테이지가 이보다 충분히 빨리(수십~수백 Hz 대역폭) 따라가지 못하면 위상이 늦어 보정이 오히려 흔들림을 남깁니다. 셋째, <b>자이로의 드리프트</b>. 각속도를 적분하면 작은 오차가 쌓이므로 아주 느린 성분은 고역 필터로 걸러 내야 하고, 같은 필터가 의도한 패닝도 '흔들림이 아님'으로 판정하게 해 줍니다.</p>
+
+    <div class="sim" id="sim-ibis">
+      <div class="sim-head"><span class="sim-tag">SIMULATOR</span><h3>IBIS 제어 루프: 흔들림, 스테이지, 남은 흔들림</h3></div>
+      <div class="sim-body side">
+        <div class="sim-view"><canvas id="cv-ibis"></canvas><div class="legend" style="padding-bottom:10px"><span><i style="background:var(--text-faint)"></i>보정 없을 때 상의 움직임</span><span><i style="background:var(--accent-2)"></i>스테이지(센서) 위치</span><span><i style="background:var(--accent)"></i>남은 흔들림</span><span><i style="background:var(--bad);height:8px;opacity:.5"></i>끝점에 닿은 구간</span></div></div>
+        <div class="sim-controls">
+          <label class="ctrl"><span>초점거리 <output id="ib-f-out"></output></span><input type="range" id="ib-f"></label>
+          <label class="ctrl"><span>제어 대역폭 <output id="ib-bw-out"></output></span><input type="range" id="ib-bw"></label>
+          <label class="ctrl"><span>보정 게인 <output id="ib-g-out"></output></span><input type="range" id="ib-g" min="0" max="120" step="5" value="100"></label>
+          <label class="ctrl"><span>스테이지 이동 한계 <output id="ib-l-out"></output></span><input type="range" id="ib-l" min="0.2" max="2" step="0.1" value="1"></label>
+          <label class="ctrl"><span>흔들림 크기 <output id="ib-a-out"></output></span><input type="range" id="ib-a" min="0.5" max="3" step="0.1" value="1"></label>
+          <div class="ctrl"><span>노출 시간(흐림 계산용)</span><div class="seg" id="ib-t"><button data-value="0.0166667">1/60</button><button data-value="0.0666667" class="on">1/15</button><button data-value="0.25">1/4</button></div></div>
+        </div>
+      </div>
+      <div class="sim-readout">
+        <div class="stat"><span class="k">흐림 폭: 보정 끔</span><span class="v" id="ib-off">—</span></div>
+        <div class="stat"><span class="k">흐림 폭: 보정 켬</span><span class="v" id="ib-on">—</span></div>
+        <div class="stat"><span class="k">줄어든 비율</span><span class="v" id="ib-ratio">—</span></div>
+        <div class="stat"><span class="k">끝점에 닿은 시간</span><span class="v" id="ib-hit">—</span></div>
+      </div>
+      <div class="sim-note">모델(한 축만, 피치): 흔들림 \(\theta(t)\)는 1.2·2.3·4.1·6.7·9.5 Hz 사인파 다섯 개의 합(진폭 1.0~0.12 mrad × 흔들림 크기). 자이로는 \(\dot\theta\)에 잡음과 작은 바이어스(0.05 mrad/s, 남은 흔들림에 일정한 오프셋으로 나타남)를 더해 재고, 제어기는 0.1 Hz 고역 필터를 단 적분기로 각도를 추정해 목표 위치 \(x^* = g\,f\,\hat\theta\)를 만듭니다. 스테이지는 대역폭 \(f_c\), 감쇠비 0.7인 2차 위치 루프 \(\ddot x = \omega_c^2(x^*-x) - 2\zeta\omega_c\dot x\)로 따라가며 \(\pm L\)에서 멈춥니다. 남은 흔들림 = \(f\theta - x\). '흐림 폭'은 3초 동안 고른 노출 구간들에서 상이 움직인 폭(최대−최소)의 평균이고, 픽셀 피치 4 μm로 환산했습니다. 줄어든 비율의 log₂를 '스톱'처럼 볼 수 있지만, 제조사의 보정 스톱(CIPA 기준)은 다른 방법으로 잰 값이라 직접 비교할 수 없습니다. 해볼 것: ① 대역폭을 100 Hz → 20 Hz → 3 Hz로 낮추며 보정 효과가 줄다가 3 Hz에서는 오히려 흔들림이 커지는 것 보기 ② 600 mm에서 흔들림을 키워 스테이지가 끝점(빨간 띠)에 부딪히는 것 보기 ③ 게인을 80%나 120%로 틀어 보기(초점거리 정보가 틀린 수동 렌즈의 상황).</div>
+    </div>
+    <div class="callout deep"><strong>렌즈 OIS는 무엇이 다를까</strong>OIS 그룹은 센서보다 훨씬 가볍고(수 g), 망원 렌즈에서는 그룹이 조금만 움직여도 상이 크게 움직이도록(보정 감도가 높게) 설계할 수 있어서 이동 범위 문제에 강합니다. 대신 렌즈마다 액추에이터와 자이로가 필요하고, 롤 회전은 보정하지 못합니다. 그래서 망원은 OIS, 광각·표준은 IBIS가 유리하고, 협조 보정은 각자 잘하는 축을 맡깁니다.</div>
+  </section>
+
+  <!-- =============================================================== 7 -->
+  <section id="vibration">
+    <h2>진동·소음과 수명</h2>
+    <p>움직이는 부품은 반드시 반작용을 남깁니다. 셔터 막이 출발하고 멈출 때의 충격은 바디와 렌즈를 수백 Hz로 미세하게 떨게 하는데, 이 <span class="term">셔터 쇼크</span><span class="en">(Shutter Shock)</span>는 노출이 이 떨림의 몇 주기와 겹치는 1/30~1/250초 근처에서, 망원 렌즈와 고화소 센서에서 가장 잘 드러납니다. 더 빠른 셔터는 떨림의 일부만 담고, 더 느린 셔터는 떨림이 가라앉은 뒤의 긴 노출에 묻히기 때문입니다. 대책은 선막을 움직이지 않는 <b>전자 선막</b>, 막의 정지 충격을 흡수하는 댐퍼와 브레이크, 미러·셔터 동작 뒤 잠깐 기다렸다 노출하는 <b>지연 촬영</b>입니다.</p>
+    <p>소리도 같은 근원에서 나옵니다. 우리가 듣는 '찰칵'은 선막 출발, 후막 정지, 그리고 차지 모터가 스프링을 다시 감는 소리가 겹친 것입니다. 전자 셔터로 찍으면 실제로는 아무 소리도 나지 않으며, 들리는 소리는 스피커로 낸 가짜 음입니다. 동영상에서는 AF 모터와 조리개 소리가 마이크에 들어가므로 기어가 없는 리니어·스테핑 모터가 선호됩니다.</p>
+    <div class="cards">
+      <div><span class="big">10만~50만 회</span><b>셔터 수명 등급</b>제조사가 시험으로 확인한 작동 횟수의 기준값. 보급기는 10만~20만, 고급기는 30만~50만 회 수준이 흔하다. 보장이 아닌 통계적 목표다.</div>
+      <div><span class="big">0.1 mm</span><b>날 두께 안팎</b>가볍게 만들수록 빠르지만, 수십만 번의 가속과 충돌을 견뎌야 한다. 날의 마모·변형, 스프링 피로, 윤활제 오염이 대표적인 고장 원인이다.</div>
+      <div><span class="big">수십 kHz</span><b>먼지 제거 진동</b>센서 앞 필터를 초음파로 떨어 먼지를 털어 낸다. 미러리스는 렌즈를 빼면 센서가 드러나므로, 전원을 끌 때 셔터를 닫아 센서를 보호하는 기종도 있다.</div>
+    </div>
+    <div class="callout tip"><strong>셔터 횟수와 중고 카메라</strong>셔터 막은 교체 가능한 소모품입니다. 중고 바디를 살 때 '셔터 카운트'를 확인하는 것은 그래서입니다. 반대로 전자 셔터만 쓴 촬영은 기계 셔터 수명을 거의 쓰지 않지만, 롤링 셔터 왜곡과 조명 깜박임(밴딩)이라는 다른 대가가 있습니다(<a href="shutter.html">12장</a>, <a href="sensor.html">05장</a>).</div>
+    <div class="callout warn"><strong>기계는 환경을 탄다</strong>추위에서는 윤활제가 굳고 배터리 전압이 떨어져 모터와 스프링 동작이 느려질 수 있습니다. 셔터 유닛은 온도 범위 안에서 노출 정확도를 시험받지만, 극한 환경에서 첫 몇 장의 노출이 흔들리는 것은 그래서입니다. 바디의 밀봉과 온도 설계는 <a href="body.html">08장</a>에서 다룹니다.</div>
+  </section>
+
+  <section class="keypoints" id="summary">
+    <h2>핵심 정리</h2>
+    <ol>
+      <li>카메라 속 액추에이터는 셔터·미러·조리개·AF·손떨림 보정이며, 수십 μs(진동)에서 100 ms(미러)까지 다섯 자릿수의 시간 척도에서 움직인다.</li>
+      <li>포컬 플레인 셔터는 스프링으로 튕기고 전자석으로 붙잡는 두 막으로 노출 시간을 만든다. 노출 시간을 정하는 것은 막의 속도가 아니라 두 막의 출발 시간 차다.</li>
+      <li>노출 시간이 막 주행 시간(2~4 ms)보다 짧으면 슬릿이 센서를 훑는다. 슬릿 폭 ≈ H·t/T. 전체가 동시에 열리는 가장 빠른 셔터가 플래시 동조 속도(1/200~1/250초)다.</li>
+      <li>DSLR의 미러는 블랙아웃·미러 쇼크·연사 한계를 만든다. 미러리스는 이를 없애 플랜지 백을 줄이고 연사를 높였지만, 기계식 선막을 쓰면 선막을 닫는 단계가 더해진다. 전자 선막이 이를 줄인다.</li>
+      <li>AF 모터는 질량·힘·속도의 싸움이다(t ≈ 2√(d·m/F)). 리니어·VCM은 빠르고 조용하지만 폐루프 제어가 필요하고, 스테핑은 부드럽지만 느리며, 링 초음파는 힘이 세다.</li>
+      <li>IBIS는 자이로→적분·필터→목표 위치(f·θ)→코일→스테이지→홀 센서로 이어지는 제어 루프다. 이동 범위(망원에 약함), 제어 대역폭, 자이로 드리프트가 성능을 가른다.</li>
+    </ol>
+  </section>
+
+  <section class="quiz-sec" id="quiz">
+    <h2>확인 퀴즈</h2>
+    <div class="quiz">
+      <div class="quiz-q"><p>막 주행 시간이 3 ms인 셔터로 1/4000초(0.25 ms)를 찍을 때, 풀프레임(세로 24 mm)에서 슬릿 폭은 대략?</p><div class="opts">
+        <button class="opt">0.25 mm</button>
+        <button class="opt" data-correct>2 mm</button>
+        <button class="opt">24 mm (전체가 열림)</button>
+      </div><div class="quiz-exp">w ≈ H·t/T = 24 × 0.25 / 3 = 2 mm. 노출 시간이 주행 시간보다 짧으므로 전체가 동시에 열리지 않는다.</div></div>
+      <div class="quiz-q"><p>일반 플래시가 1/250초보다 빠른 셔터에서 사진 일부를 검게 만드는 근본 원인은?</p><div class="opts">
+        <button class="opt">플래시 충전이 늦어서</button>
+        <button class="opt" data-correct>막 주행 시간보다 노출이 짧아, 짧은 섬광 순간에 센서 일부가 막에 가려져 있어서</button>
+        <button class="opt">셔터 날이 빛을 반사해서</button>
+      </div><div class="quiz-exp">섬광은 1 ms 이하로 짧다. 그 순간 센서 전체가 열려 있으려면 노출 시간 ≥ 막 주행 시간이어야 한다.</div></div>
+      <div class="quiz-q"><p>미러리스에서 기계식 선막 대신 전자 선막(EFCS)을 쓸 때의 주된 이점은?</p><div class="opts">
+        <button class="opt">플래시 동조 속도가 1/8000초가 된다</button>
+        <button class="opt" data-correct>선막을 닫고 다시 여는 기계 동작이 없어 셔터 쇼크와 셔터 지연이 줄어든다</button>
+        <button class="opt">롤링 셔터 왜곡이 완전히 사라진다</button>
+      </div><div class="quiz-exp">센서 리셋이 선막 역할을 대신한다. 후막은 여전히 기계식이고, 아주 빠른 셔터·밝은 조리개에서는 노출·보케 불균일이 생길 수 있다.</div></div>
+      <div class="quiz-q"><p>같은 AF 모터로 초점 그룹의 질량만 4배로 늘렸다. 힘이 한계인 상황에서 같은 거리를 가는 최소 시간은?</p><div class="opts">
+        <button class="opt">그대로</button>
+        <button class="opt" data-correct>약 2배</button>
+        <button class="opt">약 4배</button>
+      </div><div class="quiz-exp">a = F/m이 1/4이 되고, t = 2√(d/a)이므로 √4 = 2배.</div></div>
+      <div class="quiz-q"><p>400 mm 렌즈에서 카메라가 2.5 mrad(약 0.14°) 흔들렸다. 센서 위의 상은 대략 얼마나 움직이나?</p><div class="opts">
+        <button class="opt">0.01 mm</button>
+        <button class="opt" data-correct>1 mm</button>
+        <button class="opt">10 mm</button>
+      </div><div class="quiz-exp">Δ = f·θ = 400 × 0.0025 = 1 mm. IBIS의 이동 범위(±1 mm 남짓)를 다 쓰는 양이라 초망원에서는 OIS가 유리하다.</div></div>
+      <div class="quiz-q"><p>IBIS 스테이지의 제어 대역폭이 손떨림 주파수(수 Hz)와 비슷할 만큼 낮으면?</p><div class="opts">
+        <button class="opt">보정이 더 정확해진다</button>
+        <button class="opt" data-correct>스테이지가 늦게 따라가 위상이 어긋나, 보정 효과가 사라지거나 오히려 흔들림이 커질 수 있다</button>
+        <button class="opt">이동 범위가 늘어난다</button>
+      </div><div class="quiz-exp">제어 루프는 흔들림보다 충분히 빨라야 한다. 늦게 따라가면 반대 방향으로 움직여야 할 때 같은 방향으로 움직이는 순간이 생긴다.</div></div>
+    </div>
+  </section>
+</main>
+
+<script>
+/* ---------------------------------------------------------------- 1. 포컬 플레인 셔터 */
+(function () {
+  const H = 24, W = 36, VBAR = 1.0; // mm, 막대 속도 mm/ms
+  const LIST = CB.SHUTTERS.filter((t) => t <= 1 / 30 + 1e-9 && t >= 1 / 8000 - 1e-12);
+  const upd = () => { calc(); cv.redraw(); };
+  const TT = CB.steps("ct-t", LIST, CB.fmtT, 1 / 1000, upd);
+  const TR = CB.range("ct-tr", (v) => v.toFixed(1) + " ms", upd);
+  const MOVE = CB.check("ct-move", upd);
+  const MIS = CB.check("ct-mis", upd);
+  const s = (u) => { u = CB.clamp(u, 0, 1); return u * (0.6 + 0.4 * u); };
+  const sinv = (y) => (-0.6 + Math.sqrt(0.36 + 1.6 * CB.clamp(y, 0, 1))) / 0.8;
+  let phase = 0, playing = true;
+  function prm() { const t = TT() * 1000, T = TR(), Tr = T * (MIS() ? 1.05 : 1); return { t, T, Tr, D: t + Tr + 0.2 * T + 0.3 }; }
+  const rowE = (p, y) => p.t + (p.Tr - p.T) * sinv(y / H);
+  function calc() {
+    const p = prm();
+    if (p.t >= p.T) CB.stat("ct-slit", "<small>전체 개방</small>");
+    else { const tc = p.T * sinv(0.5); const yr = H * s((tc - p.t) / p.Tr); const w = H / 2 - yr; CB.stat("ct-slit", (w < 1 ? w.toFixed(2) : w.toFixed(1)) + "<small>mm</small>"); }
+    const open = Math.max(0, p.t - p.T);
+    CB.stat("ct-open", open > 0 ? open.toFixed(open < 10 ? 2 : 1) + "<small>ms</small>" : "<small>없음</small>");
+    CB.stat("ct-skew", p.T.toFixed(1) + "<small>ms</small>");
+    const ev = Math.log2(rowE(p, H) / rowE(p, 0));
+    CB.stat("ct-ev", (ev < 0.005 ? "0.00" : "+" + ev.toFixed(2)) + "<small>EV</small>");
+    CB.stat("ct-sync", p.t >= p.T ? '<span style="color:var(--ok)">가능</span>' : '<span style="color:var(--bad)">불가</span><small>띠가 생김</small>');
+  }
+  function curtain(ctx, x, y, w, h, label) {
+    if (h <= 0.5) return;
+    ctx.fillStyle = "#3a3d44"; ctx.fillRect(x, y, w, h);
+    ctx.strokeStyle = "rgba(255,255,255,0.18)"; ctx.lineWidth = 1;
+    const step = Math.max(8, w / 9);
+    for (let yy = y + step; yy < y + h - 1; yy += step) { ctx.beginPath(); ctx.moveTo(x, yy + 0.5); ctx.lineTo(x + w, yy + 0.5); ctx.stroke(); }
+    if (h > 18) { ctx.fillStyle = "rgba(255,255,255,0.75)"; ctx.font = "600 12px " + CB.color("font"); ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText(label, x + w / 2, y + h / 2); }
+  }
+  const cv = CB.canvas("#cv-curtain", (ctx, w, h) => {
+    const P = CB.palette(), p = prm(), tau = Math.min(phase, 1) * p.D;
+    const pad = 12, pw = (w - pad * 3) / 2, ph = (pw * H) / W, top = 26, k = ph / H;
+    ctx.font = "12px " + CB.color("font"); ctx.fillStyle = P.dim; ctx.textAlign = "left"; ctx.textBaseline = "alphabetic";
+    ctx.fillText("센서 앞 (슬로 모션)", pad, 18); ctx.fillText("기록되는 사진", pad * 2 + pw, 18);
+    ctx.textAlign = "right"; ctx.fillText("t = " + tau.toFixed(2) + " ms", w - pad, 18);
+    // 센서 앞
+    const x0 = pad, y0 = top;
+    ctx.fillStyle = "#1d2433"; ctx.fillRect(x0, y0, pw, ph);
+    const yf = H * s(tau / p.T), yr = H * s((tau - p.t) / p.Tr);
+    if (yf > yr) { ctx.fillStyle = "rgba(255,190,70,0.85)"; ctx.fillRect(x0, y0 + yr * k, pw, (yf - yr) * k); }
+    if (MOVE()) { const bx = 8 + VBAR * tau; if (bx < W) { ctx.fillStyle = "rgba(255,255,255,0.35)"; ctx.fillRect(x0 + (bx - 1.25) * k, y0, 2.5 * k, ph); } }
+    curtain(ctx, x0, y0 + yf * k, pw, (H - yf) * k, "선막");
+    curtain(ctx, x0, y0, pw, yr * k, "후막");
+    ctx.strokeStyle = P.border; ctx.lineWidth = 1; ctx.strokeRect(x0 + 0.5, y0 + 0.5, pw - 1, ph - 1);
+    // 기록되는 사진
+    const x1 = pad * 2 + pw, N = 60, rh = ph / N;
+    ctx.fillStyle = "#000"; ctx.fillRect(x1, y0, pw, ph);
+    for (let i = 0; i < N; i++) {
+      const y = ((i + 0.5) / N) * H, ts = p.T * sinv(y / H), E = rowE(p, y);
+      const done = CB.clamp((tau - ts) / E, 0, 1); if (done <= 0) continue;
+      const lum = CB.clamp(0.42 * (E / p.t) * done, 0, 1), c = Math.round(255 * Math.pow(lum, 1 / 2.2));
+      ctx.fillStyle = `rgb(${c},${c},${Math.round(c * 1.04)})`; ctx.fillRect(x1, y0 + i * rh, pw, rh + 0.6);
+      if (MOVE()) {
+        const xa = 8 + VBAR * ts, len = VBAR * E * done, bw = 2.5;
+        const alpha = CB.clamp(bw / (len + bw), 0.04, 1) * done;
+        ctx.fillStyle = `rgba(255,236,170,${alpha.toFixed(3)})`;
+        const L = x1 + (xa - bw / 2) * k, R = Math.min(x1 + pw, x1 + (xa + len + bw / 2) * k);
+        if (R > L) ctx.fillRect(L, y0 + i * rh, R - L, rh + 0.6);
+      }
+    }
+    ctx.strokeStyle = P.border; ctx.strokeRect(x1 + 0.5, y0 + 0.5, pw - 1, ph - 1);
+    // 시간-위치 그래프
+    const gy = top + ph + 22, box = { x: 50, y: gy, w: w - 50 - 14, h: h - gy - 46 };
+    const n = 160, front = [], rear = [];
+    for (let i = 0; i <= n; i++) { const tt = (i / n) * p.D; front.push([tt, H * s(tt / p.T)]); rear.push([tt, H * s((tt - p.t) / p.Tr)]); }
+    const vl = [{ x: tau, color: P.text, dash: [2, 3], width: 1 }];
+    if (p.t > p.T) vl.push({ x: p.T, color: P.ok, label: "전체 개방" });
+    CB.chart(ctx, box, {
+      x: [0, p.D], y: [H, 0], yTicks: [0, 12, 24], yFmt: (v) => v + "mm", xFmt: (v) => v + "", xLabel: "시간 (ms)",
+      bands: p.t > p.T ? [{ x0: p.T, x1: p.t, color: CB.color("accent-soft") }] : [],
+      series: [{ data: front, color: P.accent2, width: 2.5 }, { data: rear, color: P.accent, width: 2.5 }], vlines: vl,
+    });
+    ctx.font = "12px " + CB.color("font"); ctx.textAlign = "right"; ctx.textBaseline = "top";
+    ctx.fillStyle = P.accent; ctx.fillText("━ 후막 가장자리", box.x + box.w - 4, box.y + 4);
+    ctx.fillStyle = P.accent2; ctx.fillText("━ 선막 가장자리", box.x + box.w - 4, box.y + 20);
+  }, { aspect: (w) => { const pw = (w - 36) / 2; return (26 + (pw * 24) / 36 + 22 + 150 + 46) / w; }, minHeight: 330 });
+  const btn = document.getElementById("ct-play");
+  btn.addEventListener("click", () => { playing = !playing; btn.textContent = playing ? "일시정지" : "재생"; });
+  CB.loop(document.getElementById("cv-curtain"), (dt) => {
+    if (!playing) return;
+    phase += dt / 3.2; if (phase > 1.25) phase = 0;
+    cv.redraw();
+  });
+  calc();
+})();
+
+/* ---------------------------------------------------------------- 2. 미러 / 셔터 시간표 */
+(function () {
+  const TRACKS = ["제어", "미러", "조리개", "선막", "노출", "후막", "셔터 차지", "센서 판독", "AF·화면", "뷰파인더"];
+  const upd = () => { cv.redraw(); };
+  const TY = CB.seg("mr-type", upd);
+  const FPS = CB.range("mr-fps", (v) => v + " fps", upd);
+  const AP = CB.check("mr-ap", upd);
+  const t = 1, T = 3.5;
+  function plan(type) {
+    const S = []; const add = (tr, a, d, kind, label) => S.push({ tr, a, b: a + d, kind, label });
+    let lag, bo = [0, 0], cyc, cap = 120;
+    if (type === "dslr") {
+      add("제어", 0, 8, "e", "판단"); add("미러", 8, 20, "m", "미러 업"); add("미러", 28, 8, "w", "튕김");
+      add("조리개", 8, 16, "m", "조이기");
+      const s0 = 36; add("선막", s0, T, "m"); add("노출", s0, T + t, "x"); add("후막", s0 + t, T, "m");
+      const e = s0 + t + T; add("미러", e, 18, "m", "미러 다운"); add("미러", e + 18, 6, "w", "튕김");
+      add("조리개", e, 10, "m", "열기"); add("셔터 차지", e, 22, "m", "차지"); add("센서 판독", e, 30, "e", "판독");
+      add("AF·화면", e + 24, 12, "e", "AF·측광"); lag = s0; bo = [8, e + 24]; cyc = e + 36;
+    } else if (type === "mech" || type === "efcs") {
+      add("제어", 0, 6, "e", "판단");
+      const apEnd = AP() ? 6 : 6 + 14; if (!AP()) add("조리개", 6, 14, "m", "조이기");
+      let s0;
+      if (type === "mech") { add("선막", 6, 8, "m", "닫기"); add("선막", 14, 4, "w", ""); s0 = Math.max(18, apEnd); add("선막", s0, T, "m"); }
+      else { s0 = apEnd; add("선막", s0, T, "e", "리셋 주사"); }
+      add("노출", s0, T + t, "x"); add("후막", s0 + t, T, "m");
+      const e = s0 + t + T; add("센서 판독", e, 40, "e", "판독"); add("셔터 차지", e, 18, "m", "차지·열기");
+      add("AF·화면", e + 40, 12, "e", "AF·EVF"); lag = s0; bo = [type === "mech" ? 6 : s0, e + 40]; cyc = e + 52;
+    } else {
+      const R = type === "es" ? 40 : 5; cap = type === "es" ? 30 : 120;
+      add("제어", 0, 4, "e", "판단"); const apEnd = AP() ? 4 : 4 + 14; if (!AP()) add("조리개", 4, 14, "m", "조이기");
+      const s0 = apEnd; add("선막", s0, R, "e", "리셋 주사"); add("노출", s0, R + t, "x"); add("후막", s0 + t, R, "e", "판독 주사");
+      add("AF·화면", s0 + t + R, 4, "e", ""); lag = s0; bo = [0, 0]; cyc = Math.max(R, t) + 4 + s0;
+      cap = Math.min(cap, 1000 / (Math.max(R, t) + 2));
+    }
+    if (bo[1] > bo[0]) add("뷰파인더", bo[0], bo[1] - bo[0], "b", "블랙아웃");
+    const period = type === "es" || type === "ess" ? 1000 / cap : cyc;
+    return { S, lag, bo: bo[1] - bo[0], cyc, maxFps: Math.min(cap, 1000 / period) };
+  }
+  const cv = CB.canvas("#cv-mirror", (ctx, w, h) => {
+    const P = CB.palette(), pl = plan(TY());
+    const lx = w < 480 ? 64 : 80, top = 10, bot = 30, rowH = (h - top - bot) / TRACKS.length;
+    const tMax = Math.max(60, Math.ceil(pl.cyc / 20) * 20), X = (v) => lx + (v / tMax) * (w - lx - 12);
+    ctx.font = (w < 480 ? 11 : 12) + "px " + CB.color("font"); ctx.textBaseline = "middle";
+    TRACKS.forEach((tr, i) => {
+      const y = top + i * rowH;
+      ctx.fillStyle = i % 2 ? "transparent" : P.surface; if (i % 2 === 0) { ctx.globalAlpha = 0.5; ctx.fillRect(lx, y, w - lx - 12, rowH); ctx.globalAlpha = 1; }
+      ctx.fillStyle = P.dim; ctx.textAlign = "right"; ctx.fillText(tr, lx - 6, y + rowH / 2);
+    });
+    const col = { m: P.accent, e: P.accent2, x: P.warn, w: P.faint, b: P.bad };
+    pl.S.forEach((sg) => {
+      const i = TRACKS.indexOf(sg.tr), y = top + i * rowH + rowH * 0.2, hh = rowH * 0.6;
+      const xa = X(sg.a), xb = Math.max(X(sg.b), xa + 2);
+      ctx.fillStyle = col[sg.kind]; ctx.globalAlpha = sg.kind === "w" ? 0.6 : 0.88;
+      if (sg.kind === "x" && sg.b - sg.a > 6) { // 비스듬한 노출 구간(위 줄 → 아래 줄)
+        const d = sg.b - sg.a - t, xt = X(sg.a + d), wp = Math.max(X(sg.a + t) - xa, 4);
+        ctx.beginPath(); ctx.moveTo(xa, y + hh); ctx.lineTo(xt, y); ctx.lineTo(xt + wp, y); ctx.lineTo(xa + wp, y + hh); ctx.closePath(); ctx.fill();
+      } else ctx.fillRect(xa, y, xb - xa, hh);
+      ctx.globalAlpha = 1;
+      if (sg.label && xb - xa > ctx.measureText(sg.label).width + 6) { ctx.fillStyle = sg.kind === "w" ? P.text : "#fff"; ctx.textAlign = "center"; ctx.fillText(sg.label, (xa + xb) / 2, y + hh / 2 + 0.5); }
+    });
+    // 축
+    const ay = h - bot + 4; ctx.strokeStyle = P.axis; ctx.beginPath(); ctx.moveTo(lx, ay); ctx.lineTo(w - 12, ay); ctx.stroke();
+    ctx.fillStyle = P.dim; ctx.textAlign = "center"; ctx.textBaseline = "top"; ctx.font = "11px " + CB.color("mono");
+    const step = tMax > 120 ? 40 : 20;
+    for (let v = 0; v <= tMax; v += step) { ctx.fillText(v + (v === 0 ? "" : ""), X(v), ay + 4); ctx.beginPath(); ctx.moveTo(X(v), ay); ctx.lineTo(X(v), ay + 3); ctx.stroke(); }
+    ctx.textAlign = "right"; ctx.fillText("ms", lx - 6, ay + 4);
+    // 노출 시작 표시
+    ctx.strokeStyle = P.warn; ctx.setLineDash([3, 3]); ctx.beginPath(); ctx.moveTo(X(pl.lag), top); ctx.lineTo(X(pl.lag), ay); ctx.stroke(); ctx.setLineDash([]);
+    // 판독
+    const fps = FPS();
+    CB.stat("mr-lag", Math.round(pl.lag) + "<small>ms</small>");
+    CB.stat("mr-bo", pl.bo > 0 ? Math.round(pl.bo) + "<small>ms</small>" : "<small>없음</small>");
+    CB.stat("mr-max", pl.maxFps.toFixed(pl.maxFps < 20 ? 1 : 0) + "<small>fps</small>");
+    if (fps > pl.maxFps + 1e-9) CB.stat("mr-vis", '<span style="color:var(--bad)">불가</span><small>최대 ' + pl.maxFps.toFixed(1) + " fps</small>");
+    else CB.stat("mr-vis", Math.round(Math.max(0, 1 - (pl.bo * fps) / 1000) * 100) + "<small>%</small>");
+  }, { aspect: 0.45, minHeight: 300, maxHeight: 380 });
+})();
+
+/* ---------------------------------------------------------------- 3. AF 모터 비교 */
+(function () {
+  // 대표값(설명용). F: 최대 힘 N, vmax: 최대 속도 m/s, fb: 위치 루프 대역폭 Hz, z: 감쇠비, mx: 추가 등가 질량 kg(회전자·기어 관성)
+  const TYPES = {
+    dc:  { F: 1.5, vmax: 0.08, fb: 15, z: 0.55, mx: 0.02, note: "DC 모터+기어: 기어 감속으로 힘은 세지만 기어·회전자 관성이 등가 질량 20 g으로 더해지고, 유격 때문에 위치 루프를 빠르게 못 만든다(대역폭 15 Hz로 가정). 가벼운 그룹에서도 느리고, 소음이 크다." },
+    usm: { F: 4, vmax: 0.15, fb: 35, z: 0.85, mx: 0.004, note: "링 초음파: 힘이 커서 무거운 그룹에서도 잘 버틴다. 마찰 구동이라 멈추면 그 자리에 고정된다(전원 없이도). 대역폭 35 Hz로 가정." },
+    stm: { F: 0.8, vmax: 0.05, fb: 25, z: 1.0, mx: 0.002, q: 5e-6, note: "스테핑: 5 μm 단위 계단으로 움직이며(그래프의 미세 계단), 최대 속도 50 mm/s와 작은 힘 때문에 무거운 그룹·먼 거리에 약하다. 오버슈트 없이 부드러워 동영상에 좋다." },
+    lin: { F: 2.5, vmax: 0.4, fb: 80, z: 0.75, mx: 0.0005, note: "리니어: 기어 없이 직접 밀어 등가 질량이 거의 늘지 않고, 위치 센서 피드백으로 80 Hz 대역폭을 낸다. 가벼운 그룹에서 압도적으로 빠르지만, 무거워지면 힘 한계(2.5 N)에 걸린다." },
+    vcm: { F: 0.08, spring: true, f0: 80, z: 0.12, mref: 0.0003, note: "VCM(스마트폰, 개루프): 렌즈가 스프링에 매달려 있어 전류로 낸 힘과 스프링이 균형인 곳에서 멈춘다. 설계 질량 0.3 g에서 공진 80 Hz, 감쇠비 0.12. 질량이 커지면 공진이 낮아지고 감쇠가 부족해 오래 출렁이며, 최대 힘 80 mN으로는 먼 거리를 못 간다." },
+  };
+  const upd = CB.throttle(() => cv.redraw());
+  const TY = CB.seg("ac-type", upd);
+  const M = CB.steps("ac-m", [0.2, 0.3, 0.5, 1, 2, 3, 5, 10, 20, 30, 50, 100], (v) => v + " g", 5, upd);
+  const DST = CB.range("ac-d", (v) => v.toFixed(1) + " mm", upd);
+  const TOL = 1e-5, DT = 2e-5, NS = 15000; // 10 μm, 20 μs, 0.3 s
+  function sim(key, mg, dmm) {
+    const P = TYPES[key], d = dmm / 1000, m0 = mg / 1000;
+    let x = 0, v = 0, amax = 0, xmax = 0, t90 = NaN, last = 0;
+    const pts = [[0, 0]];
+    const m = P.spring ? m0 : m0 + P.mx, w = 2 * Math.PI * (P.fb || 0);
+    const k = P.spring ? P.mref * Math.pow(2 * Math.PI * P.f0, 2) : 0, b = P.spring ? 2 * P.z * Math.sqrt(k * P.mref) : 0;
+    const Fd = P.spring ? CB.clamp(k * d, -P.F, P.F) : 0;
+    for (let i = 1; i <= NS; i++) {
+      let F;
+      if (P.spring) F = Fd - k * x - b * v;
+      else {
+        F = CB.clamp(m * (w * w * (d - x) - 2 * P.z * w * v), -P.F, P.F);
+        if ((v >= P.vmax && F > 0) || (v <= -P.vmax && F < 0)) F = 0;
+      }
+      const a = F / m; amax = Math.max(amax, Math.abs(a));
+      v += a * DT; if (!P.spring) v = CB.clamp(v, -P.vmax, P.vmax); x += v * DT;
+      const xq = P.q ? Math.round(x / P.q) * P.q : x, tt = i * DT;
+      xmax = Math.max(xmax, xq);
+      if (isNaN(t90) && xq >= 0.9 * d) t90 = tt;
+      if (Math.abs(xq - d) > TOL) last = tt;
+      if (i % 20 === 0) pts.push([tt * 1000, xq * 1e6]);
+    }
+    return { pts, t90, settle: last >= NS * DT - DT ? Infinity : last, amax, over: Math.max(0, (xmax - d) / d), xmax, final: x };
+  }
+  const cv = CB.canvas("#cv-actuator", (ctx, w, h) => {
+    const P = CB.palette(), key = TY(), mg = M(), dmm = DST(), d = dmm * 1000;
+    const R = {}; Object.keys(TYPES).forEach((kk) => (R[kk] = sim(kk, mg, dmm)));
+    const r = R[key];
+    const tShow = isFinite(r.settle) ? CB.clamp(Math.ceil((r.settle * 1000 * 1.6) / 10) * 10, 20, 300) : 300;
+    const yMax = Math.max(d * 1.3, Math.min(r.xmax * 1e6 * 1.08, d * 2.4));
+    const series = [];
+    Object.keys(TYPES).forEach((kk) => { if (kk !== key) series.push({ data: R[kk].pts.filter((q) => q[0] <= tShow), color: P.faint, width: 1, dash: [3, 3] }); });
+    series.push({ data: r.pts.filter((q) => q[0] <= tShow), color: P.accent, width: 2.5 });
+    CB.chart(ctx, null, {
+      x: [0, tShow], y: [-0.05 * d, yMax], xLabel: "시간 (ms)", yLabel: "그룹 위치 (μm)",
+      bands: [], series,
+      hlines: [{ y: d, color: P.accent2, label: "목표 " + dmm.toFixed(1) + " mm" }],
+      vlines: isFinite(r.settle) ? [{ x: r.settle * 1000, color: P.ok, label: "정착" }] : [],
+    });
+    ctx.fillStyle = P.dim; ctx.font = "12px " + CB.color("font"); ctx.textAlign = "right"; ctx.textBaseline = "top";
+    ctx.fillText("점선 = 다른 모터들(같은 질량)", w - 20, 18);
+    CB.stat("ac-t90", isNaN(r.t90) ? '<small style="color:var(--bad)">도달 못 함</small>' : (r.t90 * 1000).toFixed(1) + "<small>ms</small>");
+    CB.stat("ac-settle", isFinite(r.settle) ? (r.settle * 1000).toFixed(1) + "<small>ms</small>" : "<small>&gt; 300 ms</small>");
+    CB.stat("ac-acc", (r.amax / 9.81).toFixed(r.amax / 9.81 < 10 ? 1 : 0) + "<small>g</small>");
+    CB.stat("ac-over", (r.over * 100).toFixed(r.over < 0.1 ? 1 : 0) + "<small>%</small>");
+    const reach = TYPES[key].spring && TYPES[key].F < (TYPES[key].mref * Math.pow(2 * Math.PI * TYPES[key].f0, 2)) * dmm / 1000;
+    document.getElementById("ac-note").innerHTML = TYPES[key].note + (reach ? " <b>지금은 힘이 모자라 목표에 못 간다.</b>" : "") +
+      " 모델: 위치 루프 \\(F = m_\\text{eff}(\\omega^2 e - 2\\zeta\\omega v)\\)를 최대 힘·최대 속도로 자르고 \\(\\ddot x = F/m_\\text{eff}\\)를 20 μs 간격으로 적분했습니다(VCM은 스프링 \\(kx\\)와 감쇠를 가진 개루프). 모든 수치는 방식 간 성격 차이를 보이기 위한 <b>설명용 대표값</b>이며 실제 제품 성능이 아닙니다. 해볼 것: ① 질량을 0.5 g → 50 g으로 올리며 리니어와 링 초음파의 순위가 바뀌는지 보기 ② VCM에 1 g 이상을 달아 보기 ③ 스테핑으로 3 mm 이동.";
+    if (window.renderMathInElement) renderMathInElement(document.getElementById("ac-note"), { delimiters: [{ left: "\\(", right: "\\)", display: false }], throwOnError: false });
+  }, { aspect: 0.62, minHeight: 280, maxHeight: 420 });
+  window.addEventListener("load", () => cv.redraw());
+})();
+
+/* ---------------------------------------------------------------- 4. IBIS 제어 루프 */
+(function () {
+  const upd = CB.throttle(() => cv.redraw());
+  const F = CB.steps("ib-f", [24, 35, 50, 85, 135, 200, 300, 400, 600], (v) => v + " mm", 200, upd);
+  const BW = CB.steps("ib-bw", [3, 5, 8, 12, 20, 30, 50, 70, 100, 150, 200, 300], (v) => v + " Hz", 100, upd);
+  const G = CB.range("ib-g", (v) => v + "%", upd);
+  const L = CB.range("ib-l", (v) => "±" + v.toFixed(1) + " mm", upd);
+  const A = CB.range("ib-a", (v) => "×" + v.toFixed(1), upd);
+  const TE = CB.seg("ib-t", upd);
+  const rng = CB.rng(11);
+  const COMP = [[1.2, 1.0], [2.3, 0.55], [4.1, 0.3], [6.7, 0.18], [9.5, 0.12]].map(([f, a]) => ({ w: 2 * Math.PI * f, a: a * 1e-3, ph: rng() * 6.283 }));
+  const NOISE = Array.from({ length: 4000 }, () => CB.randn());
+  const DT = 1e-4, TS = 3, NS = Math.round(TS / DT), DEC = 10, PIX = 4; // μm
+  function run(f, bw, g, lim, amp) {
+    const wc = 2 * Math.PI * bw, z = 0.7, whp = 2 * Math.PI * 0.1, bias = 0.05e-3;
+    const th = (t) => COMP.reduce((s, c) => s + c.a * Math.sin(c.w * t + c.ph), 0) * amp;
+    const dth = (t) => COMP.reduce((s, c) => s + c.a * c.w * Math.cos(c.w * t + c.ph), 0) * amp;
+    // 이미 오래 동작 중이던 정상 상태에서 시작: 추정값 = 현재 각도 + 바이어스가 만드는 일정한 오프셋
+    let est = th(0) + bias / whp, x = CB.clamp(g * f * est, -lim, lim), v = 0, hit = 0;
+    const raw = [], st = [], res = [], hits = [];
+    for (let i = 0; i <= NS; i++) {
+      const t = i * DT;
+      const gyro = dth(t) + bias + NOISE[i % NOISE.length] * 0.5e-3; // rad/s
+      est += (gyro - whp * est) * DT;
+      const xt = g * f * est; // mm
+      const a = wc * wc * (xt - x) - 2 * z * wc * v;
+      v += a * DT; x += v * DT;
+      let atStop = false;
+      if (x > lim) { x = lim; if (v > 0) v = 0; atStop = true; } else if (x < -lim) { x = -lim; if (v < 0) v = 0; atStop = true; }
+      if (atStop) hit++;
+      if (i % DEC === 0) {
+        const img = f * th(t);
+        raw.push([t, img * 1000]); st.push([t, x * 1000]); res.push([t, (img - x) * 1000]); hits.push(atStop);
+      }
+    }
+    return { raw, st, res, hits, hitFrac: hit / (NS + 1) };
+  }
+  function blur(series, te) {
+    const n = Math.max(2, Math.round(te / (DT * DEC))), start = Math.round(0.2 / (DT * DEC));
+    let sum = 0, cnt = 0;
+    for (let i = start; i + n < series.length; i += Math.max(1, Math.round(n / 2))) {
+      let lo = Infinity, hi = -Infinity;
+      for (let j = i; j <= i + n; j++) { const y = series[j][1]; if (y < lo) lo = y; if (y > hi) hi = y; }
+      sum += hi - lo; cnt++;
+    }
+    return cnt ? sum / cnt : 0;
+  }
+  const fmtUm = (u) => (u >= 100 ? Math.round(u) : u.toFixed(1)) + "<small>μm · " + (u / PIX).toFixed(u / PIX < 10 ? 1 : 0) + " px</small>";
+  const cv = CB.canvas("#cv-ibis", (ctx, w, h) => {
+    const P = CB.palette(), f = F(), lim = L();
+    const r = run(f, BW(), G() / 100, lim, A());
+    const te = +TE();
+    let m = 30; r.raw.forEach((p) => (m = Math.max(m, Math.abs(p[1])))); r.res.forEach((p) => (m = Math.max(m, Math.abs(p[1]))));
+    m *= 1.1;
+    const bands = []; let s0 = -1;
+    r.hits.forEach((hh, i) => { if (hh && s0 < 0) s0 = i; if ((!hh || i === r.hits.length - 1) && s0 >= 0) { bands.push({ x0: r.raw[s0][0], x1: r.raw[i][0], color: "rgba(214,69,69,0.22)" }); s0 = -1; } });
+    const hl = [];
+    if (lim * 1000 < m) { hl.push({ y: lim * 1000, color: P.bad, label: "이동 한계" }); hl.push({ y: -lim * 1000, color: P.bad }); }
+    CB.chart(ctx, null, {
+      x: [0, TS], y: [-m, m], xLabel: "시간 (초)", yLabel: "센서 면 위 위치 (μm)", xFmt: (v) => v + "s",
+      bands, hlines: hl,
+      series: [{ data: r.raw, color: P.faint, width: 1.5 }, { data: r.st, color: P.accent2, width: 1.5, dash: [5, 3] }, { data: r.res, color: P.accent, width: 2.2 }],
+    });
+    const b0 = blur(r.raw, te), b1 = blur(r.res, te);
+    CB.stat("ib-off", fmtUm(b0)); CB.stat("ib-on", fmtUm(b1));
+    const ratio = b0 / Math.max(b1, 1e-6);
+    CB.stat("ib-ratio", ratio >= 1 ? "1/" + ratio.toFixed(ratio < 10 ? 1 : 0) + "<small>≈ " + Math.log2(ratio).toFixed(1) + "스톱</small>" : '<span style="color:var(--bad)">×' + (1 / ratio).toFixed(1) + "</span><small>오히려 커짐</small>");
+    CB.stat("ib-hit", (r.hitFrac * 100).toFixed(r.hitFrac < 0.1 ? 1 : 0) + "<small>%</small>");
+  }, { aspect: 0.62, minHeight: 300, maxHeight: 440 });
+})();
+</script>
+</body>
+</html>

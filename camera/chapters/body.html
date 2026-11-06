@@ -1,0 +1,691 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<title>전원·열·바디 설계 · CameraBook</title>
+<meta name="description" content="카메라 배터리와 전력 예산, CIPA 촬영 가능 매수의 의미, 동영상 발열과 과열 정지의 열 모델, 암전류와 핫 픽셀, 마그네슘 바디와 방진·방적, 인체공학, 그리고 크기·센서·배터리·열·가격 사이의 설계 트레이드오프를 시뮬레이터로 배운다.">
+<link rel="canonical" href="https://system.euiyun.com/camera/chapters/body.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="CameraBook">
+<meta property="og:title" content="전원·열·바디 설계 · CameraBook">
+<meta property="og:description" content="카메라 배터리와 전력 예산, CIPA 촬영 가능 매수의 의미, 동영상 발열과 과열 정지의 열 모델, 암전류와 핫 픽셀, 마그네슘 바디와 방진·방적, 인체공학, 그리고 크기·센서·배터리·열·가격 사이의 설계 트레이드오프를 시뮬레이터로 배운다.">
+<meta property="og:url" content="https://system.euiyun.com/camera/chapters/body.html">
+<meta property="og:image" content="https://system.euiyun.com/camera/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="ko_KR">
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","headline":"전원·열·바디 설계","name":"전원·열·바디 설계 · CameraBook","url":"https://system.euiyun.com/camera/chapters/body.html","mainEntityOfPage":"https://system.euiyun.com/camera/chapters/body.html","inLanguage":"ko","isAccessibleForFree":true,"learningResourceType":"interactive textbook chapter","position":8,"image":"https://system.euiyun.com/camera/og.png","dateModified":"2026-11-07","isPartOf":{"@type":"Book","@id":"https://system.euiyun.com/camera/#book","name":"CameraBook — 인터랙티브 카메라 교과서","url":"https://system.euiyun.com/camera/"},"publisher":{"@type":"Organization","name":"CameraBook","url":"https://system.euiyun.com/camera/"},"description":"카메라 배터리와 전력 예산, CIPA 촬영 가능 매수의 의미, 동영상 발열과 과열 정지의 열 모델, 암전류와 핫 픽셀, 마그네슘 바디와 방진·방적, 인체공학, 그리고 크기·센서·배터리·열·가격 사이의 설계 트레이드오프를 시뮬레이터로 배운다."},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"CameraBook","item":"https://system.euiyun.com/camera/"},{"@type":"ListItem","position":2,"name":"08 전원·열·바디 설계","item":"https://system.euiyun.com/camera/chapters/body.html"}]}]}</script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<link rel="stylesheet" href="../css/style.css">
+<script src="../js/common.js"></script>
+<style>
+  .ds-goals { padding: 12px 18px; border-top: 1px solid var(--border); display: grid; gap: 6px; font-size: 14.5px; }
+  .ds-goals .row { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+  .ds-goals .ok { color: var(--ok); font-weight: 700; }
+  .ds-goals .no { color: var(--bad); font-weight: 700; }
+  .ds-goals .head { font-weight: 700; color: var(--text); }
+  .ds-warn { padding: 10px 18px; border-top: 1px solid var(--border); font-size: 14px; background: color-mix(in srgb, var(--bad) 10%, transparent); display: none; }
+  .ds-warn.on { display: block; }
+  .ctrl .seg button:disabled { opacity: .4; cursor: default; }
+  .check.off { opacity: .45; }
+</style>
+<link rel="stylesheet" href="../../shared/css/book-shell.css">
+<script defer src="../../shared/js/book-shell.js" data-book="camera"></script>
+</head>
+<body data-chapter="body">
+<main class="chapter">
+  <header class="chapter-hero">
+    <div class="eyebrow">Chapter 08</div>
+    <h1>전원·열·바디 설계</h1>
+    <p class="lead">렌즈, 센서, 처리 엔진이 아무리 좋아도 그것들을 먹여 살리는 전기, 밖으로 내보내야 하는 열, 그리고 모두를 담아 손에 쥐게 하는 껍데기가 없으면 카메라가 아닙니다. 이 장에서는 카메라를 에너지와 열이 흐르는 상자로 보고, 마지막에는 직접 카메라 한 대를 설계하며 "좋은 카메라"가 왜 하나로 정해지지 않는지 확인합니다.</p>
+    <ul class="objectives">
+      <li>카메라 배터리의 전압·용량·에너지(Wh)를 읽고, 하위 시스템별 전력 예산으로 사용 시간을 추정한다.</li>
+      <li>CIPA 촬영 가능 매수가 어떤 조건에서 잰 숫자이고, 실제 사용과 왜 다른지 안다.</li>
+      <li>동영상 과열 정지를 1차 열 RC 모델로 설명하고, 센서 온도가 노이즈에 미치는 영향을 안다.</li>
+      <li>바디 소재, 방진·방적, 인체공학이 어떤 공학적 선택인지 이해한다.</li>
+      <li>크기·센서·배터리·열·가격의 트레이드오프를 설계 플레이그라운드에서 직접 겪어 본다.</li>
+    </ul>
+  </header>
+
+  <!-- =============================================================== 1 -->
+  <section id="power">
+    <h2>배터리와 전력 예산</h2>
+    <p>렌즈 교환식 카메라의 배터리는 대부분 리튬 이온 셀 두 개를 직렬로 묶은 팩입니다. 셀 하나의 공칭 전압이 3.6~3.7 V이므로 팩은 <b>약 7.2 V</b>(완충 시 8.4 V)이고, 큰 바디용 팩의 용량은 <b>2000~2300 mAh</b> 정도입니다. 용량을 비교할 때는 mAh보다 에너지 단위인 <span class="term">와트시</span><span class="en">(Wh, Watt-hour)</span>를 보는 편이 정확합니다. 7.2 V × 2.2 Ah ≈ <b>16 Wh</b>. 작은 바디용 팩은 7~11 Wh, 스마트폰 배터리(3.85 V × 5000 mAh ≈ 19 Wh)와 비슷하거나 조금 작습니다.</p>
+    <p>이 에너지를 누가 쓰는지 나눠 적은 것이 <span class="term">전력 예산</span><span class="en">(Power Budget)</span>입니다. 배터리 전압은 바디 안의 전원 관리 칩<span class="en">(PMIC)</span>이 센서용 아날로그 전원, 프로세서 코어용 1 V 안팎의 전원, 디스플레이 구동 전원 등 여러 <b>전원 레일</b>로 바꿔 나눠 줍니다. 이 변환에도 수~십수 %의 손실이 있습니다.</p>
+    <figure class="diagram">
+      <svg viewBox="0 0 800 270" role="img" aria-label="배터리에서 하위 시스템으로 가는 전력 흐름">
+        <rect x="20" y="95" width="120" height="80" rx="10" class="f-acc-soft"/>
+        <text x="80" y="128" text-anchor="middle" class="t-acc">배터리</text>
+        <text x="80" y="150" text-anchor="middle" class="t-mono">2S Li-ion 7.2 V</text>
+        <text x="80" y="166" text-anchor="middle" class="t-mono">≈16 Wh</text>
+        <path d="M140 135 H200" class="s-acc"/>
+        <rect x="200" y="100" width="120" height="70" rx="10" class="f-elev"/>
+        <text x="260" y="130" text-anchor="middle" class="t">전원 관리(PMIC)</text>
+        <text x="260" y="150" text-anchor="middle" class="t-mono">DC-DC 효율 80~95%</text>
+        <g class="s-line">
+          <path d="M320 135 C360 135 360 30 400 30"/><path d="M320 135 C360 135 360 72 400 72"/>
+          <path d="M320 135 C360 135 360 114 400 114"/><path d="M320 135 C360 135 360 156 400 156"/>
+          <path d="M320 135 C360 135 360 198 400 198"/><path d="M320 135 C360 135 360 240 400 240"/>
+        </g>
+        <g>
+          <rect x="400" y="14" width="380" height="32" rx="7" class="f-surface"/><text x="414" y="35" class="t">이미지 센서 · 판독/ADC</text><text x="766" y="35" text-anchor="end" class="t-mono">0.8~2.6 W</text>
+          <rect x="400" y="56" width="380" height="32" rx="7" class="f-surface"/><text x="414" y="77" class="t">처리 엔진 · ISP/코덱/메모리</text><text x="766" y="77" text-anchor="end" class="t-mono">1~4 W</text>
+          <rect x="400" y="98" width="380" height="32" rx="7" class="f-surface"/><text x="414" y="119" class="t">EVF 또는 후면 LCD</text><text x="766" y="119" text-anchor="end" class="t-mono">0.5~0.9 W</text>
+          <rect x="400" y="140" width="380" height="32" rx="7" class="f-surface"/><text x="414" y="161" class="t">IBIS · AF 모터 · 셔터 차지</text><text x="766" y="161" text-anchor="end" class="t-mono">0.2~0.6 W</text>
+          <rect x="400" y="182" width="380" height="32" rx="7" class="f-surface"/><text x="414" y="203" class="t">무선(Wi-Fi/BT) · 카드 기록</text><text x="766" y="203" text-anchor="end" class="t-mono">0.1~0.6 W</text>
+          <rect x="400" y="224" width="380" height="32" rx="7" class="f-surface"/><text x="414" y="245" class="t">마이컴 · 버튼 · 센서류(항상 켜짐)</text><text x="766" y="245" text-anchor="end" class="t-mono">0.3~0.8 W</text>
+        </g>
+      </svg>
+      <figcaption><b>그림 8-1.</b> 카메라 전원 계통(개념도). 오른쪽 숫자는 이 장 시뮬레이터에서 쓰는 설명용 범위이며, 기종·모드에 따라 크게 다릅니다. 동영상에서는 센서와 처리 엔진이 예산의 대부분을 차지합니다.</figcaption>
+    </figure>
+    <p>사진 촬영에서 가장 큰 소비자는 의외로 '찍는 순간'이 아니라 <b>라이브 뷰를 켜 두는 시간</b>입니다. 미러리스는 셔터를 누르지 않아도 센서가 초당 60~120장을 판독하고, 엔진이 그것을 처리해 EVF에 띄웁니다. 광학 뷰파인더로 들여다보는 동안 센서가 쉬던 DSLR이 같은 크기 배터리로 훨씬 많이 찍었던 이유입니다. 동영상은 더 많은 픽셀을 더 자주 읽고, 실시간으로 압축 부호화까지 해야 하므로 전력이 두세 배로 뜁니다.</p>
+
+    <div class="sim" id="sim-power">
+      <div class="sim-head"><span class="sim-tag">SIMULATOR</span><h3>전력 예산과 배터리 한 번 충전의 값어치</h3></div>
+      <div class="sim-body side">
+        <div class="sim-view"><canvas id="cv-power"></canvas></div>
+        <div class="sim-controls">
+          <div class="ctrl"><span>사용 방식</span><div class="seg" id="pw-mode"><button data-value="evf" class="on">사진·EVF</button><button data-value="lcd">사진·LCD</button><button data-value="v30">4K30 영상</button><button data-value="v60">4K60 영상</button></div></div>
+          <label class="ctrl" id="pw-ton-wrap"><span>장당 화면 켜짐 시간 <output id="pw-ton-out"></output></span><input type="range" id="pw-ton" min="1" max="60" value="30" step="1"></label>
+          <label class="check"><input type="checkbox" id="pw-ibis" checked> 손떨림 보정(IBIS)</label>
+          <label class="check"><input type="checkbox" id="pw-wifi"> Wi-Fi 연결 유지·전송</label>
+          <label class="check" id="pw-flash-wrap"><input type="checkbox" id="pw-flash"> 내장 플래시(절반의 컷)</label>
+          <div class="ctrl"><span>배터리</span><div class="seg" id="pw-bat"><button data-value="7.3">7.3 Wh</button><button data-value="10.8">10.8 Wh</button><button data-value="16" class="on">16 Wh</button><button data-value="32">16 Wh ×2</button></div></div>
+          <div class="ctrl"><span>기온</span><div class="seg" id="pw-temp"><button data-value="1" class="on">20 °C</button><button data-value="0.8">0 °C</button><button data-value="0.6">−10 °C</button></div></div>
+        </div>
+      </div>
+      <div class="sim-readout">
+        <div class="stat"><span class="k">평균 소비 전력</span><span class="v" id="pw-p">—</span></div>
+        <div class="stat"><span class="k">배터리 전류(7.2 V)</span><span class="v" id="pw-i">—</span></div>
+        <div class="stat"><span class="k">연속 작동 시간</span><span class="v" id="pw-t">—</span></div>
+        <div class="stat"><span class="k">촬영 가능 매수</span><span class="v" id="pw-n">—</span></div>
+      </div>
+      <div class="sim-note">모델: 평균 전력 P = Σ(하위 시스템 전력). 쓸 수 있는 에너지 E = 정격 Wh × 3600 × 0.95(차단 전압 여유) × 저온 계수. 사진의 매수 = E ÷ (P × 장당 화면 켜짐 시간 + 1.5 J(셔터 차지·전체 판독·처리·기록) + 플래시 사용 시 5 J × 0.5), 동영상의 시간 = E ÷ P. 하위 시스템 숫자는 공개된 매수·녹화 시간과 어긋나지 않게 고른 <b>설명용 값</b>이지 특정 기종의 측정치가 아닙니다. 저온 계수(0 °C 80%, −10 °C 60%)도 대략적인 값입니다.<br>해볼 것: ① 장당 화면 켜짐 시간을 30초에서 3초로 줄여 보세요(연사로 몰아 찍는 상황). 매수가 수천 장으로 뜁니다. ② 4K60으로 바꾸면 같은 배터리가 몇 분 가는지 보세요. ③ −10 °C에서 7.3 Wh 배터리는 얼마나 버틸까요?</div>
+    </div>
+
+    <h3>촬영 가능 매수: CIPA 기준이 재는 것</h3>
+    <p>제원표의 "약 ○○○매"는 대부분 카메라영상기기공업회<span class="en">(CIPA)</span>가 정한 표준 시험 절차<span class="en">(CIPA DC-002)</span>로 잰 <span class="term">CIPA 촬영 가능 매수</span>입니다. 요지는 이렇습니다. 상온(23 °C)에서 화면을 켠 채로 <b>30초마다 한 장</b>씩 찍고, 내장 플래시가 있으면 <b>두 장에 한 번</b> 최대 출력으로 터뜨리며, 줌 렌즈는 매 컷 광각 끝과 망원 끝을 오가게 하고, <b>열 장마다 전원을 껐다 켭니다</b>. 배터리가 다 될 때까지 이를 반복합니다.</p>
+    <div class="cards">
+      <div><b>왜 이렇게 재나</b>제조사마다 다른 조건으로 재면 비교가 안 되므로, 모든 기종을 같은 '보통 사용' 패턴에 넣어 비교 가능한 숫자를 만듭니다.</div>
+      <div><b>실제로는 더 많다</b>여행지에서 몇 초 사이에 여러 장을 찍고 전원 대신 절전 모드를 쓰면, 장당 화면 켜짐 시간이 30초보다 훨씬 짧아 CIPA 수치의 2~3배가 흔합니다.</div>
+      <div><b>실제로는 더 적다</b>추위, 오래된 배터리, 상시 Wi-Fi·GPS 연동, 긴 리뷰 재생, 동영상을 섞어 찍으면 CIPA 수치에 못 미칩니다.</div>
+    </div>
+    <div class="callout warn"><strong>추위와 리튬 이온</strong>온도가 내려가면 전해질 속 이온의 이동이 느려져 내부 저항이 커집니다. 큰 전류를 뽑는 순간 전압이 차단 전압 아래로 떨어져 "배터리 없음"이 뜨지만, 주머니에서 데우면 다시 살아나는 이유입니다. 에너지가 사라진 것이 아니라 꺼낼 수 없는 상태입니다. 반대로 <b>0 °C 아래에서의 충전</b>은 음극에 금속 리튬이 석출될 수 있어 대부분의 충전기가 막아 둡니다. 겨울 촬영에는 예비 배터리를 몸 가까이 두세요. 전지 화학의 자세한 이야기는 <a href="../../phone/chapters/battery.html">PhoneBook 배터리 장</a>에 있습니다.</div>
+    <div class="callout tip"><strong>USB 급전과 세로 그립</strong>요즘 바디는 USB-C 전원 공급<span class="en">(USB PD)</span>으로 촬영 중 전원을 받을 수 있는 경우가 많습니다. 타임랩스나 장시간 녹화에는 보조 배터리가 가장 큰 배터리입니다. 세로 그립은 배터리를 두 개 넣어 에너지를 두 배로 늘리는 대신 무게와 부피를 더합니다.</div>
+  </section>
+
+  <!-- =============================================================== 2 -->
+  <section id="thermal">
+    <h2>열: 동영상과 과열</h2>
+    <p>전자 회로가 쓴 전기 에너지는 결국 거의 전부 열이 됩니다. 4K 녹화 중인 카메라가 6~10 W를 쓴다면 손바닥만 한 상자 안에서 그만큼의 열이 계속 생긴다는 뜻입니다. 주요 열원은 세 곳입니다. 초당 수억 픽셀을 읽고 디지털로 바꾸는 <b>이미지 센서</b>, 그 데이터를 처리하고 H.264/H.265로 압축하는 <b>처리 엔진과 메모리</b>, 그리고 내부 저항 때문에 스스로 데워지는 <b>배터리</b>입니다. 작은 사진기 대부분에는 팬이 없으므로 이 열은 오로지 <b>전도</b>로 껍데기까지 간 뒤 <b>자연 대류와 복사</b>로 공기에 버려집니다.</p>
+    <figure class="diagram">
+      <svg viewBox="0 0 800 250" role="img" aria-label="카메라 안의 열 경로와 등가 RC 회로">
+        <rect x="20" y="30" width="110" height="56" rx="8" class="f-acc-soft"/><text x="75" y="54" text-anchor="middle" class="t-acc">센서·엔진</text><text x="75" y="74" text-anchor="middle" class="t-mono">P (W)</text>
+        <path d="M130 58 H170" class="s-acc"/>
+        <rect x="170" y="30" width="130" height="56" rx="8" class="f-elev"/><text x="235" y="54" text-anchor="middle" class="t">방열 패드·판</text><text x="235" y="74" text-anchor="middle" class="t-mono">그래파이트·구리</text>
+        <path d="M300 58 H340" class="s-acc"/>
+        <rect x="340" y="30" width="130" height="56" rx="8" class="f-elev"/><text x="405" y="54" text-anchor="middle" class="t">금속 프레임</text><text x="405" y="74" text-anchor="middle" class="t-mono">마그네슘 합금</text>
+        <path d="M470 58 H510" class="s-acc"/>
+        <rect x="510" y="30" width="110" height="56" rx="8" class="f-elev"/><text x="565" y="54" text-anchor="middle" class="t">외장</text><text x="565" y="74" text-anchor="middle" class="t-mono">표면 온도 제한</text>
+        <path d="M620 58 H660" class="s-acc"/>
+        <rect x="660" y="30" width="120" height="56" rx="8" class="f-acc2-soft"/><text x="720" y="54" text-anchor="middle" class="t">주변 공기</text><text x="720" y="74" text-anchor="middle" class="t-mono">대류 + 복사</text>
+        <text x="400" y="118" text-anchor="middle" class="t-dim">각 단계의 '열 저항'이 직렬로 쌓인다 → 한 덩어리로 근사하면</text>
+        <!-- RC 회로 -->
+        <g transform="translate(150,140)">
+          <circle cx="40" cy="45" r="20" class="f-acc-soft"/><text x="40" y="50" text-anchor="middle" class="t-acc">P</text>
+          <path d="M40 25 V5 H180" class="s-line"/>
+          <path d="M180 5 l8 -8 l16 16 l16 -16 l16 16 l16 -16 l16 16 l8 -8" class="s-acc"/>
+          <text x="228" y="-14" text-anchor="middle" class="t-acc">R (K/W)</text>
+          <path d="M276 5 H420" class="s-line"/>
+          <text x="440" y="10" class="t">T<tspan dy="4" font-size="10">amb</tspan></text>
+          <path d="M140 5 V40 M120 40 H160 M120 50 H160 M140 50 V85" class="s-line"/>
+          <text x="172" y="50" class="t-acc">C (J/K)</text>
+          <path d="M40 65 V85 H420" class="s-line"/>
+          <circle cx="140" cy="5" r="4" class="f-acc"/><text x="100" y="-6" text-anchor="end" class="t">T(t)</text>
+          <text x="-10" y="105" class="t-dim">열원 P가 열용량 C를 데우고, 열 저항 R을 통해 주변으로 빠져나간다.</text>
+        </g>
+      </svg>
+      <figcaption><b>그림 8-2.</b> 열 경로(위)와 이를 한 덩어리로 줄인 1차 RC 모델(아래). 전기 회로와 같은 꼴입니다: 전력 ↔ 전류, 온도 ↔ 전압, 열 저항 ↔ 저항, 열용량 ↔ 커패시터.</figcaption>
+    </figure>
+    <p>이 모델에서 내부 온도는 다음처럼 오릅니다.</p>
+    <div class="formula">$$T(t) = T_{amb} + P\,R\left(1 - e^{-t/\tau}\right),\qquad \tau = R\,C$$
+      <div class="where">P: 발열(W), R: 내부에서 공기까지의 열 저항(K/W), C: 실질 열용량(J/K), τ: 시간 상수. 충분히 오래 지나면 온도는 T<sub>amb</sub> + P·R에 수렴합니다.</div></div>
+    <p>두 가지가 바로 읽힙니다. 첫째, <b>최종 온도 상승은 P × R</b>입니다. 이 값이 허용 여유(정지 온도 − 기온)보다 작으면 무한히 찍을 수 있고, 크면 언젠가 반드시 멈춥니다. 둘째, <b>멈추기까지의 시간은 τ에 비례</b>합니다. 열용량이 큰(무겁고 금속이 많은) 바디는 같은 최종 온도라도 천천히 데워져 더 오래 버팁니다. 해상도와 프레임 레이트를 올리면 판독·처리할 픽셀 수가 늘어 P가 커지므로 녹화 시간이 짧아지고, 더운 날에는 여유 자체가 줄어 더 짧아집니다.</p>
+
+    <div class="sim" id="sim-thermal">
+      <div class="sim-head"><span class="sim-tag">SIMULATOR</span><h3>녹화 버튼을 누른 뒤의 온도 곡선</h3></div>
+      <div class="sim-body side">
+        <div class="sim-view"><canvas id="cv-thermal"></canvas></div>
+        <div class="sim-controls">
+          <div class="ctrl"><span>녹화 모드(발열)</span><div class="seg" id="th-mode"><button data-value="3.5">FHD60</button><button data-value="6">4K30</button><button data-value="8" class="on">4K60</button><button data-value="11">4K120·8K</button></div></div>
+          <div class="ctrl"><span>바디</span><div class="seg" id="th-body"><button data-value="mg" class="on">마그네슘 중형</button><button data-value="pc">폴리카보네이트 소형</button><button data-value="tiny">초소형</button></div></div>
+          <label class="check"><input type="checkbox" id="th-fan"> 냉각 팬(외장 또는 내장)</label>
+          <label class="ctrl"><span>기온 <output id="th-amb-out"></output></span><input type="range" id="th-amb" min="0" max="40" value="25" step="1"></label>
+          <label class="ctrl"><span>정지 온도(내부) <output id="th-lim-out"></output></span><input type="range" id="th-lim" min="45" max="75" value="60" step="1"></label>
+        </div>
+      </div>
+      <div class="sim-readout">
+        <div class="stat"><span class="k">최종(정상 상태) 온도</span><span class="v" id="th-ss">—</span></div>
+        <div class="stat"><span class="k">시간 상수 τ</span><span class="v" id="th-tau">—</span></div>
+        <div class="stat"><span class="k">녹화 가능 시간</span><span class="v" id="th-rec">—</span></div>
+        <div class="stat"><span class="k">30분 시점 온도</span><span class="v" id="th-30">—</span></div>
+      </div>
+      <div class="sim-note">모델: T(t) = T<sub>amb</sub> + P·R·(1 − e<sup>−t/RC</sup>), 녹화 가능 시간 t* = τ·ln(PR / (PR − ΔT<sub>허용</sub>)), 단 PR ≤ ΔT<sub>허용</sub>이면 열로는 제한 없음. 바디 프리셋(R, C) = 마그네슘 중형(5.0 K/W, 300 J/K), 폴리카보네이트 소형(7.0, 200), 초소형(9.5, 110). 팬은 R을 45%로 줄인다고 가정했습니다. 실제 카메라에는 여러 열원과 여러 온도 센서가 있어 곡선이 하나가 아니고, 녹화 전 대기 중에 이미 데워져 있으면 더 일찍 멈춥니다. 발열 수치는 설명용입니다.<br>해볼 것: ① 4K60에서 기온을 25 °C → 35 °C로 올리면 녹화 시간이 얼마나 줄어드나요? ② 4K30으로 낮추면 같은 바디가 '제한 없음'이 되는지 보세요. ③ 초소형 바디에 팬을 달면 어떻게 될까요?</div>
+    </div>
+    <div class="callout deep"><strong>정지 온도는 누가 정하나</strong>카메라는 센서·프로세서·배터리 근처와 외장에 온도 센서를 두고, 어느 하나가 한계에 닿으면 경고를 띄운 뒤 녹화를 멈춥니다. 부품 자체의 한계(대개 수십 °C 후반~100 °C 안팎)보다 <b>손에 닿는 외장 온도</b>가 먼저 문제가 되는 경우가 많습니다. 40 °C대 중반의 표면도 오래 닿아 있으면 저온 화상을 입을 수 있기 때문입니다. 일부 기종이 "자동 전원 끄기 온도: 높음" 같은 메뉴로 삼각대 사용 시 한계를 올릴 수 있게 하는 이유입니다. 참고로 예전 카메라에 흔했던 <b>29분 59초 녹화 제한</b>은 열이 아니라 유럽의 관세 분류(일정 시간 이상 녹화하면 비디오 카메라로 분류) 때문이었고, 규정이 바뀐 뒤 대부분 사라졌습니다.</div>
+
+    <h3>뜨거운 센서는 더 시끄럽다</h3>
+    <p>열은 사진의 품질에도 직접 흔적을 남깁니다. 빛이 없어도 실리콘 안에서는 열에너지로 전자가 조금씩 생겨 포토다이오드에 쌓이는데, 이것이 <span class="term">암전류</span><span class="en">(Dark Current)</span>입니다. 암전류는 온도가 <b>약 6~8 °C 오를 때마다 두 배</b>가 되는 경향이 있습니다. 대부분의 픽셀에서는 작지만, 결함이 있는 일부 픽셀은 수십~수백 배나 많은 암전류를 내서 장노출 사진에 밝은 점으로 찍힙니다. 이것이 <span class="term">핫 픽셀</span><span class="en">(Hot Pixel)</span>입니다. 오래 녹화해 데워진 바디로 밤하늘을 찍으면 이 점들이 부쩍 늘어납니다.</p>
+    <div class="sim" id="sim-dark">
+      <div class="sim-head"><span class="sim-tag">SIMULATOR</span><h3>센서 온도와 다크 프레임</h3></div>
+      <div class="sim-body side">
+        <div class="sim-view photo"><canvas id="cv-dark"></canvas></div>
+        <div class="sim-controls">
+          <label class="ctrl"><span>센서 온도 <output id="dk-t-out"></output></span><input type="range" id="dk-t" min="0" max="70" value="25" step="1"></label>
+          <label class="ctrl"><span>노출 시간 <output id="dk-e-out"></output></span><input type="range" id="dk-e"></label>
+          <button class="btn" id="dk-re">다시 촬영(노이즈 새로 뽑기)</button>
+        </div>
+      </div>
+      <div class="sim-readout">
+        <div class="stat"><span class="k">평균 암전류 신호</span><span class="v" id="dk-mean">—</span></div>
+        <div class="stat"><span class="k">암전류 샷 노이즈</span><span class="v" id="dk-noise">—</span></div>
+        <div class="stat"><span class="k">밝은 점(&gt;100 e⁻) · 24MP 환산</span><span class="v" id="dk-hot">—</span></div>
+      </div>
+      <div class="sim-note">모델: 픽셀별 암전류 D<sub>i</sub>(T) = D<sub>i</sub>(25 °C) × 2<sup>(T−25)/6.5</sup>. 일반 픽셀의 D(25 °C)는 평균 0.15 e⁻/s(로그 정규 분포로 흩어짐), 0.05%의 결함 픽셀은 그 50~1000배로 가정했습니다. 화면은 렌즈 캡을 닫고 찍은 160×100 픽셀 조각을 크게 확대한 것으로, 각 픽셀 신호 = 푸아송(D<sub>i</sub>·t) + 읽기 노이즈(2 e⁻)이며 100 e⁻를 흰색으로 표시합니다. 실제 값은 센서마다 크게 다릅니다.<br>해볼 것: 노출 30초에서 온도를 25 °C → 45 °C로 올려 보세요. 평균은 약 8배, 밝은 점 개수도 크게 늘어납니다. 카메라의 '장노출 노이즈 감소'는 같은 시간 동안 셔터를 닫은 채 한 장 더 찍어(다크 프레임) 빼 주는 기능입니다. 노이즈 전반은 <a href="iso.html">13장</a>에서 다룹니다. 센서 물리는 <a href="https://semi.euiyun.com/sensor/chapters/noise.html">SensorBook 노이즈 장</a>을 참고하세요.</div>
+    </div>
+  </section>
+
+  <!-- =============================================================== 3 -->
+  <section id="material">
+    <h2>바디 소재와 구조</h2>
+    <p>카메라 바디는 겉보기에는 껍데기지만, 공학적으로는 세 가지 일을 하는 <b>구조물</b>입니다. ① 마운트와 센서 사이의 거리와 평행을 수 마이크로미터 단위로 지켜야 하고, ② 무거운 렌즈의 하중을 마운트에서 받아 손이나 삼각대로 전달해야 하며, ③ 앞에서 본 것처럼 열을 퍼뜨리는 통로가 되어야 합니다. 그래서 상급 바디는 대개 <b>마그네슘 합금</b> 다이캐스팅 프레임을 쓰고, 보급형은 <b>유리섬유 강화 폴리카보네이트</b> 같은 엔지니어링 플라스틱 외장에 금속 섀시를 부분적으로 넣습니다.</p>
+    <div class="table-wrap"><table>
+      <tr><th>소재</th><th>밀도 (g/cm³)</th><th>탄성 계수 (GPa)</th><th>열전도율 (W/m·K)</th><th>쓰임과 특징</th></tr>
+      <tr><td><b>마그네슘 합금</b><br><span class="en">(AZ91D 등)</span></td><td>약 1.8</td><td>약 45</td><td>약 50~80</td><td>얇은 벽으로 다이캐스팅 가능, 가볍고 단단, 전자파 차폐·방열에 유리. 표면 처리가 필요하고 비쌈</td></tr>
+      <tr><td><b>알루미늄 합금</b></td><td>약 2.7</td><td>약 70</td><td>약 100~200</td><td>강성·가공성 우수, 상판·다이얼 등. 같은 강성이면 마그네슘과 무게가 비슷하지만 다이캐스팅 벽 두께에서 불리</td></tr>
+      <tr><td><b>폴리카보네이트</b><br><span class="en">(유리섬유 강화)</span></td><td>약 1.2~1.4</td><td>약 2.3 (강화 시 6~10)</td><td>약 0.2</td><td>값싸고 충격에 강하며 형상 자유도가 큼. 강성이 낮아 두껍게 만들어야 하고 열을 거의 전달하지 못함</td></tr>
+      <tr><td><b>탄소섬유 강화 플라스틱</b></td><td>약 1.5~1.6</td><td>방향에 따라 수십~100 이상</td><td>방향에 따라 다름</td><td>매우 가볍고 단단하지만 가공·원가 부담. 일부 상급 바디·렌즈 경통에 부분 사용</td></tr>
+    </table></div>
+    <p>무게당 강성(탄성 계수 ÷ 밀도)으로 보면 마그네슘과 알루미늄이 거의 같고, 둘 다 플라스틱보다 열 배 이상 좋습니다. 플라스틱 바디가 가벼운 것은 소재가 우월해서가 아니라 <b>덜 단단해도 되는 작은 렌즈와 작은 센서</b>를 위해 만들어졌기 때문입니다. 무거운 망원 렌즈를 플라스틱 마운트부에 매달면 휘어짐이 초점면 기울기로 나타날 수 있어, 큰 렌즈에는 렌즈 자체에 삼각대 고리를 다는 것이 원칙입니다.</p>
+    <figure class="diagram">
+      <svg viewBox="0 0 800 260" role="img" aria-label="카메라 바디 구조 단면">
+        <!-- 외곽 -->
+        <path d="M120 70 H520 Q540 70 540 90 V220 Q540 236 524 236 H120 Q100 236 100 216 V90 Q100 70 120 70 Z" class="f-surface"/>
+        <path d="M250 70 L270 30 H370 L390 70" class="f-surface"/>
+        <!-- 프레임 -->
+        <path d="M180 80 H500 V226 H180 Z" fill="none" stroke="var(--accent)" stroke-width="3" stroke-dasharray="6 4"/>
+        <text x="490" y="98" text-anchor="end" class="t-acc">마그네슘 프레임</text>
+        <!-- 마운트 -->
+        <rect x="160" y="96" width="22" height="116" rx="3" class="f-acc-soft"/>
+        <text x="80" y="110" text-anchor="end" class="t">마운트</text><path d="M84 106 H158" class="s-line"/>
+        <rect x="60" y="112" width="100" height="80" rx="6" fill="none" class="s-line" stroke-dasharray="3 3"/>
+        <text x="50" y="208" class="t-dim">렌즈</text>
+        <!-- 센서 -->
+        <rect x="230" y="118" width="12" height="70" fill="#333" stroke="var(--accent)" stroke-width="1.5"/>
+        <text x="236" y="210" text-anchor="middle" class="t-mono">센서+IBIS</text>
+        <path d="M182 154 H230" stroke="var(--accent-2)" stroke-width="1.5" stroke-dasharray="4 3"/>
+        <text x="206" y="146" text-anchor="middle" class="t-mono">플랜지</text>
+        <!-- 보드, 배터리 -->
+        <rect x="290" y="100" width="12" height="110" rx="2" class="f-elev"/><text x="296" y="94" text-anchor="middle" class="t-mono">메인 보드</text>
+        <rect x="340" y="140" width="70" height="80" rx="6" class="f-acc2-soft"/><text x="375" y="184" text-anchor="middle" class="t">배터리</text>
+        <rect x="430" y="100" width="40" height="110" rx="4" class="f-elev"/><text x="450" y="160" text-anchor="middle" class="t-mono" transform="rotate(-90 450 160)">LCD</text>
+        <!-- EVF -->
+        <rect x="290" y="40" width="70" height="26" rx="4" class="f-elev"/><text x="325" y="58" text-anchor="middle" class="t-mono">EVF</text>
+        <!-- 삼각대 소켓 -->
+        <rect x="236" y="226" width="16" height="14" fill="var(--text-dim)"/>
+        <path d="M244 240 V254" class="s-line"/><text x="256" y="252" class="t-dim">삼각대 소켓 1/4″-20 (광축 아래)</text>
+        <!-- 하중 화살표 -->
+        <path d="M110 150 V185" stroke="var(--bad)" stroke-width="2.5"/><path d="M104 180 l6 10 l6 -10" fill="var(--bad)"/>
+        <text x="600" y="110" class="t">하중 경로</text>
+        <text x="600" y="132" class="t-dim">렌즈 무게 → 마운트</text>
+        <text x="600" y="152" class="t-dim">→ 프레임 → 그립(손)</text>
+        <text x="600" y="172" class="t-dim">또는 → 삼각대 소켓</text>
+        <text x="600" y="200" class="t-dim">마운트와 센서는 같은</text>
+        <text x="600" y="218" class="t-dim">강체에 물려 있어야 한다</text>
+      </svg>
+      <figcaption><b>그림 8-3.</b> 미러리스 바디의 단면(개념도). 마운트, 센서 유닛, 삼각대 소켓이 같은 금속 프레임에 고정되어야 마운트–센서 거리(플랜지 백)와 평행도가 유지됩니다. 부품 배치의 3D 분해는 <a href="anatomy.html">2장</a>, 마운트 규격은 <a href="optics.html">3장</a>에서 다룹니다.</figcaption>
+    </figure>
+    <p>삼각대 소켓은 국제 규격<span class="en">(ISO 1222)</span>의 <b>1/4″-20 UNC</b> 나사가 표준이고, 큰 삼각대 헤드나 렌즈 고리에는 3/8″-16도 쓰입니다. 소켓은 가능하면 광축 바로 아래에 둬야 파노라마 회전이나 세로 L 브래킷 사용이 편합니다. 소켓을 프레임 금속에 직접 박을지, 플라스틱 외장에 인서트로 넣을지가 보급형과 상급의 눈에 띄지 않는 차이 중 하나입니다.</p>
+  </section>
+
+  <!-- =============================================================== 4 -->
+  <section id="sealing">
+    <h2>방진·방적</h2>
+    <p>카메라에는 열고 닫는 문, 누르는 버튼, 돌리는 다이얼, 렌즈를 끼우는 마운트처럼 <b>틈</b>이 수십 군데 있습니다. <span class="term">방진·방적</span><span class="en">(Weather Sealing)</span>은 이 틈마다 고무 <span class="term">개스킷</span><span class="en">(Gasket)</span>, O-링, 실링 테이프를 넣고, 외장 이음매를 겹쳐 물이 곧바로 들어가지 못하게 미로처럼 만드는 설계입니다.</p>
+    <figure class="diagram">
+      <svg viewBox="0 0 800 250" role="img" aria-label="카메라의 실링 위치">
+        <path d="M140 60 H560 Q590 60 590 90 V210 Q590 230 570 230 H140 Q110 230 110 200 V90 Q110 60 140 60 Z" class="f-surface"/>
+        <path d="M290 60 L310 26 H410 L430 60" class="f-surface"/>
+        <rect x="430" y="80" width="140" height="120" rx="8" class="f-elev"/>
+        <circle cx="210" cy="140" r="58" class="f-elev"/><circle cx="210" cy="140" r="44" fill="none" class="s-line"/>
+        <rect x="330" y="30" width="60" height="8" rx="2" class="f-elev"/>
+        <g fill="var(--accent)">
+          <circle cx="210" cy="82" r="7"/><circle cx="360" cy="34" r="7"/><circle cx="160" cy="50" r="7"/><circle cx="520" cy="50" r="7"/>
+          <circle cx="590" cy="150" r="7"/><circle cx="460" cy="230" r="7"/><circle cx="110" cy="150" r="7"/><circle cx="500" cy="140" r="7"/>
+        </g>
+        <g class="t-dim">
+          <text x="222" y="100">① 마운트(렌즈 쪽 고무 링)</text>
+          <text x="372" y="22">② 핫슈</text>
+          <text x="40" y="44">③ 다이얼 축</text>
+          <text x="532" y="44">④ 버튼(고무 부츠)</text>
+          <text x="600" y="146">⑤ 카드 슬롯 문</text>
+          <text x="472" y="248">⑥ 배터리 문</text>
+          <text x="20" y="176">⑦ 단자 덮개</text>
+          <text x="470" y="168">⑧ 외장 이음매</text>
+        </g>
+      </svg>
+      <figcaption><b>그림 8-4.</b> 실링이 필요한 대표 위치(개념도). 하나라도 빠지면 전체가 그 수준입니다. 특히 ① 마운트는 렌즈 쪽에도 고무 링이 있어야 완성되므로, 실링 없는 렌즈를 끼우면 바디의 방진·방적 성능을 기대하기 어렵습니다.</figcaption>
+    </figure>
+    <p>스마트폰은 대부분 <span class="term">IP 등급</span><span class="en">(Ingress Protection, IEC 60529)</span>을 표기합니다. IP68이라면 먼지가 완전히 막히고(6), 정해진 조건의 침수를 견딘다(8)는 시험 결과입니다(<a href="../../phone/chapters/mechanical.html">PhoneBook 기구 설계</a>). 반면 렌즈 교환식 카메라는 <b>대부분 IP 등급을 표기하지 않고</b> "방진·방적 설계"라고만 씁니다. 방수 컴팩트와 일부 미러리스·렌즈는 IP53, IP54 같은 등급을 표기하지만 소수입니다. 등급이 없는 '방진·방적'은 제조사마다 시험 기준이 달라 서로 비교할 수 없고, 비·물보라를 잠시 견디는 정도로 받아들이는 것이 안전합니다. 대부분의 보증은 침수를 다루지 않는다는 점도 기억해 둘 만합니다.</p>
+    <div class="callout warn"><strong>실링의 대가</strong>개스킷은 버튼 감촉을 조금 무겁게 하고, 부품 수와 조립 공정을 늘리며, 내부의 열과 습기가 빠져나갈 길도 좁힙니다. 온도 차가 큰 곳(겨울 실외 → 따뜻한 실내)으로 옮기면 안팎에 결로가 생길 수 있으니, 카메라를 가방이나 봉투에 넣은 채 천천히 온도를 맞추세요. 실링이 좋아도 렌즈 교환 순간의 먼지는 막지 못합니다. 센서 먼지 털기 기능(센서 앞 필터를 초음파로 떨기)과 전원을 끄면 닫히는 셔터 막이 이를 보완합니다.</div>
+  </section>
+
+  <!-- =============================================================== 5 -->
+  <section id="ergonomics">
+    <h2>인체공학</h2>
+    <p>카메라는 손에 쥐고 쓰는 도구라서, 숫자로 드러나지 않는 <b>인체공학</b><span class="en">(Ergonomics)</span>이 사용 경험을 크게 좌우합니다. 설계자가 보는 항목은 대략 이렇습니다.</p>
+    <div class="cards">
+      <div><b>그립 깊이와 높이</b>새끼손가락까지 그립에 걸려야 무거운 렌즈를 한 손으로 버팁니다. 작은 바디는 그립이 얕아 새끼손가락이 바닥에 뜨는 경우가 많아 확장 그립 액세서리가 팔립니다.</div>
+      <div><b>버튼 도달 범위</b>엄지와 검지가 뷰파인더를 보면서 닿아야 하는 조작(셔터, 전후 다이얼, AF-ON, ISO)과 메뉴로 보내도 되는 조작을 나눕니다. 촉감만으로 구별되게 모양·높이를 다르게 만듭니다.</div>
+      <div><b>무게 균형</b>렌즈가 무거우면 무게 중심이 마운트 앞으로 나가 손목에 걸리는 회전력(토크)이 커집니다. 바디가 조금 무거운 편이 큰 렌즈와는 오히려 균형이 맞습니다.</div>
+      <div><b>시선과 화면</b>EVF 아이컵의 위치(코가 화면에 닿지 않게), 틸트·회전 화면, 방향에 따라 바뀌는 UI. 세로 사진이 많은 사람에게는 세로 그립의 두 번째 셔터 버튼이 핵심입니다.</div>
+    </div>
+    <figure class="diagram">
+      <svg viewBox="0 0 800 220" role="img" aria-label="바디와 렌즈의 무게 중심과 손목 토크">
+        <line x1="40" y1="180" x2="760" y2="180" class="s-axis"/>
+        <rect x="80" y="70" width="140" height="100" rx="12" class="f-surface"/>
+        <text x="150" y="60" text-anchor="middle" class="t">바디 650 g</text>
+        <rect x="220" y="85" width="260" height="70" rx="10" class="f-elev"/>
+        <text x="350" y="75" text-anchor="middle" class="t">망원 줌 1400 g (길이 200 mm)</text>
+        <circle cx="150" cy="120" r="6" fill="var(--text-dim)"/>
+        <circle cx="350" cy="120" r="6" fill="var(--text-dim)"/>
+        <circle cx="283" cy="120" r="9" class="f-acc"/>
+        <text x="283" y="208" text-anchor="middle" class="t-acc">합성 무게 중심</text>
+        <path d="M283 130 V196" class="s-acc" stroke-dasharray="4 3"/>
+        <path d="M120 170 v20 h30 v-20" fill="none" stroke="var(--accent-2)" stroke-width="3"/>
+        <text x="135" y="208" text-anchor="middle" class="t-dim">그립(손)</text>
+        <path d="M150 196 H283" stroke="var(--bad)" stroke-width="2"/>
+        <text x="216" y="192" text-anchor="middle" class="t-mono">팔 길이 d</text>
+        <text x="520" y="100" class="t">손목 토크 ≈ m·g·d</text>
+        <text x="520" y="124" class="t-dim">2.05 kg × 9.8 × 0.13 m</text>
+        <text x="520" y="146" class="t-dim">≈ 2.6 N·m → 손목이 피로해짐</text>
+        <text x="520" y="170" class="t-dim">왼손으로 렌즈 아래를 받쳐 d를 줄인다</text>
+      </svg>
+      <figcaption><b>그림 8-5.</b> 무거운 렌즈를 단 카메라의 무게 중심(예시 수치). 그립 손에서 무게 중심까지의 거리 d가 길수록 같은 무게도 더 무겁게 느껴집니다. 큰 렌즈를 쓸 때 왼손으로 렌즈를 받치는 자세가 기본인 이유입니다.</figcaption>
+    </figure>
+    <p>무게는 단순히 가벼울수록 좋은 값이 아닙니다. 너무 가벼운 바디는 셔터 충격과 손떨림에 더 쉽게 흔들리고(관성이 작음), 작은 바디일수록 배터리와 방열 공간이 줄어듭니다. 이 문제들이 서로 얽혀 있다는 것이 다음 절의 주제입니다. 조작계를 실제로 다루는 법은 <a href="modes.html">14장</a>과 <a href="stabilization.html">20장</a>에서 이어집니다.</p>
+  </section>
+
+  <!-- =============================================================== 6 -->
+  <section id="tradeoff">
+    <h2>좋은 카메라 설계의 트레이드오프</h2>
+    <p>지금까지 본 요소들은 하나를 고치면 다른 것이 움직입니다. 큰 센서는 저조도 화질을 주지만 마운트와 바디를 키우고, 센서를 흔드는 IBIS 유닛도 무거워집니다. 바디를 줄이면 배터리가 작아지고, 겉넓이가 줄어 열을 버리기 어려워져 동영상이 먼저 멈춥니다. 팬을 넣으면 열은 해결되지만 부피·무게·소음·원가와 방진 설계가 부담을 집니다.</p>
+    <figure class="diagram">
+      <svg viewBox="0 0 800 250" role="img" aria-label="카메라 설계 변수의 상호 의존 관계">
+        <g>
+          <rect x="30" y="20" width="140" height="44" rx="10" class="f-acc-soft"/><text x="100" y="47" text-anchor="middle" class="t-acc">센서 크기</text>
+          <rect x="330" y="20" width="140" height="44" rx="10" class="f-acc-soft"/><text x="400" y="47" text-anchor="middle" class="t-acc">바디 부피</text>
+          <rect x="630" y="20" width="140" height="44" rx="10" class="f-acc-soft"/><text x="700" y="47" text-anchor="middle" class="t-acc">배터리</text>
+          <rect x="30" y="180" width="140" height="44" rx="10" class="f-acc2-soft"/><text x="100" y="207" text-anchor="middle" class="t">화질·저조도</text>
+          <rect x="230" y="180" width="140" height="44" rx="10" class="f-acc2-soft"/><text x="300" y="207" text-anchor="middle" class="t">무게·휴대성</text>
+          <rect x="430" y="180" width="140" height="44" rx="10" class="f-acc2-soft"/><text x="500" y="207" text-anchor="middle" class="t">연속 녹화(열)</text>
+          <rect x="630" y="180" width="140" height="44" rx="10" class="f-acc2-soft"/><text x="700" y="207" text-anchor="middle" class="t">사용 시간·가격</text>
+        </g>
+        <g class="s-line">
+          <path d="M100 64 V180"/><path d="M170 42 H330"/><path d="M470 42 H630"/>
+          <path d="M120 64 L290 180"/><path d="M400 64 L310 180"/><path d="M410 64 L490 180"/>
+          <path d="M680 64 L320 180"/><path d="M700 64 V180"/><path d="M140 64 L680 180"/>
+        </g>
+        <text x="250" y="36" text-anchor="middle" class="t-mono">마운트·셔터·IBIS가 커짐</text>
+        <text x="550" y="36" text-anchor="middle" class="t-mono">넣을 자리를 정함</text>
+        <text x="470" y="128" class="t-mono">겉넓이 → 방열</text>
+      </svg>
+      <figcaption><b>그림 8-6.</b> 설계 변수(위)와 결과(아래)의 연결. 화살표 하나하나가 이 책 1부의 한 장이고, 모든 결과를 동시에 최고로 만드는 조합은 없습니다.</figcaption>
+    </figure>
+    <p>아래 플레이그라운드는 이 관계를 단순한 식으로 묶은 것입니다. 목적(페르소나)을 고르고, 다섯 가지 설계 변수를 움직여 목표를 모두 만족하는 카메라를 만들어 보세요.</p>
+
+    <div class="sim" id="sim-design">
+      <div class="sim-head"><span class="sim-tag">SIMULATOR</span><h3>카메라 설계 플레이그라운드</h3></div>
+      <div class="sim-body side">
+        <div class="sim-view"><canvas id="cv-design"></canvas></div>
+        <div class="sim-controls">
+          <div class="ctrl"><span>목적(페르소나)</span><div class="seg" id="ds-who"><button data-value="travel" class="on">여행용</button><button data-value="sports">스포츠</button><button data-value="video">영상</button><button data-value="land">풍경</button></div></div>
+          <div class="ctrl"><span>센서 포맷</span><div class="seg" id="ds-fmt"><button data-value="one">1형</button><button data-value="m43">M4/3</button><button data-value="apsc" class="on">APS-C</button><button data-value="ff">풀프레임</button><button data-value="mf">중형</button></div></div>
+          <label class="ctrl"><span>바디 부피(외형 상자) <output id="ds-vol-out"></output></span><input type="range" id="ds-vol" min="200" max="1500" value="600" step="10"></label>
+          <label class="ctrl"><span>배터리 에너지 <output id="ds-bat-out"></output></span><input type="range" id="ds-bat" min="5" max="35" value="11" step="0.5"></label>
+          <div class="ctrl"><span>냉각</span><div class="seg" id="ds-cool"><button data-value="none" class="on">없음</button><button data-value="fins">방열판</button><button data-value="fan">팬</button></div></div>
+          <label class="check"><input type="checkbox" id="ds-ibis" checked> IBIS(센서 시프트)</label>
+        </div>
+      </div>
+      <div class="sim-readout">
+        <div class="stat"><span class="k">바디 무게</span><span class="v" id="ds-mass">—</span></div>
+        <div class="stat"><span class="k">4K60 연속 녹화</span><span class="v" id="ds-rec">—</span></div>
+        <div class="stat"><span class="k">촬영 가능 매수(CIPA형)</span><span class="v" id="ds-shots">—</span></div>
+        <div class="stat"><span class="k">저조도 노이즈(풀프레임 대비)</span><span class="v" id="ds-noise">—</span></div>
+        <div class="stat"><span class="k">원가 지수</span><span class="v" id="ds-cost">—</span></div>
+      </div>
+      <div class="ds-warn" id="ds-warn"></div>
+      <div class="ds-goals" id="ds-goals"></div>
+      <div class="sim-note">모델(단순화): <b>무게</b> = 0.42 g/cm³ × 부피 + 센서 모듈(포맷별 15~100 g) + IBIS(20~80 g) + 배터리 5 g/Wh(≈200 Wh/kg) + 냉각(방열판 35 g, 팬 50 g) + 화면류 60 g. <b>공간</b>: 포맷별 최소 부피(마운트 지름이 바디 높이를 정함) + 배터리 2.5 cm³/Wh × 1.5 + IBIS + 냉각 부품이 외형 부피를 넘으면 경고. <b>열</b>: R = R<sub>내부</sub>(없음 3.5 · 방열판 2.0 · 팬 0.9 K/W) + 1/(h·A), 겉넓이 A ≈ 6.6·V<sup>2/3</sup>, h = 10 W/m²K(팬이면 30), C = 0.45 J/K·g × 무게, 4K60 발열 8 W × 포맷 계수(0.75~1.15) + IBIS 0.4 W + 팬 0.3 W, 기온 25 °C·정지 온도 60 °C. 녹화 시간은 열과 배터리 중 짧은 쪽. <b>매수</b>: CIPA형으로 장당 30초 라이브 뷰(3.3 W × 포맷 계수 + IBIS 0.4 W) + 1.5 J. <b>노이즈</b>: 같은 F값·셔터·출력 크기에서 센서 면적 비의 log₂(스톱). 렌즈는 포함하지 않았고 모든 계수는 설명용입니다.<br>해볼 것: ① '영상'을 골라 APS-C 500 cm³에서 시작해 보세요. 부피를 키우는 것과 방열판을 다는 것 중 무엇이 무게 대비 효과가 클까요? ② '여행용' 목표를 만족한 채로 풀프레임으로 바꿔 보세요. 무엇을 포기해야 하나요? ③ 네 페르소나를 모두 만족하는 하나의 설정이 있는지 찾아 보세요.</div>
+    </div>
+    <div class="callout"><strong>최고의 카메라는 없다, 최선의 균형이 있을 뿐</strong>스포츠 사진가에게 좋은 카메라는 큰 그립과 큰 배터리, 빠른 판독을 위해 무게를 감수한 바디입니다. 여행자에게는 하루 종일 메고 다녀도 괜찮은 무게가 화질 1스톱보다 중요할 수 있습니다. 영상 제작자는 열 설계를 위해 팬과 부피를 받아들이고, 풍경 사진가는 큰 센서와 튼튼한 삼각대 결합부를 원합니다. 제원표를 읽을 때 "이 숫자를 얻으려고 무엇을 내줬을까"를 함께 묻는 습관이 1부 전체의 결론입니다. 같은 질문을 스마트폰에 던진 것이 <a href="../../phone/chapters/design.html">PhoneBook 설계 장</a>이고, 폰 카메라 모듈의 제약은 <a href="../../phone/chapters/camera.html">PhoneBook 카메라 장</a>에 있습니다.</div>
+    <p>이제 기계가 어떻게 생겼고 왜 그렇게 생겼는지 보았습니다. 2부에서는 이 기계를 손에 들고, <a href="basics.html">9장</a>부터 노출·초점·색을 직접 다루는 법을 배웁니다.</p>
+  </section>
+
+  <section class="keypoints" id="summary">
+    <h2>핵심 정리</h2>
+    <ol>
+      <li>카메라 배터리는 대개 2셀 직렬 리튬 이온(약 7.2 V)이며, 용량은 mAh보다 에너지(Wh = V × Ah)로 비교한다. 큰 바디용 팩은 약 16 Wh.</li>
+      <li>미러리스 사진 촬영의 전력은 라이브 뷰(센서 판독·처리·EVF) 시간이 지배하고, 동영상은 센서·엔진 전력이 두세 배로 늘어난다.</li>
+      <li>CIPA 매수는 30초마다 한 장, 플래시 절반, 줌 왕복, 10장마다 전원 껐다 켜기의 표준 시험값이다. 몰아 찍으면 더 많고, 추위·무선 연결·영상은 줄인다.</li>
+      <li>과열은 T = T<sub>amb</sub> + P·R(1 − e<sup>−t/RC</sup>)로 근사된다. P·R이 허용 여유보다 크면 반드시 멈추고, 멈추는 시간은 τ = RC에 비례한다. 고해상도·고프레임·더운 날씨가 녹화 시간을 줄인다.</li>
+      <li>암전류는 약 6~8 °C마다 두 배가 되어, 뜨거운 센서는 장노출에서 노이즈와 핫 픽셀이 늘어난다.</li>
+      <li>마그네슘 프레임은 가볍고 단단하며 열을 퍼뜨린다. 방진·방적은 모든 틈의 개스킷으로 이루어지며, 대부분의 카메라는 IP 등급을 표기하지 않는다.</li>
+      <li>센서 크기·바디 부피·배터리·열·가격은 서로 묶여 있어 모든 것을 최고로 만들 수 없다. 좋은 설계는 용도에 맞는 균형이다.</li>
+    </ol>
+  </section>
+
+  <section class="quiz-sec" id="quiz">
+    <h2>확인 퀴즈</h2>
+    <div class="quiz">
+      <div class="quiz-q"><p>7.2 V, 2280 mAh 배터리의 에너지는 약 얼마인가?</p><div class="opts">
+        <button class="opt">약 2.3 Wh</button>
+        <button class="opt" data-correct>약 16 Wh</button>
+        <button class="opt">약 160 Wh</button>
+      </div><div class="quiz-exp">Wh = V × Ah = 7.2 × 2.28 ≈ 16.4 Wh.</div></div>
+      <div class="quiz-q"><p>CIPA 촬영 가능 매수 시험에 대한 설명으로 옳은 것은?</p><div class="opts">
+        <button class="opt">화면을 끈 채 최대 연사로 배터리가 다할 때까지 찍는다</button>
+        <button class="opt" data-correct>일정 간격(30초)으로 찍으며 플래시 사용, 줌 조작, 주기적 전원 껐다 켜기를 포함한다</button>
+        <button class="opt">제조사가 각자 정한 조건으로 측정하므로 기종 간 비교가 불가능하다</button>
+      </div><div class="quiz-exp">표준 시험 주기로 재기 때문에 기종끼리 비교할 수 있다. 실제 사용 패턴이 다르면 결과도 달라진다.</div></div>
+      <div class="quiz-q"><p>발열 8 W, 열 저항 5 K/W인 바디를 기온 25 °C에서 녹화한다. 내부 정지 온도가 60 °C라면?</p><div class="opts">
+        <button class="opt">정상 상태 온도가 45 °C라서 제한 없이 녹화된다</button>
+        <button class="opt" data-correct>정상 상태 온도가 65 °C라서 언젠가는 반드시 멈춘다</button>
+        <button class="opt">열용량을 늘리면 영원히 녹화할 수 있다</button>
+      </div><div class="quiz-exp">25 + 8 × 5 = 65 °C &gt; 60 °C. 열용량(C)은 멈추는 시점을 늦출 뿐, 최종 온도는 P·R로 정해진다.</div></div>
+      <div class="quiz-q"><p>센서 온도가 25 °C에서 약 45 °C로 오르면 암전류는 대략 어떻게 되는가?</p><div class="opts">
+        <button class="opt">거의 변하지 않는다</button>
+        <button class="opt">약 2배</button>
+        <button class="opt" data-correct>약 8배 안팎</button>
+      </div><div class="quiz-exp">약 6~8 °C마다 두 배이므로 20 °C 상승은 대략 2.5~3번 두 배 = 6~10배.</div></div>
+      <div class="quiz-q"><p>스마트폰과 달리 렌즈 교환식 카메라의 방진·방적에 대해 옳은 것은?</p><div class="opts">
+        <button class="opt">모두 IP68 등급을 받는다</button>
+        <button class="opt" data-correct>대부분 IP 등급을 표기하지 않아 제조사 간 직접 비교가 어렵다</button>
+        <button class="opt">바디만 방진·방적이면 렌즈는 상관없다</button>
+      </div><div class="quiz-exp">일부 기종만 IP 등급을 표기한다. 마운트 실링은 렌즈 쪽 고무 링까지 있어야 완성된다.</div></div>
+    </div>
+  </section>
+</main>
+
+<script>
+/* ---------------------------------------------------------------- 1. 전력 예산 */
+(function () {
+  const upd = CB.throttle(() => cv.redraw());
+  const MODE = CB.seg("pw-mode", upd);
+  const TON = CB.range("pw-ton", (v) => v + "초", upd);
+  const IBIS = CB.check("pw-ibis", upd);
+  const WIFI = CB.check("pw-wifi", upd);
+  const FLASH = CB.check("pw-flash", upd);
+  const BAT = CB.seg("pw-bat", upd);
+  const TEMP = CB.seg("pw-temp", upd);
+  // 설명용 하위 시스템 전력(W)
+  const BASE = {
+    evf: { sensor: 0.8, engine: 1.0, disp: 0.8, dispName: "EVF" },
+    lcd: { sensor: 0.8, engine: 1.0, disp: 0.6, dispName: "후면 LCD" },
+    v30: { sensor: 1.8, engine: 3.0, disp: 0.6, dispName: "후면 LCD", card: 0.3 },
+    v60: { sensor: 2.6, engine: 4.2, disp: 0.6, dispName: "후면 LCD", card: 0.4 },
+  };
+  function budget() {
+    const m = MODE(), b = BASE[m], video = m[0] === "v";
+    const items = [
+      ["센서 판독·ADC", b.sensor],
+      ["처리 엔진·메모리", b.engine],
+      [b.dispName, b.disp],
+      ["마이컴·기타(상시)", 0.7],
+    ];
+    if (video) items.push(["카드 기록", b.card]);
+    if (IBIS()) items.push(["IBIS", 0.4]);
+    if (WIFI()) items.push(["Wi-Fi", 0.6]);
+    const P = items.reduce((s, x) => s + x[1], 0);
+    return { items, P, video };
+  }
+  const cv = CB.canvas("#cv-power", (ctx, w, h) => {
+    const P = CB.palette();
+    const B = budget();
+    const video = B.video;
+    document.getElementById("pw-ton").disabled = video;
+    document.getElementById("pw-ton-wrap").style.opacity = video ? 0.45 : 1;
+    document.getElementById("pw-flash").disabled = video;
+    document.getElementById("pw-flash-wrap").classList.toggle("off", video);
+    // 막대 그래프
+    const font = CB.color("font");
+    const left = Math.min(150, w * 0.38), right = 56, top = 34, rowH = Math.min(30, (h - top - 20) / B.items.length);
+    const maxW = 4.5;
+    ctx.fillStyle = P.dim; ctx.font = "12px " + font; ctx.textAlign = "left"; ctx.textBaseline = "alphabetic";
+    ctx.fillText("하위 시스템별 전력 (W, 설명용 값)", 10, 18);
+    B.items.forEach(([name, v], i) => {
+      const y = top + i * rowH;
+      const bw = ((w - left - right) * v) / maxW;
+      ctx.fillStyle = P.surface; ctx.fillRect(left, y + 4, w - left - right, rowH - 10);
+      ctx.fillStyle = i < 2 ? P.accent : i === 2 ? P.accent2 : P.warn;
+      ctx.fillRect(left, y + 4, bw, rowH - 10);
+      ctx.fillStyle = P.text; ctx.textAlign = "right"; ctx.textBaseline = "middle"; ctx.font = "12.5px " + font;
+      ctx.fillText(name, left - 8, y + rowH / 2 - 1);
+      ctx.textAlign = "left"; ctx.font = "12px " + CB.color("mono");
+      ctx.fillText(v.toFixed(1), left + bw + 6, y + rowH / 2 - 1);
+    });
+    // 합계 막대(누적)
+    const y = top + B.items.length * rowH + 6;
+    if (y + 22 < h) {
+      let x = left; const scale = (w - left - right) / (maxW * 3);
+      B.items.forEach(([, v], i) => { ctx.fillStyle = i < 2 ? P.accent : i === 2 ? P.accent2 : P.warn; ctx.globalAlpha = 0.55 + 0.45 * ((i % 2) ? 0.5 : 1); ctx.fillRect(x, y, v * scale, 14); x += v * scale; });
+      ctx.globalAlpha = 1;
+      ctx.fillStyle = P.text; ctx.textAlign = "right"; ctx.textBaseline = "middle"; ctx.font = "600 12.5px " + font;
+      ctx.fillText("합계", left - 8, y + 7);
+      ctx.textAlign = "left"; ctx.font = "12px " + CB.color("mono"); ctx.fillText(B.P.toFixed(1) + " W", x + 6, y + 7);
+    }
+    // 수치
+    const E = +BAT() * 3600 * 0.95 * +TEMP();
+    const secs = E / B.P;
+    const hh = Math.floor(secs / 3600), mm = Math.round((secs % 3600) / 60);
+    CB.stat("pw-p", B.P.toFixed(1) + "<small>W</small>");
+    CB.stat("pw-i", (B.P / 7.2).toFixed(2) + "<small>A</small>");
+    CB.stat("pw-t", (hh ? hh + "<small>시간</small> " : "") + mm + "<small>분</small>");
+    if (video) CB.stat("pw-n", "<small>— (영상)</small>");
+    else {
+      const perShot = B.P * TON() + 1.5 + (FLASH() ? 5 * 0.5 : 0);
+      CB.stat("pw-n", Math.round(E / perShot).toLocaleString() + "<small>장</small>");
+    }
+  }, { aspect: (w) => (w < 480 ? 0.75 : 0.5), minHeight: 260, maxHeight: 340 });
+})();
+
+/* ---------------------------------------------------------------- 2. 열 RC 모델 */
+(function () {
+  const upd = CB.throttle(() => cv.redraw());
+  const MODE = CB.seg("th-mode", upd);
+  const BODY = CB.seg("th-body", upd);
+  const FAN = CB.check("th-fan", upd);
+  const AMB = CB.range("th-amb", (v) => v + " °C", upd);
+  const LIM = CB.range("th-lim", (v) => v + " °C", upd);
+  const PRESET = { mg: { R: 5.0, C: 300 }, pc: { R: 7.0, C: 200 }, tiny: { R: 9.5, C: 110 } };
+  const cv = CB.canvas("#cv-thermal", (ctx, w, h) => {
+    const Pal = CB.palette();
+    const P = +MODE(), pr = PRESET[BODY()];
+    const R = pr.R * (FAN() ? 0.45 : 1), C = pr.C, tau = R * C; // s
+    const Ta = AMB(), Tl = LIM();
+    const dT = P * R, Tss = Ta + dT, margin = Tl - Ta;
+    const T = (tMin) => Ta + dT * (1 - Math.exp(-(tMin * 60) / tau));
+    let tStop = Infinity;
+    if (margin <= 0) tStop = 0;
+    else if (dT > margin) tStop = (tau * Math.log(dT / (dT - margin))) / 60;
+    const tMax = 90;
+    const data = [];
+    for (let m = 0; m <= tMax; m += 0.5) data.push([m, T(m)]);
+    const yMax = Math.max(80, Math.ceil((Tss + 5) / 10) * 10), yMin = Math.min(0, Ta - 5);
+    const run = data.filter((d) => d[0] <= tStop);
+    const opts = {
+      x: [0, tMax], y: [yMin, yMax], xLabel: "녹화 시간(분)", yLabel: "내부 온도(°C)", xFmt: (v) => v + "",
+      series: [{ data, color: Pal.faint, width: 1.5, dash: [5, 4] }, { data: run, color: Pal.accent, width: 2.6 }],
+      hlines: [{ y: Tl, color: Pal.bad, label: "정지 " + Tl + " °C" }, { y: Tss, color: Pal.faint, label: Math.abs(Tss - Tl) < 6 ? "" : "최종 " + Tss.toFixed(0) + " °C", dash: [2, 4] }],
+      vlines: isFinite(tStop) && tStop <= tMax ? [{ x: tStop, color: Pal.bad, label: Math.round(tStop) + "분 정지" }] : [],
+    };
+    CB.chart(ctx, null, opts);
+    CB.stat("th-ss", Tss.toFixed(0) + "<small>°C</small>");
+    CB.stat("th-tau", (tau / 60).toFixed(0) + "<small>분</small>");
+    CB.stat("th-rec", !isFinite(tStop) ? "<small>열 제한 없음</small>" : tStop <= 0 ? "<small>시작 불가</small>" : Math.round(tStop) + "<small>분</small>");
+    CB.stat("th-30", T(30).toFixed(0) + "<small>°C</small>");
+  }, { aspect: 0.55, minHeight: 270, maxHeight: 360 });
+})();
+
+/* ---------------------------------------------------------------- 3. 다크 프레임 */
+(function () {
+  const W = 160, H = 100, N = W * H;
+  const rng = CB.rng(808);
+  const D25 = new Float32Array(N);
+  for (let i = 0; i < N; i++) {
+    // 로그 정규 분포(중앙값 0.12, 평균 ≈ 0.15 e⁻/s) + 결함 픽셀 0.05%
+    const z = Math.sqrt(-2 * Math.log(rng() + 1e-12)) * Math.cos(2 * Math.PI * rng());
+    let d = 0.12 * Math.exp(0.65 * z);
+    if (rng() < 0.0005) d *= Math.exp(Math.log(50) + rng() * Math.log(20)); // 50~1000배
+    D25[i] = d;
+  }
+  const EXPS = [1, 2, 4, 8, 15, 30, 60, 120, 240];
+  const off = document.createElement("canvas"); off.width = W; off.height = H;
+  const octx = off.getContext("2d");
+  const img = octx.createImageData(W, H);
+  let dirty = true;
+  const render = () => { dirty = true; cv.redraw(); };
+  const TT = CB.range("dk-t", (v) => v + " °C", CB.throttle(render));
+  const EX = CB.steps("dk-e", EXPS, (v) => v + "초", 30, CB.throttle(render));
+  document.getElementById("dk-re").addEventListener("click", render);
+  function compute() {
+    const k = Math.pow(2, (TT() - 25) / 6.5), t = EX();
+    let sum = 0, hot = 0;
+    for (let i = 0; i < N; i++) {
+      const lam = D25[i] * k * t;
+      sum += lam;
+      if (lam > 100) hot++;
+      const s = CB.poisson(lam) + 2 * CB.randn();
+      const v = Math.round(255 * Math.pow(CB.clamp(s / 100, 0, 1), 1 / 2.2));
+      img.data[i * 4] = v; img.data[i * 4 + 1] = v; img.data[i * 4 + 2] = v; img.data[i * 4 + 3] = 255;
+    }
+    octx.putImageData(img, 0, 0);
+    const mean = sum / N;
+    CB.stat("dk-mean", CB.fmt(mean, 2) + "<small>e⁻</small>");
+    CB.stat("dk-noise", CB.fmt(Math.sqrt(mean), 2) + "<small>e⁻ rms</small>");
+    CB.stat("dk-hot", Math.round((hot / N) * 24e6).toLocaleString() + "<small>개</small>");
+  }
+  const cv = CB.canvas("#cv-dark", (ctx, w, h) => {
+    if (dirty) { compute(); dirty = false; }
+    ctx.fillStyle = "#000"; ctx.fillRect(0, 0, w, h);
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(off, 0, 0, w, h);
+    ctx.fillStyle = "rgba(0,0,0,0.55)"; ctx.fillRect(8, h - 28, 220, 20);
+    ctx.fillStyle = "#e6e6e6"; ctx.font = "12px " + CB.color("mono"); ctx.textAlign = "left"; ctx.textBaseline = "middle";
+    ctx.fillText("렌즈 캡 · " + TT() + "°C · " + EX() + "s · 160×100 확대", 14, h - 18);
+  }, { aspect: 0.625, maxHeight: 360 });
+})();
+
+/* ---------------------------------------------------------------- 4. 설계 플레이그라운드 */
+(function () {
+  const FMT = {
+    one:  { name: "1형", area: 116, minV: 200, mod: 15, ibM: 20, ibV: 20, fac: 0.75, cost: 0.6 },
+    m43:  { name: "M4/3", area: 225, minV: 330, mod: 25, ibM: 30, ibV: 30, fac: 0.85, cost: 1.0 },
+    apsc: { name: "APS-C", area: 367, minV: 380, mod: 35, ibM: 35, ibV: 35, fac: 0.9, cost: 1.3 },
+    ff:   { name: "풀프레임", area: 864, minV: 560, mod: 55, ibM: 50, ibV: 50, fac: 1.0, cost: 2.5 },
+    mf:   { name: "중형", area: 1452, minV: 950, mod: 100, ibM: 80, ibV: 80, fac: 1.15, cost: 5.0 },
+  };
+  const COOL = { none: { Ri: 3.5, h: 10, m: 0, v: 0, p: 0, cost: 0 }, fins: { Ri: 2.0, h: 10, m: 35, v: 30, p: 0, cost: 0.1 }, fan: { Ri: 0.9, h: 30, m: 50, v: 60, p: 0.3, cost: 0.25 } };
+  const GOALS = {
+    travel: { name: "여행용", list: [["무게 ≤ 550 g", (r) => r.mass <= 550], ["촬영 매수 ≥ 400장", (r) => r.shots >= 400], ["부피 ≤ 600 cm³", (r) => r.V <= 600]] },
+    sports: { name: "스포츠", list: [["촬영 매수 ≥ 900장", (r) => r.shots >= 900], ["노이즈 풀프레임 대비 ≤ 1.5스톱", (r) => r.stops <= 1.5], ["무게 ≤ 1100 g", (r) => r.mass <= 1100]] },
+    video: { name: "영상", list: [["4K60 연속 녹화 ≥ 60분", (r) => r.rec >= 60], ["IBIS 있음", (r) => r.ibis], ["무게 ≤ 1000 g", (r) => r.mass <= 1000]] },
+    land: { name: "풍경", list: [["노이즈 ≤ 풀프레임 수준(≤ 0스톱)", (r) => r.stops <= 0.01], ["무게 ≤ 900 g", (r) => r.mass <= 900], ["촬영 매수 ≥ 500장", (r) => r.shots >= 500]] },
+  };
+  const upd = CB.throttle(() => cv.redraw());
+  const WHO = CB.seg("ds-who", upd);
+  const F = CB.seg("ds-fmt", upd);
+  const VOL = CB.range("ds-vol", (v) => v + " cm³", upd);
+  const BAT = CB.range("ds-bat", (v) => v.toFixed(1) + " Wh", upd);
+  const CL = CB.seg("ds-cool", upd);
+  const IB = CB.check("ds-ibis", upd);
+
+  function model() {
+    const f = FMT[F()], c = COOL[CL()], V = VOL(), Wh = BAT(), ibis = IB();
+    const mass = 0.42 * V + f.mod + (ibis ? f.ibM : 0) + 5 * Wh + c.m + 60;
+    const need = f.minV + Wh * 2.5 * 1.5 + (ibis ? f.ibV : 0) + c.v;
+    const A = (6.6 * Math.pow(V, 2 / 3)) / 1e4; // m²
+    const R = c.Ri + 1 / (c.h * A);
+    const C = 0.45 * mass;
+    const tau = R * C;
+    const Pv = 8 * f.fac + (ibis ? 0.4 : 0) + c.p;
+    const dT = Pv * R, margin = 35;
+    const recHeat = dT <= margin ? Infinity : (tau * Math.log(dT / (dT - margin))) / 60;
+    const E = Wh * 3600 * 0.95;
+    const recBat = E / Pv / 60;
+    const rec = Math.min(recHeat, recBat);
+    const Ps = 3.3 * f.fac + (ibis ? 0.4 : 0);
+    const shots = E / (Ps * 30 + 1.5);
+    const stops = Math.log2(864 / f.area);
+    const cost = 1 + f.cost + (ibis ? 0.4 : 0) + c.cost + 0.02 * Wh + (V > 900 ? 0.2 : 0);
+    return { f, V, Wh, ibis, mass, need, fits: need <= V, R, tau, Pv, Tss: 25 + dT, recHeat, recBat, rec, shots, stops, cost };
+  }
+
+  const cv = CB.canvas("#cv-design", (ctx, w, h) => {
+    const P = CB.palette();
+    const r = model();
+    // 레이더
+    const axes = [
+      ["휴대성", CB.clamp((1500 - r.mass) / 1250, 0, 1)],
+      ["저조도 화질", CB.clamp((3 - r.stops) / 3.75, 0, 1)],
+      ["영상 지속", CB.clamp(r.rec / 120, 0, 1)],
+      ["사진 매수", CB.clamp(r.shots / 1200, 0, 1)],
+      ["가격", CB.clamp(1 - (r.cost - 1.5) / 7, 0, 1)],
+    ];
+    const cx = w / 2, cy = h / 2 + 6, rad = Math.max(60, Math.min(h * 0.34, (w - 170) / 2));
+    const pt = (i, s) => { const a = -Math.PI / 2 + (i * 2 * Math.PI) / axes.length; return [cx + Math.cos(a) * rad * s, cy + Math.sin(a) * rad * s]; };
+    ctx.strokeStyle = P.grid; ctx.lineWidth = 1;
+    [0.25, 0.5, 0.75, 1].forEach((s) => { ctx.beginPath(); axes.forEach((_, i) => { const [x, y] = pt(i, s); i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); }); ctx.closePath(); ctx.stroke(); });
+    axes.forEach((_, i) => { const [x, y] = pt(i, 1); ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(x, y); ctx.stroke(); });
+    ctx.beginPath();
+    axes.forEach((a, i) => { const [x, y] = pt(i, Math.max(0.02, a[1])); i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); });
+    ctx.closePath();
+    ctx.fillStyle = CB.color("accent-soft"); ctx.fill();
+    ctx.strokeStyle = r.fits ? P.accent : P.bad; ctx.lineWidth = 2.4; ctx.stroke();
+    ctx.font = "12.5px " + CB.color("font"); ctx.fillStyle = P.text; ctx.textBaseline = "middle";
+    axes.forEach((a, i) => {
+      const [x, y] = pt(i, 1.17);
+      ctx.textAlign = Math.abs(x - cx) < 8 ? "center" : x > cx ? "left" : "right";
+      ctx.fillText(a[0], x, y);
+      ctx.fillStyle = P.dim; ctx.font = "11px " + CB.color("mono");
+      ctx.fillText(Math.round(a[1] * 100), x, y + 14);
+      ctx.fillStyle = P.text; ctx.font = "12.5px " + CB.color("font");
+    });
+    ctx.fillStyle = P.dim; ctx.textAlign = "left"; ctx.font = "12px " + CB.color("font");
+    ctx.fillText("바깥일수록 좋음 (0~100)", 10, 14);
+    // 수치
+    CB.stat("ds-mass", Math.round(r.mass) + "<small>g</small>");
+    const recTxt = r.recHeat === Infinity ? Math.round(r.recBat) + "<small>분 (배터리)</small>" : Math.round(r.rec) + "<small>분 (" + (r.recHeat <= r.recBat ? "과열" : "배터리") + ")</small>";
+    CB.stat("ds-rec", recTxt);
+    CB.stat("ds-shots", Math.round(r.shots) + "<small>장</small>");
+    CB.stat("ds-noise", (r.stops > 0.01 ? "+" : r.stops < -0.01 ? "−" : "±") + Math.abs(r.stops).toFixed(1) + "<small>스톱</small>");
+    CB.stat("ds-cost", r.cost.toFixed(1));
+    const warn = document.getElementById("ds-warn");
+    warn.classList.toggle("on", !r.fits);
+    warn.textContent = r.fits ? "" : `공간 부족: 필요한 부피 약 ${Math.round(r.need)} cm³ > 외형 ${r.V} cm³. 부피를 키우거나 배터리·냉각·IBIS를 줄이세요.`;
+    const g = GOALS[WHO()];
+    const rows = g.list.map(([label, fn]) => { const ok = fn(r); return `<div class="row"><span>${label}</span><span class="${ok ? "ok" : "no"}">${ok ? "충족" : "미달"}</span></div>`; });
+    rows.push(`<div class="row"><span>부품이 바디에 들어감</span><span class="${r.fits ? "ok" : "no"}">${r.fits ? "충족" : "미달"}</span></div>`);
+    const all = g.list.every(([, fn]) => fn(r)) && r.fits;
+    document.getElementById("ds-goals").innerHTML = `<div class="row head"><span>${g.name} 목표</span><span class="${all ? "ok" : "no"}">${all ? "모두 달성" : "진행 중"}</span></div>` + rows.join("");
+  }, { aspect: (w) => (w < 480 ? 0.95 : 0.72), minHeight: 300, maxHeight: 420 });
+})();
+</script>
+</body>
+</html>

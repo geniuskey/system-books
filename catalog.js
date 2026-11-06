@@ -81,5 +81,33 @@ window.SYSTEM_BOOKS = [
     "url": "phone/",
     "chapters": 14,
     "simulators": 146
+  },
+  {
+    "id": "camerabook",
+    "title": "CameraBook",
+    "subtitle": "카메라 교과서",
+    "headline": "빛을 숫자로 바꾸는 기계",
+    "description": "렌즈와 셔터, 센서와 처리 엔진, 3A 제어 루프로 카메라를 3D로 분해한 뒤, 조리개·셔터·ISO부터 초점, 화이트 밸런스, RAW, 동영상까지 가상 카메라를 직접 조작하며 배웁니다.",
+    "stage": "device",
+    "status": "published",
+    "color": "#6741d9",
+    "colorDark": "#b197fc",
+    "topics": [
+      "3D 분해·조립",
+      "렌즈 광학",
+      "셔터·구동부",
+      "센서·판독",
+      "ISP·데이터",
+      "3A 제어",
+      "노출·초점",
+      "RAW·동영상"
+    ],
+    "motif": "camera",
+    "code": "CAM",
+    "legacyUrl": null,
+    "slug": "camera",
+    "url": "camera/",
+    "chapters": 25,
+    "simulators": 91
   }
 ];

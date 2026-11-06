@@ -3,7 +3,7 @@
 import json
 from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
-# Imported once on 2026-11-06 from geniuskey/carbook, shipbook and phonebook; maintained here since.
+# Imported once on 2026-11-06 from geniuskey/carbook, shipbook, phonebook and camerabook; maintained here since.
 # Shelf fields follow the books portal (geniuskey/books data/books.json).
 BOOKS = [{
     'id': 'carbook', 'code': 'CAR', 'title': 'CarBook', 'subtitle': '자동차 교과서',
@@ -26,6 +26,13 @@ BOOKS = [{
     'status': 'published', 'level': '공대 학부', 'stage': 'device', 'slug': 'phone', 'legacyUrl': None,
     'color': '#0b8a7c', 'colorDark': '#2dd4bf', 'motif': 'phone',
     'topics': ['3D 분해·조립', 'OLED·LTPO', 'AP·스로틀링', 'HDI 보드', '배터리·충전', '안테나·RF', '카메라 모듈', '방열·기구'],
+}, {
+    'id': 'camerabook', 'code': 'CAM', 'title': 'CameraBook', 'subtitle': '카메라 교과서',
+    'headline': '빛을 숫자로 바꾸는 기계',
+    'description': '렌즈와 셔터, 센서와 처리 엔진, 3A 제어 루프로 카메라를 3D로 분해한 뒤, 조리개·셔터·ISO부터 초점, 화이트 밸런스, RAW, 동영상까지 가상 카메라를 직접 조작하며 배웁니다.',
+    'status': 'published', 'level': '입문~공대 학부', 'stage': 'device', 'slug': 'camera', 'legacyUrl': None,
+    'color': '#6741d9', 'colorDark': '#b197fc', 'motif': 'camera',
+    'topics': ['3D 분해·조립', '렌즈 광학', '셔터·구동부', '센서·판독', 'ISP·데이터', '3A 제어', '노출·초점', 'RAW·동영상'],
 }]
 catalog = []
 for book in BOOKS:

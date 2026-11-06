@@ -6,7 +6,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>SystemBooks · 분해하며 배우는 시스템 교과서</title>
-<meta name="description" content="자동차, 선박, 스마트폰까지. 수많은 부품이 맞물려 하나로 움직이는 시스템을 3D 모델과 시뮬레이터로 분해하며 배우는 한국어 인터랙티브 교과서를 한 서가에서 만납니다.">
+<meta name="description" content="자동차, 선박, 스마트폰, 카메라까지. 수많은 부품이 맞물려 하나로 움직이는 시스템을 3D 모델과 시뮬레이터로 분해하며 배우는 한국어 인터랙티브 교과서를 한 서가에서 만납니다.">
 <link rel="canonical" href="https://system.euiyun.com/">
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <meta name="theme-color" content="#0d1320">
@@ -14,7 +14,7 @@
 <meta property="og:site_name" content="SystemBooks">
 <meta property="og:locale" content="ko_KR">
 <meta property="og:title" content="SystemBooks · 시스템 교과서 서가">
-<meta property="og:description" content="엔진과 배터리, 프로펠러와 파도, 8 mm 안의 보드까지. 브라우저에서 3D 모델을 돌리고 부품을 분해하며 시스템을 배웁니다.">
+<meta property="og:description" content="엔진과 배터리, 프로펠러와 파도, 8 mm 안의 보드와 렌즈 속 조리개까지. 브라우저에서 3D 모델을 돌리고 부품을 분해하며 시스템을 배웁니다.">
 <meta property="og:url" content="https://system.euiyun.com/">
 <meta property="og:image" content="https://system.euiyun.com/og.png">
 <meta property="og:image:width" content="1200">
@@ -50,8 +50,8 @@
           <h1 id="shelf-title">부품 하나하나보다,<br><em>맞물려 돌아가는 전체를 보는 공학</em></h1>
         </div>
         <div class="welcome-side">
-          <p>차체를 투명하게 비춰 부품을 찾고, 파도 위에서 배를 흔들고, 스마트폰을 한 겹씩 분해해 봅니다. 자동차 CarBook, 선박 ShipBook, 스마트폰 PhoneBook이 함께 꽂힌 시스템 서가입니다.</p>
-          <p class="stats" id="stats"><span><b>3</b>권 공개</span><span>자동차 · 선박 · 스마트폰</span></p>
+          <p>차체를 투명하게 비춰 부품을 찾고, 파도 위에서 배를 흔들고, 스마트폰과 카메라를 한 겹씩 분해해 봅니다. 자동차 CarBook, 선박 ShipBook, 스마트폰 PhoneBook, 카메라 CameraBook이 함께 꽂힌 시스템 서가입니다.</p>
+          <p class="stats" id="stats"><span><b>4</b>권 공개</span><span>자동차 · 선박 · 스마트폰 · 카메라</span></p>
         </div>
       </div>
       <div class="shelf-controls">
@@ -63,7 +63,7 @@
       </div>
       <div class="bookcase" id="book-grid"></div>
       <p class="empty" id="empty" hidden>조건에 맞는 책이 없습니다. 다른 검색어나 분야를 선택해 보세요.</p>
-      <noscript><p class="noscript"><a href="car/">CarBook · 자동차</a> · <a href="ship/">ShipBook · 선박</a> · <a href="phone/">PhoneBook · 스마트폰</a>. JavaScript를 켜면 책 검색을 사용할 수 있습니다.</p></noscript>
+      <noscript><p class="noscript"><a href="car/">CarBook · 자동차</a> · <a href="ship/">ShipBook · 선박</a> · <a href="phone/">PhoneBook · 스마트폰</a> · <a href="camera/">CameraBook · 카메라</a>. JavaScript를 켜면 책 검색을 사용할 수 있습니다.</p></noscript>
     </div>
   </section>
 
@@ -76,13 +76,15 @@
         </div>
         <p>질문 하나를 골라 시뮬레이터를 움직여 보세요. 각 실험은 해당 교과서의 그 장면으로 바로 이어집니다.</p>
       </div>
-      <div class="experiments" id="experiments" style="--gaps:5">
+      <div class="experiments" id="experiments" style="--gaps:7">
 <a class="experiment" data-book="carbook" href="car/chapters/overview.html#sim-xray"><span class="experiment-image"><img src="shared/img/sims/carbook-sim-xray.jpg" alt="자동차 속 부품은 어디에 숨어 있을까?" width="720" height="531" loading="lazy"></span><span class="experiment-body"><span class="experiment-book">CarBook · 자동차</span><strong>자동차 속 부품은 어디에 숨어 있을까?</strong><span class="experiment-desc">차체를 투명하게 만들고 엔진·변속기·배터리의 위치를 3D로 찾아봅니다.</span><span class="experiment-action">직접 돌려 보기 →</span></span></a>
 <a class="experiment" data-book="shipbook" href="ship/chapters/seakeeping.html#sim-3d"><span class="experiment-image"><img src="shared/img/sims/shipbook-sim-3d.jpg" alt="파도 속에서 배는 어떻게 흔들릴까?" width="720" height="530" loading="lazy"></span><span class="experiment-body"><span class="experiment-book">ShipBook · 선박</span><strong>파도 속에서 배는 어떻게 흔들릴까?</strong><span class="experiment-desc">파장과 파향, 선속을 바꾸며 컨테이너선의 히브·피치·롤이 언제 커지는지 봅니다.</span><span class="experiment-action">직접 돌려 보기 →</span></span></a>
 <a class="experiment" data-book="phonebook" href="phone/chapters/anatomy.html#sim-explode"><span class="experiment-image"><img src="shared/img/sims/phonebook-sim-explode.jpg" alt="8 mm 두께 안에 무엇이 들어 있을까?" width="720" height="676" loading="lazy"></span><span class="experiment-body"><span class="experiment-book">PhoneBook · 스마트폰</span><strong>8 mm 두께 안에 무엇이 들어 있을까?</strong><span class="experiment-desc">유리부터 배터리·보드·카메라까지 부품을 눌러 가며 한 겹씩 펼칩니다.</span><span class="experiment-action">직접 분해해 보기 →</span></span></a>
+<a class="experiment" data-book="camerabook" href="camera/chapters/overview.html#sim-xray"><span class="experiment-image"><img src="shared/img/sims/camerabook-sim-xray.jpg" alt="카메라 속에서 빛은 어디로 갈까?" width="720" height="651" loading="lazy"></span><span class="experiment-body"><span class="experiment-book">CameraBook · 카메라</span><strong>카메라 속에서 빛은 어디로 갈까?</strong><span class="experiment-desc">바디를 투명하게 비추고 렌즈에서 센서까지 빛의 길을 따라갑니다. DSLR로 바꾸면 거울이 길을 바꿉니다.</span><span class="experiment-action">직접 돌려 보기 →</span></span></a>
 <a class="experiment" data-book="shipbook" href="ship/chapters/stability.html#sim-gz"><span class="experiment-image"><img src="shared/img/sims/shipbook-sim-gz.jpg" alt="배는 몇 도까지 기울어도 다시 설까?" width="720" height="448" loading="lazy"></span><span class="experiment-body"><span class="experiment-book">ShipBook · 선박</span><strong>배는 몇 도까지 기울어도 다시 설까?</strong><span class="experiment-desc">무게중심 높이와 깊이, 폭을 바꾸며 GZ 곡선과 소실각이 어떻게 달라지는지 봅니다.</span><span class="experiment-action">직접 바꿔 보기 →</span></span></a>
 <a class="experiment" data-book="carbook" href="car/chapters/aero.html#sim-fl"><span class="experiment-image"><img src="shared/img/sims/carbook-sim-fl.jpg" alt="달리는 차 주위로 공기는 어떻게 흐를까?" width="720" height="289" loading="lazy"></span><span class="experiment-body"><span class="experiment-book">CarBook · 자동차</span><strong>달리는 차 주위로 공기는 어떻게 흐를까?</strong><span class="experiment-desc">차 옆모습 주위로 공기가 갈라지고 뒤에서 소용돌이치는 모습을 직접 그려 봅니다.</span><span class="experiment-action">직접 그려 보기 →</span></span></a>
 <a class="experiment" data-book="phonebook" href="phone/chapters/camera.html#sim-mod"><span class="experiment-image"><img src="shared/img/sims/phonebook-sim-mod.jpg" alt="카메라 모듈은 몇 mm 안에 무엇을 쌓을까?" width="720" height="531" loading="lazy"></span><span class="experiment-body"><span class="experiment-book">PhoneBook · 스마트폰</span><strong>카메라 모듈은 몇 mm 안에 무엇을 쌓을까?</strong><span class="experiment-desc">렌즈·VCM·OIS·이미지 센서가 얇은 모듈 안에 쌓이는 방식을 분해해 봅니다.</span><span class="experiment-action">직접 분해해 보기 →</span></span></a>
+<a class="experiment" data-book="camerabook" href="camera/chapters/anatomy.html#sim-explode"><span class="experiment-image"><img src="shared/img/sims/camerabook-sim-explode.jpg" alt="미러리스 카메라를 뜯으면 무엇이 나올까?" width="720" height="651" loading="lazy"></span><span class="experiment-body"><span class="experiment-book">CameraBook · 카메라</span><strong>미러리스 카메라를 뜯으면 무엇이 나올까?</strong><span class="experiment-desc">셔터·센서·보드·EVF와 렌즈 군을 한 겹씩 펼치고, 조립 순서대로 다시 맞춥니다.</span><span class="experiment-action">직접 분해해 보기 →</span></span></a>
       </div>
     </div>
   </section>
@@ -96,7 +98,7 @@
         </div>
         <p>각 책의 1장은 시스템 전체를 한눈에 보여 줍니다. 큰 그림을 본 다음 관심 있는 부품으로 내려가세요.</p>
       </div>
-      <div class="path-list"><article class="path"><h3>엔진에서 전기차까지</h3><p>내연기관의 사이클에서 모터와 배터리로 동력원이 바뀌는 흐름을 따라갑니다.</p><ol><li><a data-book="carbook" href="car/chapters/engine.html">내연기관</a></li><li><a data-book="carbook" href="car/chapters/motor.html">전기차: 모터와 인버터</a></li><li><a data-book="carbook" href="car/chapters/battery.html">배터리와 충전</a></li></ol></article><article class="path"><h3>배는 왜 뜨고, 왜 서는가</h3><p>부력에서 복원성, 파도 속의 운동까지 배가 바다를 견디는 원리를 잇습니다.</p><ol><li><a data-book="shipbook" href="ship/chapters/buoyancy.html">부력과 배수량</a></li><li><a data-book="shipbook" href="ship/chapters/stability.html">복원성</a></li><li><a data-book="shipbook" href="ship/chapters/seakeeping.html">내항성: 파도 속의 배</a></li></ol></article><article class="path"><h3>스마트폰을 한 겹씩</h3><p>분해에서 출발해 두뇌인 AP와 열 관리, 그리고 전체 설계의 트레이드오프로 갑니다.</p><ol><li><a data-book="phonebook" href="phone/chapters/anatomy.html">스마트폰 해부</a></li><li><a data-book="phonebook" href="phone/chapters/soc.html">AP(SoC): 폰의 두뇌</a></li><li><a data-book="phonebook" href="phone/chapters/design.html">설계 플레이그라운드</a></li></ol></article><article class="path"><h3>스스로 움직이는 탈것</h3><p>센서로 보고, 판단하고, 충돌을 피하는 자율주행차와 자율운항선박을 나란히 읽습니다.</p><ol><li><a data-book="carbook" href="car/chapters/sensors.html">자율주행의 눈: 센서</a></li><li><a data-book="carbook" href="car/chapters/planning.html">예측·계획·제어</a></li><li><a data-book="shipbook" href="ship/chapters/autonomous.html">자율운항선박과 DP</a></li></ol></article><article class="path"><h3>배터리와 전력</h3><p>전기차 팩과 스마트폰 셀, 선박의 전기 추진까지 전기 에너지를 다루는 방법을 비교합니다.</p><ol><li><a data-book="carbook" href="car/chapters/battery.html">배터리와 충전</a></li><li><a data-book="phonebook" href="phone/chapters/battery.html">스마트폰 배터리</a></li><li><a data-book="shipbook" href="ship/chapters/electric.html">선박 전력과 전기 추진</a></li></ol></article><article class="path"><h3>유체를 가르는 모양</h3><p>공기와 물, 두 유체 속에서 저항을 줄이고 추진력을 얻는 형상을 봅니다.</p><ol><li><a data-book="carbook" href="car/chapters/aero.html">공기역학</a></li><li><a data-book="shipbook" href="ship/chapters/resistance.html">선체 저항</a></li><li><a data-book="shipbook" href="ship/chapters/propeller.html">프로펠러</a></li></ol></article>
+      <div class="path-list"><article class="path"><h3>엔진에서 전기차까지</h3><p>내연기관의 사이클에서 모터와 배터리로 동력원이 바뀌는 흐름을 따라갑니다.</p><ol><li><a data-book="carbook" href="car/chapters/engine.html">내연기관</a></li><li><a data-book="carbook" href="car/chapters/motor.html">전기차: 모터와 인버터</a></li><li><a data-book="carbook" href="car/chapters/battery.html">배터리와 충전</a></li></ol></article><article class="path"><h3>배는 왜 뜨고, 왜 서는가</h3><p>부력에서 복원성, 파도 속의 운동까지 배가 바다를 견디는 원리를 잇습니다.</p><ol><li><a data-book="shipbook" href="ship/chapters/buoyancy.html">부력과 배수량</a></li><li><a data-book="shipbook" href="ship/chapters/stability.html">복원성</a></li><li><a data-book="shipbook" href="ship/chapters/seakeeping.html">내항성: 파도 속의 배</a></li></ol></article><article class="path"><h3>스마트폰을 한 겹씩</h3><p>분해에서 출발해 두뇌인 AP와 열 관리, 그리고 전체 설계의 트레이드오프로 갑니다.</p><ol><li><a data-book="phonebook" href="phone/chapters/anatomy.html">스마트폰 해부</a></li><li><a data-book="phonebook" href="phone/chapters/soc.html">AP(SoC): 폰의 두뇌</a></li><li><a data-book="phonebook" href="phone/chapters/design.html">설계 플레이그라운드</a></li></ol></article><article class="path"><h3>빛이 사진이 되기까지</h3><p>렌즈가 모은 빛이 센서에서 숫자가 되고, 처리 엔진을 거쳐 파일이 되는 길을 따라갑니다.</p><ol><li><a data-book="camerabook" href="camera/chapters/optics.html">렌즈 광학계</a></li><li><a data-book="camerabook" href="camera/chapters/sensor.html">이미지 센서와 판독</a></li><li><a data-book="camerabook" href="camera/chapters/engine.html">영상 처리 엔진</a></li></ol></article><article class="path"><h3>스스로 움직이는 탈것</h3><p>센서로 보고, 판단하고, 충돌을 피하는 자율주행차와 자율운항선박을 나란히 읽습니다.</p><ol><li><a data-book="carbook" href="car/chapters/sensors.html">자율주행의 눈: 센서</a></li><li><a data-book="carbook" href="car/chapters/planning.html">예측·계획·제어</a></li><li><a data-book="shipbook" href="ship/chapters/autonomous.html">자율운항선박과 DP</a></li></ol></article><article class="path"><h3>배터리와 전력</h3><p>전기차 팩과 스마트폰 셀, 선박의 전기 추진까지 전기 에너지를 다루는 방법을 비교합니다.</p><ol><li><a data-book="carbook" href="car/chapters/battery.html">배터리와 충전</a></li><li><a data-book="phonebook" href="phone/chapters/battery.html">스마트폰 배터리</a></li><li><a data-book="shipbook" href="ship/chapters/electric.html">선박 전력과 전기 추진</a></li></ol></article><article class="path"><h3>유체를 가르는 모양</h3><p>공기와 물, 두 유체 속에서 저항을 줄이고 추진력을 얻는 형상을 봅니다.</p><ol><li><a data-book="carbook" href="car/chapters/aero.html">공기역학</a></li><li><a data-book="shipbook" href="ship/chapters/resistance.html">선체 저항</a></li><li><a data-book="shipbook" href="ship/chapters/propeller.html">프로펠러</a></li></ol></article>
       </div>
     </div>
   </section>

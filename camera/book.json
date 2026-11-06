@@ -1,0 +1,11 @@
+{
+  "id": "camerabook",
+  "title": "CameraBook",
+  "description": "카메라를 렌즈·셔터·센서·처리 엔진·제어 루프로 분해해 시스템으로 이해한 뒤, 조리개·셔터·ISO부터 초점, 화이트 밸런스, RAW, 플래시, 동영상까지 가상 카메라를 직접 조작하며 왜 그렇게 찍히는지 배웁니다.",
+  "url": "https://system.euiyun.com/camera/",
+  "repo": "https://github.com/geniuskey/system-books",
+  "field": "electronics",
+  "status": "published",
+  "domain": "system.euiyun.com",
+  "basePath": "/camera/"
+}

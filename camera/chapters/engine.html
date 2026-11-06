@@ -1,0 +1,890 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<title>영상 처리 엔진과 데이터 흐름 · CameraBook</title>
+<meta name="description" content="카메라 안의 컴퓨터인 영상 처리 엔진(ISP·CPU·NPU·코덱)과 센서에서 메모리 카드까지의 데이터 흐름. ISP 파이프라인을 한 단계씩 켜고 끄며, 초당 기가바이트의 데이터 예산, 버퍼와 카드 속도, 동영상 코덱과 전력을 시뮬레이터로 배운다.">
+<link rel="canonical" href="https://system.euiyun.com/camera/chapters/engine.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="CameraBook">
+<meta property="og:title" content="영상 처리 엔진과 데이터 흐름 · CameraBook">
+<meta property="og:description" content="카메라 안의 컴퓨터인 영상 처리 엔진(ISP·CPU·NPU·코덱)과 센서에서 메모리 카드까지의 데이터 흐름. ISP 파이프라인을 한 단계씩 켜고 끄며, 초당 기가바이트의 데이터 예산, 버퍼와 카드 속도, 동영상 코덱과 전력을 시뮬레이터로 배운다.">
+<meta property="og:url" content="https://system.euiyun.com/camera/chapters/engine.html">
+<meta property="og:image" content="https://system.euiyun.com/camera/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="ko_KR">
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","headline":"영상 처리 엔진과 데이터 흐름","name":"영상 처리 엔진과 데이터 흐름 · CameraBook","url":"https://system.euiyun.com/camera/chapters/engine.html","mainEntityOfPage":"https://system.euiyun.com/camera/chapters/engine.html","inLanguage":"ko","isAccessibleForFree":true,"learningResourceType":"interactive textbook chapter","position":6,"image":"https://system.euiyun.com/camera/og.png","dateModified":"2026-11-07","isPartOf":{"@type":"Book","@id":"https://system.euiyun.com/camera/#book","name":"CameraBook — 인터랙티브 카메라 교과서","url":"https://system.euiyun.com/camera/"},"publisher":{"@type":"Organization","name":"CameraBook","url":"https://system.euiyun.com/camera/"},"description":"카메라 안의 컴퓨터인 영상 처리 엔진(ISP·CPU·NPU·코덱)과 센서에서 메모리 카드까지의 데이터 흐름. ISP 파이프라인을 한 단계씩 켜고 끄며, 초당 기가바이트의 데이터 예산, 버퍼와 카드 속도, 동영상 코덱과 전력을 시뮬레이터로 배운다."},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"CameraBook","item":"https://system.euiyun.com/camera/"},{"@type":"ListItem","position":2,"name":"06 영상 처리 엔진과 데이터 흐름","item":"https://system.euiyun.com/camera/chapters/engine.html"}]}]}</script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<link rel="stylesheet" href="../css/style.css">
+<script src="../js/common.js"></script>
+<style>
+  .fig-lg svg .t, .fig-lg svg .t-acc { font-size: 15px; }
+  .fig-lg svg .t-dim { font-size: 13px; }
+  .fig-lg svg .t-mono { font-size: 12px; }
+  svg .blk { fill: var(--bg-elev); stroke: var(--border); stroke-width: 1.5; }
+  svg .blk-acc { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 1.5; }
+  svg .blk-acc2 { fill: var(--accent-2-soft); stroke: var(--accent-2); stroke-width: 1.5; }
+  svg .band { fill: var(--surface); stroke: none; }
+  svg .arr { stroke: var(--text-dim); stroke-width: 1.6; fill: none; marker-end: url(#eng-arrow); }
+  svg .arr-acc { stroke: var(--accent); stroke-width: 2.2; fill: none; marker-end: url(#eng-arrow-acc); }
+  svg .bus { stroke: var(--accent-2); stroke-width: 4; stroke-linecap: round; }
+  .isp-strip { display: flex; gap: 8px; overflow-x: auto; padding: 12px 14px; border-top: 1px solid var(--border); background: var(--surface); }
+  .isp-strip button { flex: none; display: grid; gap: 4px; justify-items: center; padding: 4px; border-radius: 8px; border: 2px solid transparent; background: transparent; cursor: pointer; font: inherit; font-size: 11.5px; color: var(--text-dim); }
+  .isp-strip button canvas { width: 80px; height: 50px; border-radius: 4px; background: #111; display: block; }
+  .isp-strip button.sel { border-color: var(--accent); color: var(--accent); font-weight: 700; }
+  .isp-strip button.off { opacity: .45; }
+  .isp-strip button.off span::after { content: " (꺼짐)"; }
+  .stage-list { display: grid; gap: 6px; }
+  .stage-list .check { font-size: 13.5px; }
+  .stage-list .check b { font-family: var(--mono); font-size: 11px; color: var(--text-faint); font-weight: 600; margin-left: auto; }
+  .stage-tools { display: flex; gap: 6px; flex-wrap: wrap; }
+  .stage-tools .btn { padding: 5px 10px; font-size: 12.5px; }
+  .domain-tag { display: inline-block; font-size: 11px; font-family: var(--mono); padding: 1px 6px; border-radius: 5px; margin-right: 4px; }
+</style>
+<link rel="stylesheet" href="../../shared/css/book-shell.css">
+<script defer src="../../shared/js/book-shell.js" data-book="camera"></script>
+</head>
+<body data-chapter="engine">
+<main class="chapter">
+  <header class="chapter-hero">
+    <div class="eyebrow">Chapter 06</div>
+    <h1>영상 처리 엔진과 데이터 흐름</h1>
+    <p class="lead">센서가 내보내는 것은 사진이 아니라 수천만 개의 숫자입니다. 이 숫자를 1초에 수십 번, 수 기가바이트씩 받아 사진과 영상으로 바꾸고, 압축해 메모리 카드에 써 넣는 일은 카메라 안의 작은 컴퓨터인 <span class="term">영상 처리 엔진</span><span class="en">(Image Processor)</span>이 맡습니다. 이 장에서는 그 컴퓨터를 블록 단위로 뜯어 보고, 데이터가 센서에서 카드까지 흐르는 길을 따라가며 어디가 병목이 되는지 숫자로 확인합니다.</p>
+    <ul class="objectives">
+      <li>영상 처리 엔진(SoC)을 이루는 블록: 센서 인터페이스, ISP, CPU, NPU, 코덱, 메모리 컨트롤러, 입출력이 각각 하는 일을 안다.</li>
+      <li>ISP 파이프라인의 각 단계를 실제 픽셀 데이터에 켜고 끄며, 순서가 왜 그렇게 정해졌는지 설명할 수 있다.</li>
+      <li>화소 수 × 비트 심도 × 초당 장수로 데이터 예산을 계산하고, 버퍼와 카드 속도로 연사 지속 시간을 예측한다.</li>
+      <li>동영상 코덱(인트라·Long-GOP, 10비트, 4:2:2)이 비트레이트와 카드 요구 사양을 어떻게 바꾸는지 안다.</li>
+      <li>처리량이 곧 전력이고 전력이 곧 열이라는 관계로, 동영상이 왜 카메라를 뜨겁게 하는지 설명한다.</li>
+    </ul>
+  </header>
+
+  <!-- =============================================================== 1 -->
+  <section id="soc">
+    <h2>카메라 안의 컴퓨터</h2>
+    <p>카메라를 열어 보면 메인 기판 한가운데에 손톱만 한 칩이 하나 있습니다. 제조사마다 이름은 다르지만 하는 일은 같습니다. 센서의 데이터를 받아 사진을 만들고, 화면에 보여 주고, 초점과 노출을 계산하고, 파일로 저장합니다. 스마트폰의 <span class="term">애플리케이션 프로세서</span>처럼 여러 기능 블록을 한 칩에 모은 <span class="term">SoC</span><span class="en">(System on Chip)</span>이며, 고급 기종은 처리 칩을 두 개 이상 두거나 AI 처리를 따로 맡는 보조 칩을 붙이기도 합니다.</p>
+    <figure class="diagram fig-lg">
+      <svg viewBox="0 0 760 410" role="img" aria-label="영상 처리 엔진 SoC의 블록 구성과 주변 장치">
+        <defs>
+          <marker id="eng-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--text-dim)"/></marker>
+          <marker id="eng-arrow-acc" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--accent)"/></marker>
+        </defs>
+        <!-- SoC -->
+        <rect x="128" y="14" width="482" height="312" rx="14" fill="none" stroke="var(--text-faint)" stroke-width="1.5" stroke-dasharray="6 5"/>
+        <text x="140" y="34" class="t-mono">영상 처리 엔진 (SoC)</text>
+        <!-- top row -->
+        <rect x="146" y="46" width="104" height="58" rx="8" class="blk"/><text x="198" y="70" text-anchor="middle" class="t">CPU 코어</text><text x="198" y="90" text-anchor="middle" class="t-dim">제어·UI·파일</text>
+        <rect x="260" y="46" width="104" height="58" rx="8" class="blk-acc2"/><text x="312" y="70" text-anchor="middle" class="t">NPU</text><text x="312" y="90" text-anchor="middle" class="t-dim">피사체 인식</text>
+        <rect x="374" y="46" width="104" height="58" rx="8" class="blk"/><text x="426" y="70" text-anchor="middle" class="t">동영상 코덱</text><text x="426" y="90" text-anchor="middle" class="t-dim">H.264/H.265</text>
+        <rect x="488" y="46" width="108" height="58" rx="8" class="blk"/><text x="542" y="70" text-anchor="middle" class="t">정지 영상 압축</text><text x="542" y="90" text-anchor="middle" class="t-dim">JPEG·HEIF·RAW</text>
+        <!-- middle row -->
+        <rect x="146" y="126" width="92" height="84" rx="8" class="blk"/><text x="192" y="160" text-anchor="middle" class="t">센서</text><text x="192" y="180" text-anchor="middle" class="t">인터페이스</text>
+        <rect x="250" y="126" width="226" height="84" rx="8" class="blk-acc"/><text x="363" y="152" text-anchor="middle" class="t-acc">ISP 파이프라인</text>
+        <text x="363" y="174" text-anchor="middle" class="t-dim">보정·디모자이크·색·노이즈·톤</text>
+        <text x="363" y="194" text-anchor="middle" class="t-mono">+ 3A 통계 추출 → 07장</text>
+        <rect x="488" y="126" width="108" height="84" rx="8" class="blk"/><text x="542" y="160" text-anchor="middle" class="t">디스플레이</text><text x="542" y="180" text-anchor="middle" class="t">출력</text>
+        <!-- bus -->
+        <line x1="150" y1="232" x2="592" y2="232" class="bus"/>
+        <text x="371" y="252" text-anchor="middle" class="t-mono">내부 버스(인터커넥트)</text>
+        <g stroke="var(--accent-2)" stroke-width="2">
+          <line x1="198" y1="104" x2="198" y2="118"/><line x1="312" y1="104" x2="312" y2="118"/><line x1="426" y1="104" x2="426" y2="118"/><line x1="542" y1="104" x2="542" y2="118"/>
+          <line x1="192" y1="210" x2="192" y2="232"/><line x1="363" y1="210" x2="363" y2="232"/><line x1="542" y1="210" x2="542" y2="232"/>
+          <line x1="232" y1="232" x2="232" y2="262"/><line x1="470" y1="232" x2="470" y2="262"/>
+        </g>
+        <path d="M150 118 H592" stroke="var(--accent-2)" stroke-width="2" opacity=".6"/>
+        <path d="M150 118 V232 M592 118 V232" stroke="var(--accent-2)" stroke-width="2" opacity=".6"/>
+        <!-- bottom row -->
+        <rect x="146" y="262" width="176" height="52" rx="8" class="blk"/><text x="234" y="293" text-anchor="middle" class="t">메모리 컨트롤러</text>
+        <rect x="334" y="262" width="262" height="52" rx="8" class="blk"/><text x="465" y="293" text-anchor="middle" class="t">카드 · USB · HDMI · 무선</text>
+        <!-- outside -->
+        <rect x="10" y="132" width="96" height="72" rx="8" class="f-surface"/><text x="58" y="164" text-anchor="middle" class="t">이미지</text><text x="58" y="184" text-anchor="middle" class="t">센서</text>
+        <path d="M106 168 H140" class="arr-acc"/>
+        <text x="58" y="226" text-anchor="middle" class="t-mono">고속 직렬</text><text x="58" y="242" text-anchor="middle" class="t-mono">레인 ×N</text>
+        <rect x="636" y="132" width="114" height="72" rx="8" class="f-surface"/><text x="693" y="164" text-anchor="middle" class="t">EVF · LCD</text><text x="693" y="184" text-anchor="middle" class="t-dim">60~120 fps</text>
+        <path d="M596 168 H630" class="arr"/>
+        <rect x="146" y="346" width="176" height="54" rx="8" class="f-surface"/><text x="234" y="370" text-anchor="middle" class="t">DRAM (LPDDR)</text><text x="234" y="390" text-anchor="middle" class="t-dim">작업 메모리·버퍼 수 GB</text>
+        <path d="M234 314 V340" class="arr" marker-start="url(#eng-arrow)"/>
+        <rect x="334" y="346" width="262" height="54" rx="8" class="f-surface"/><text x="465" y="370" text-anchor="middle" class="t">메모리 카드 · PC · 모니터</text><text x="465" y="390" text-anchor="middle" class="t-dim">SD · CFexpress</text>
+        <path d="M465 314 V340" class="arr"/>
+        <rect x="636" y="46" width="114" height="58" rx="8" class="f-surface"/><text x="693" y="70" text-anchor="middle" class="t">렌즈·셔터</text><text x="693" y="90" text-anchor="middle" class="t-dim">AF·IBIS 구동</text>
+        <path d="M596 75 H630" class="arr" marker-start="url(#eng-arrow)"/>
+      </svg>
+      <figcaption><b>그림 6-1.</b> 영상 처리 엔진의 블록 구성. 센서 데이터는 전용 인터페이스로 들어와 ISP를 거치고, 대부분의 중간 결과는 바깥의 DRAM을 오가며 처리됩니다. 모든 블록이 같은 메모리를 나눠 쓰므로 <b>메모리 대역폭</b>이 숨은 병목이 됩니다.</figcaption>
+    </figure>
+    <div class="cards">
+      <div><b>센서 인터페이스</b>센서와 칩을 잇는 여러 가닥의 고속 직렬 레인<span class="en">(MIPI CSI-2 같은 표준이나 전용 규격)</span>. 레인 하나가 초당 수 Gbit를 실어 나르고, 고속 센서는 레인을 여러 개 묶습니다.</div>
+      <div><b>ISP</b><span class="term">ISP</span><span class="en">(Image Signal Processor)</span>는 픽셀 처리 전용 하드웨어 파이프라인입니다. 계산 순서가 고정된 대신 같은 일을 범용 CPU보다 흔히 수십 배 적은 에너지로 해냅니다.</div>
+      <div><b>CPU 코어</b>메뉴·버튼·파일 시스템, 렌즈 통신, 각 블록의 일정 관리. 픽셀을 직접 만지기보다 '지휘'를 맡습니다.</div>
+      <div><b>NPU</b><span class="term">NPU</span><span class="en">(Neural Processing Unit)</span>는 신경망 추론 전용 블록. 눈·사람·동물·탈것을 실시간으로 찾아 AF에 넘깁니다(<a href="control.html">07장</a>).</div>
+      <div><b>코덱</b>동영상을 H.264/H.265로, 사진을 JPEG·HEIF로 압축하는 전용 회로. 초당 수억 화소를 실시간으로 압축해야 하므로 소프트웨어로는 불가능합니다.</div>
+      <div><b>메모리 컨트롤러</b>바깥 DRAM과의 통로. ISP의 여러 단계, 코덱, 화면 출력, 버퍼가 모두 이 길을 나눠 씁니다.</div>
+    </div>
+    <p>이 구조는 스마트폰 SoC와 거의 같습니다. 차이는 규모입니다. 풀프레임 센서는 스마트폰 센서보다 픽셀 수가 비슷하거나 많고 비트 심도가 높으며, 무엇보다 연사·동영상에서 <b>쉬지 않고</b> 데이터를 쏟아냅니다. 스마트폰 쪽 구조는 <a href="../../phone/chapters/soc.html">PhoneBook의 SoC 장</a>과 <a href="../../phone/chapters/camera.html">카메라 모듈 장</a>에서 다룹니다. 센서가 숫자를 만드는 과정은 <a href="sensor.html">05장</a>, 전체 시스템 지도는 <a href="overview.html">01장</a>을 보세요.</p>
+  </section>
+
+  <!-- =============================================================== 2 -->
+  <section id="pipeline">
+    <h2>ISP 파이프라인 한 단계씩</h2>
+    <p>센서가 내보내는 <span class="term">RAW</span> 데이터는 한 픽셀에 숫자 하나뿐인 흑백 모자이크입니다. 각 픽셀 위에 빨강·초록·파랑 중 한 색 필터만 얹혀 있기 때문입니다(<span class="term">베이어 패턴</span>). 여기에는 센서의 바닥값, 고장 난 픽셀, 렌즈 가장자리의 어두움, 조명의 색이 그대로 섞여 있습니다. ISP는 이것을 정해진 순서로 하나씩 걷어 내고, 마지막에 사람 눈과 모니터에 맞게 다듬습니다.</p>
+    <figure class="diagram fig-lg">
+      <svg viewBox="0 0 760 270" role="img" aria-label="ISP 파이프라인 단계와 데이터 영역">
+        <rect x="6" y="10" width="748" height="110" rx="12" class="band"/>
+        <text x="20" y="32" class="t-mono">① Bayer 영역 · 1채널 · 선형</text>
+        <g>
+          <rect x="20" y="44" width="128" height="58" rx="8" class="f-surface"/><text x="84" y="70" text-anchor="middle" class="t">센서 RAW</text><text x="84" y="90" text-anchor="middle" class="t-mono">12~14 bit</text>
+          <rect x="168" y="44" width="128" height="58" rx="8" class="blk-acc"/><text x="232" y="70" text-anchor="middle" class="t">블랙 레벨</text><text x="232" y="90" text-anchor="middle" class="t-mono">BLC</text>
+          <rect x="316" y="44" width="128" height="58" rx="8" class="blk-acc"/><text x="380" y="70" text-anchor="middle" class="t">결함 화소</text><text x="380" y="90" text-anchor="middle" class="t-mono">DPC</text>
+          <rect x="464" y="44" width="128" height="58" rx="8" class="blk-acc"/><text x="528" y="70" text-anchor="middle" class="t">렌즈 셰이딩</text><text x="528" y="90" text-anchor="middle" class="t-mono">LSC</text>
+          <rect x="612" y="44" width="128" height="58" rx="8" class="blk-acc"/><text x="676" y="70" text-anchor="middle" class="t">화이트 밸런스</text><text x="676" y="90" text-anchor="middle" class="t-mono">WB 게인</text>
+          <path d="M148 73 H162" class="arr"/><path d="M296 73 H310" class="arr"/><path d="M444 73 H458" class="arr"/><path d="M592 73 H606" class="arr"/>
+        </g>
+        <path d="M676 102 V128 H84 V150" class="arr"/>
+        <rect x="6" y="140" width="400" height="122" rx="12" class="band"/>
+        <text x="20" y="160" class="t-mono">② RGB 영역 · 3채널 · 선형</text>
+        <rect x="414" y="140" width="340" height="122" rx="12" class="band" opacity=".55"/>
+        <text x="428" y="160" class="t-mono">③ 출력 영역 · 감마 부호화</text>
+        <rect x="20" y="172" width="118" height="58" rx="8" class="blk-acc2"/><text x="79" y="198" text-anchor="middle" class="t">디모자이크</text><text x="79" y="218" text-anchor="middle" class="t-mono">1 → 3채널</text>
+        <rect x="152" y="172" width="118" height="58" rx="8" class="blk-acc2"/><text x="211" y="198" text-anchor="middle" class="t">색 보정 행렬</text><text x="211" y="218" text-anchor="middle" class="t-mono">CCM 3×3</text>
+        <rect x="284" y="172" width="112" height="58" rx="8" class="blk-acc2"/><text x="340" y="198" text-anchor="middle" class="t">노이즈 감소</text><text x="340" y="218" text-anchor="middle" class="t-mono">NR</text>
+        <rect x="428" y="172" width="98" height="58" rx="8" class="blk"/><text x="477" y="198" text-anchor="middle" class="t">톤·감마</text><text x="477" y="218" text-anchor="middle" class="t-mono">곡선</text>
+        <rect x="538" y="172" width="90" height="58" rx="8" class="blk"/><text x="583" y="198" text-anchor="middle" class="t">샤프닝</text><text x="583" y="218" text-anchor="middle" class="t-mono">USM</text>
+        <rect x="640" y="172" width="104" height="58" rx="8" class="blk"/><text x="692" y="198" text-anchor="middle" class="t">YCbCr·압축</text><text x="692" y="218" text-anchor="middle" class="t-mono">JPEG/HEIF</text>
+        <path d="M138 201 H146" class="arr"/><path d="M270 201 H278" class="arr"/><path d="M396 201 H422" class="arr"/><path d="M526 201 H532" class="arr"/><path d="M628 201 H634" class="arr"/>
+        <text x="380" y="252" text-anchor="middle" class="t-dim">빛의 양에 비례하는 동안(선형)에 물리 보정을 끝내고, 마지막에 '보기 좋게' 바꾼다</text>
+      </svg>
+      <figcaption><b>그림 6-2.</b> 대표적인 ISP 파이프라인. 실제 칩은 단계가 더 많고(왜곡·색수차 보정, 다중 프레임 합성, 로컬 톤 매핑 등), 일부 순서는 제조사마다 다릅니다. 그러나 '선형 영역에서 물리 보정 → 비선형 영역에서 보기 좋게'라는 큰 흐름은 같습니다.</figcaption>
+    </figure>
+    <div class="table-wrap"><table>
+      <tr><th>단계</th><th>무엇을 하나</th><th>왜 이 자리에 있나</th></tr>
+      <tr><td><b>블랙 레벨 보정</b></td><td>빛이 0이어도 센서가 내놓는 바닥값(예: 14비트에서 수백~1,000 DN 안팎)을 뺀다</td><td>모든 곱셈(게인·행렬)은 '빛 0 = 값 0'이어야 맞다. 빼지 않으면 그림자가 뿌옇게 뜨고 색이 틀어진다</td></tr>
+      <tr><td><b>결함 화소 보정</b></td><td>항상 밝거나(핫) 어두운(데드) 픽셀을 같은 색 이웃 값으로 메운다</td><td>디모자이크 전에 고쳐야 한다. 뒤로 가면 한 점이 주변 색까지 번진다</td></tr>
+      <tr><td><b>렌즈 셰이딩 보정</b></td><td>렌즈 주변부 광량 저하(비네팅)를 위치별 게인으로 되돌린다</td><td>렌즈 프로필(<a href="optics.html">03장</a>)에서 온 보정 지도. 가장자리 노이즈도 함께 커진다</td></tr>
+      <tr><td><b>화이트 밸런스</b></td><td>R·B 채널에 게인을 곱해 흰 물체가 R=G=B가 되게 한다</td><td>조명의 색은 채널별 곱셈이므로 선형일 때 정확히 되돌릴 수 있다. 게인 값은 AWB가 추정(<a href="control.html">07장</a>)</td></tr>
+      <tr><td><b>디모자이크</b></td><td>각 픽셀의 빠진 두 색을 이웃에서 보간해 RGB 3채널을 만든다</td><td>데이터가 세 배로 불어나는 지점. 고운 무늬에서 거짓 색·지퍼 무늬가 생긴다</td></tr>
+      <tr><td><b>색 보정 행렬</b></td><td>3×3 행렬로 센서 고유의 색 응답을 표준 색 공간으로 옮긴다</td><td>센서 필터는 서로 겹치는 스펙트럼을 가져 색이 탁하다. 행렬이 이를 풀어 주지만 노이즈도 키운다</td></tr>
+      <tr><td><b>노이즈 감소</b></td><td>가장자리는 지키며 평탄한 곳의 얼룩을 줄인다. 색 노이즈는 더 강하게</td><td>CCM이 키운 노이즈까지 함께 처리. 너무 세면 피부·잎이 뭉개진다(<a href="iso.html">13장</a>)</td></tr>
+      <tr><td><b>톤 커브·감마</b></td><td>선형 값을 사람 눈과 모니터에 맞는 밝기 곡선으로 바꾼다</td><td>여기서부터 값은 빛에 비례하지 않는다. 그래서 물리 보정은 모두 앞에서 끝낸다</td></tr>
+      <tr><td><b>샤프닝</b></td><td>밝기의 가장자리 대비를 키운다(언샤프 마스크)</td><td>노이즈 감소 뒤에 해야 노이즈를 키우지 않는다</td></tr>
+      <tr><td><b>색 공간 변환·압축</b></td><td>RGB → YCbCr, 색 정보 절반·4분의 1로 줄이고 JPEG/HEIF로 압축</td><td>파일 크기를 줄이는 마지막 단계(<a href="raw.html">19장</a>)</td></tr>
+    </table></div>
+
+    <div class="sim" id="sim-isp">
+      <div class="sim-head"><span class="sim-tag">SIMULATOR</span><h3>ISP 파이프라인 실험실: 단계를 끄고 켜 보기</h3></div>
+      <div class="sim-body side">
+        <div class="sim-view photo"><canvas id="cv-isp" aria-label="ISP 처리 결과"></canvas><span class="hint" id="isp-hint">클릭: 그 자리 ×4 확대</span></div>
+        <div class="sim-controls">
+          <div class="stage-list" id="isp-stages"></div>
+          <div class="stage-tools"><button class="btn" id="isp-all">모두 켜기</button><button class="btn" id="isp-none">모두 끄기</button></div>
+          <div class="ctrl"><span>조명</span><div class="seg" id="isp-light"><button data-value="day" class="on">주광 5500K</button><button data-value="tung">전구 3000K</button></div></div>
+          <div class="ctrl"><span>감도(노이즈)</span><div class="seg" id="isp-iso"><button data-value="100">ISO 100</button><button data-value="1600" class="on">ISO 1600</button><button data-value="6400">ISO 6400</button></div></div>
+        </div>
+      </div>
+      <div class="isp-strip" id="isp-strip" aria-label="단계별 중간 결과"></div>
+      <div class="sim-readout">
+        <div class="stat"><span class="k">보고 있는 단계</span><span class="v" id="o-isp-stage">—</span></div>
+        <div class="stat"><span class="k">데이터 형태</span><span class="v" id="o-isp-fmt" style="font-size:14px">—</span></div>
+        <div class="stat"><span class="k">이 브라우저 처리 시간</span><span class="v" id="o-isp-ms">—</span></div>
+        <div class="stat"><span class="k">45 MP·20 fps라면</span><span class="v" id="o-isp-rt">—</span></div>
+      </div>
+      <div class="sim-note"><b>모델:</b> 320×200 장면(풍경·색 차트·방사형 해상도 차트)을 선형광으로 바꾼 뒤, 센서 색 응답(서로 겹치는 3×3 혼합 행렬)·조명 색·렌즈 비네팅(모서리 약 −1.4스톱)·RGGB 베이어 샘플링·광자 샷 노이즈(√전자 수)와 읽기 노이즈·블랙 레벨 1024 DN(14비트)·결함 화소(실제보다 과장해 약 0.2%)를 더해 가짜 RAW를 만듭니다. 각 단계는 이 데이터에 실제로 계산됩니다: BLC는 (DN−1024)/(16383−1024), DPC는 같은 색 이웃 8개 범위를 크게 벗어난 값 교체, LSC는 비네팅 지도의 역수 곱, WB는 흰색 기준 채널 게인, 디모자이크는 쌍선형 보간, CCM은 센서 혼합 행렬의 역행렬, NR은 밝기 5×5 양방향(bilateral) 필터 + 색차 블러, 톤은 sRGB 감마 + 약한 S 곡선, 샤프닝은 밝기 언샤프 마스크, 마지막은 YCbCr 8비트 양자화 + 4:2:0 색 다운샘플링입니다. 화이트 밸런스 게인은 조명을 '알고' 있다고 가정했습니다. 썸네일 중 톤 단계 이전 것은 선형 데이터라 표시용 감마만 씌워 보여 줍니다(큰 화면의 최종 결과는 그대로). <b>해볼 것:</b> ① 블랙 레벨만 끄기 → 안개 낀 듯 뜨고 색이 바랩니다. ② 디모자이크를 끄면 RAW의 정체인 흑백 체크무늬가 드러납니다. 방사형 차트를 확대해 디모자이크의 거짓 색을 보세요. ③ CCM을 끄면 색이 탁해지고, 켜면 선명해지지만 ISO 6400에서 색 얼룩이 늘어납니다. ④ 톤을 끄면 선형 데이터가 얼마나 어둡게 보이는지. ⑤ NR을 끄고 샤프닝만 켜면 노이즈가 날카로워집니다.</div>
+    </div>
+    <div class="callout"><strong>사용자 쪽에서 보면</strong>이 파이프라인의 대부분은 메뉴의 한 줄로 드러납니다. 화이트 밸런스와 픽처 스타일은 <a href="color.html">18장</a>, 노이즈 감소 강도는 <a href="iso.html">13장</a>, 그리고 이 처리를 카메라가 하지 않고 PC로 미루는 선택이 <a href="raw.html">19장</a>의 RAW 촬영입니다. RAW 파일은 대략 이 그림의 '센서 RAW' 칸에 블랙 레벨·WB 게인·색 행렬 같은 메타데이터를 붙여 저장한 것입니다.</div>
+    <div class="callout deep"><strong>ISP를 더 깊이</strong>실제 ISP는 이보다 훨씬 정교합니다. 방향을 보는 디모자이크, 여러 프레임을 겹치는 시간 축 노이즈 감소, 영역마다 다른 로컬 톤 매핑, 렌즈 왜곡·색수차 보정, 그리고 AE·AF·AWB에 쓰일 히스토그램과 초점 값 같은 <span class="term">3A 통계</span>를 처리 도중에 뽑아냅니다. 각 알고리즘의 원리는 SensorBook의 <a href="https://semi.euiyun.com/sensor/chapters/isp.html">ISP 장</a>과 <a href="https://semi.euiyun.com/sensor/chapters/color.html">컬러 장</a>에서 자세히 다룹니다.</div>
+  </section>
+
+  <!-- =============================================================== 3 -->
+  <section id="datarate">
+    <h2>초당 기가바이트</h2>
+    <p>센서에서 나오는 데이터의 양은 곱셈 하나로 계산됩니다.</p>
+    <div class="formula">$$R_{\text{data}} = N_{\text{px}} \times b \times f$$<div class="where">\(N_{\text{px}}\): 판독하는 화소 수, \(b\): 화소당 비트 수(ADC 비트 심도), \(f\): 초당 판독 횟수</div></div>
+    <p>4,500만 화소(45 MP)를 14비트로 초당 20장 읽으면 45×10⁶ × 14 × 20 = 126억 bit/s, 바이트로 약 <b>1.6 GB/s</b>입니다. 영화 한 편 분량의 데이터가 몇 초마다 쏟아지는 셈입니다. 그리고 이것은 입구일 뿐입니다. ISP 안에서 디모자이크 뒤의 RGB 데이터는 화소당 값이 세 개로 늘고, 중간 결과는 대개 16비트로 다뤄지므로 같은 사진이 처리 도중에는 몇 배로 부풀었다가 압축 단계에서야 줄어듭니다.</p>
+    <div class="table-wrap"><table>
+      <tr><th>지점 (45 MP, 20 fps 연사 예)</th><th class="num">화소당</th><th class="num">데이터율</th><th>비고</th></tr>
+      <tr><td>센서 → 센서 인터페이스</td><td class="num">14 bit</td><td class="num">≈ 1.6 GB/s</td><td>고속 직렬 레인 여러 개 필요</td></tr>
+      <tr><td>디모자이크 뒤 RGB(16비트 × 3)</td><td class="num">48 bit</td><td class="num">≈ 5.4 GB/s</td><td>단계마다 DRAM을 읽고 쓰면 그 배수</td></tr>
+      <tr><td>무손실 압축 RAW 기록</td><td class="num">≈ 8~10 bit</td><td class="num">≈ 0.9~1.1 GB/s</td><td>장면에 따라 다름</td></tr>
+      <tr><td>JPEG(고화질) 기록</td><td class="num">≈ 2~4 bit</td><td class="num">≈ 0.2~0.45 GB/s</td><td>장당 십수~20여 MB</td></tr>
+      <tr><td>4K 30p 동영상(H.265, 150 Mbps)</td><td class="num">≈ 0.6 bit</td><td class="num">≈ 0.02 GB/s</td><td>판독은 수백 MB/s 이상</td></tr>
+    </table></div>
+    <p>그래서 영상 처리 엔진 설계의 핵심 숫자 중 하나는 <b>DRAM 대역폭</b>입니다. 카메라용 SoC는 대개 저전력 DRAM<span class="en">(LPDDR)</span>을 넓은 버스로 붙여 초당 수십 GB를 오가게 하는데, 이 대역폭을 ISP·코덱·화면 출력·버퍼가 나눠 씁니다. 처리 단계를 칩 안의 작은 SRAM에서 줄 단위로 흘려보내 DRAM 왕복을 줄이는 설계(라인 버퍼 방식)가 중요한 이유입니다. 센서 쪽 판독 속도와 적층형 센서의 내부 메모리는 <a href="sensor.html">05장</a>과 SensorBook의 <a href="https://semi.euiyun.com/sensor/chapters/readout.html">판독 회로</a>, <a href="https://semi.euiyun.com/sensor/chapters/interface.html">인터페이스</a> 장에서 다룹니다.</p>
+    <div class="callout tip"><strong>판독은 '찍을 때'만 일어나지 않는다</strong>미러리스는 전원이 켜져 있는 동안 EVF를 위해 센서를 초당 60~120번 읽습니다. 보통은 화소를 묶거나 건너뛰어 수백만 화소만 읽지만, 그래도 이 '보고 있기만 하는' 데이터 흐름이 배터리를 꾸준히 씁니다. 마지막 절의 시뮬레이터에서 '라이브 뷰 대기'를 확인해 보세요.</div>
+  </section>
+
+  <!-- =============================================================== 4 -->
+  <section id="buffer">
+    <h2>버퍼와 메모리 카드</h2>
+    <p>연사 중에는 1.6 GB/s가 들어오는데 메모리 카드는 그만큼 빨리 받아 주지 못합니다. 그 차이를 메워 주는 것이 DRAM의 일부를 떼어 쓰는 <span class="term">버퍼</span>입니다. 물탱크로 생각하면 쉽습니다. 위에서 들어오는 물(촬영)이 아래로 빠지는 물(카드 쓰기)보다 많으면 수위가 오르고, 가득 차면 들어오는 양을 빠지는 양에 맞출 수밖에 없습니다. 그 순간 연사가 '툭' 느려집니다.</p>
+    <figure class="diagram fig-lg">
+      <svg viewBox="0 0 720 230" role="img" aria-label="버퍼를 물탱크에 비유한 그림">
+        <rect x="40" y="30" width="150" height="60" rx="8" class="blk-acc"/><text x="115" y="56" text-anchor="middle" class="t">촬영 (입력)</text><text x="115" y="76" text-anchor="middle" class="t-mono">f × s  MB/s</text>
+        <path d="M190 60 H290 V92" stroke="var(--accent)" stroke-width="10" fill="none" stroke-linejoin="round" opacity=".55"/>
+        <rect x="250" y="96" width="200" height="110" rx="6" class="f-elev"/>
+        <rect x="252" y="138" width="196" height="66" fill="var(--accent-2-soft)"/>
+        <line x1="252" y1="138" x2="448" y2="138" stroke="var(--accent-2)" stroke-width="2"/>
+        <text x="350" y="124" text-anchor="middle" class="t">버퍼 (DRAM)  B</text>
+        <text x="350" y="178" text-anchor="middle" class="t-mono">수위 = 아직 못 쓴 사진</text>
+        <path d="M450 190 H540 V140 H560" stroke="var(--accent-2)" stroke-width="10" fill="none" stroke-linejoin="round" opacity=".55"/>
+        <rect x="560" y="110" width="140" height="60" rx="8" class="blk-acc2"/><text x="630" y="136" text-anchor="middle" class="t">카드 (출력)</text><text x="630" y="156" text-anchor="middle" class="t-mono">c  MB/s</text>
+        <text x="350" y="222" text-anchor="middle" class="t-dim">수위가 오르는 속도 = 입력 − 출력</text>
+      </svg>
+      <figcaption><b>그림 6-3.</b> 버퍼의 물탱크 모델. 초당 장수 \(f\), 장당 파일 크기 \(s\), 카드 연속 쓰기 속도 \(c\), 버퍼 용량 \(B\). 입력이 출력보다 작으면 탱크는 차지 않고 연사는 끝없이 이어집니다.</figcaption>
+    </figure>
+    <div class="formula">$$N_{\text{burst}} \approx \frac{B}{\,s - c/f\,}, \qquad t_{\text{full}} = \frac{B}{f s - c}, \qquad t_{\text{clear}} = \frac{B}{c}$$<div class="where">한 장 찍을 때마다 \(s\)만큼 들어오고, 그 사이(\(1/f\)초) 카드가 \(c/f\)만큼 빼 간다. 가득 찬 뒤의 연사 속도는 \(c/s\) 장/초.</div></div>
+    <div class="table-wrap"><table>
+      <tr><th>카드 규격</th><th class="num">인터페이스 최대</th><th class="num">실사용 연속 쓰기(대략)</th><th>동영상 등급 예</th></tr>
+      <tr><td>SD UHS-I</td><td class="num">104 MB/s</td><td class="num">30 ~ 90 MB/s</td><td>V30 (최소 30 MB/s 보장)</td></tr>
+      <tr><td>SD UHS-II</td><td class="num">312 MB/s</td><td class="num">90 ~ 300 MB/s</td><td>V60 · V90</td></tr>
+      <tr><td>CFexpress Type A</td><td class="num">≈ 1 GB/s</td><td class="num">400 ~ 800 MB/s</td><td>VPG200 · VPG400</td></tr>
+      <tr><td>CFexpress Type B</td><td class="num">≈ 2 GB/s</td><td class="num">1,000 ~ 1,700 MB/s</td><td>VPG400</td></tr>
+    </table></div>
+    <p>표의 '실사용' 값은 카드 제품과 카메라의 카드 슬롯 구현에 따라 크게 달라지는 대략적인 범위입니다. 포장에 큰 글씨로 적힌 숫자는 대개 <b>읽기</b> 최대 속도이고, 연사·동영상에 중요한 것은 <b>지속 쓰기</b> 속도입니다. 동영상 등급(V30·V60·V90, VPG)은 '최소 이만큼은 꾸준히 쓴다'는 보장값이라 동영상 비트레이트와 바로 비교할 수 있습니다. 최신 CFexpress 4.0 세대는 인터페이스 속도가 한 단계 더 올라갔습니다.</p>
+
+    <div class="sim" id="sim-buffer">
+      <div class="sim-head"><span class="sim-tag">SIMULATOR</span><h3>연사와 버퍼: 언제 느려지고, 언제 다 비워지나</h3></div>
+      <div class="sim-body side">
+        <div class="sim-view"><canvas id="cv-buffer" aria-label="버퍼 사용량과 누적 장수 그래프"></canvas></div>
+        <div class="sim-controls">
+          <label class="ctrl"><span>화소 수 <output id="bf-mp-out"></output></span><input type="range" id="bf-mp" min="12" max="100" value="45" step="1"></label>
+          <div class="ctrl"><span>RAW 비트 심도</span><div class="seg" id="bf-bit"><button data-value="12">12 bit</button><button data-value="14" class="on">14 bit</button></div></div>
+          <div class="ctrl"><span>파일 형식</span><div class="seg" id="bf-fmt"><button data-value="raw" class="on">비압축 RAW</button><button data-value="lossless">무손실 압축 RAW</button><button data-value="jpeg">JPEG</button></div></div>
+          <label class="ctrl"><span>연사 속도 <output id="bf-fps-out"></output></span><input type="range" id="bf-fps" min="3" max="60" value="20" step="1"></label>
+          <label class="ctrl"><span>버퍼 용량 <output id="bf-gb-out"></output></span><input type="range" id="bf-gb" min="0.5" max="12" value="4" step="0.5"></label>
+          <div class="ctrl"><span>메모리 카드</span><div class="seg" id="bf-card"><button data-value="80">SD UHS-I</button><button data-value="250" class="on">SD UHS-II</button><button data-value="700">CFe A</button><button data-value="1500">CFe B</button></div></div>
+          <label class="ctrl"><span>셔터를 누르고 있는 시간 <output id="bf-hold-out"></output></span><input type="range" id="bf-hold" min="1" max="30" value="8" step="1"></label>
+        </div>
+      </div>
+      <div class="sim-readout">
+        <div class="stat"><span class="k">장당 파일 크기</span><span class="v" id="o-bf-size">—</span></div>
+        <div class="stat"><span class="k">입력 / 카드 속도</span><span class="v" id="o-bf-rate">—</span></div>
+        <div class="stat"><span class="k">느려지기 전까지</span><span class="v" id="o-bf-depth">—</span></div>
+        <div class="stat"><span class="k">그 뒤 연사 속도</span><span class="v" id="o-bf-slow">—</span></div>
+        <div class="stat"><span class="k">손 뗀 뒤 비우는 시간</span><span class="v" id="o-bf-clear">—</span></div>
+      </div>
+      <div class="sim-note"><b>모델:</b> 장당 크기 = 비압축 RAW는 화소 수 × 비트 심도 ÷ 8 + 메타데이터·미리보기 2 MB, 무손실 압축 RAW는 그 데이터의 60%(실제로는 장면에 따라 대략 50~70%), JPEG는 화소당 약 3 bit(고화질 기준 예시값). 버퍼에는 '기록될 파일 크기'만큼 쌓인다고 단순화했고(실제 기종은 처리 전 데이터를 담기도 함), 카드는 표시한 연속 쓰기 속도(UHS-I 80, UHS-II 250, CFexpress A 700, B 1500 MB/s)로 쉬지 않고 쓴다고 봅니다. 위 그래프는 버퍼 사용률, 아래는 누적 장수(점선 = 이론상 연사)입니다. <b>해볼 것:</b> ① 45 MP 비압축 RAW·20 fps에서 카드를 SD UHS-I로 바꿔 보기. 버퍼가 몇 초 만에 차고, 그 뒤엔 초당 1장 남짓으로 떨어집니다. ② 같은 조건에서 JPEG로 바꾸면 버퍼가 거의 차지 않습니다. ③ 버퍼를 두 배로 늘리면 '느려지기 전까지'는 두 배가 되지만 '비우는 시간'도 두 배가 됩니다. 연사가 중요하다면 결국 카드 속도가 답입니다. 사용 요령은 <a href="stabilization.html">20장</a>에서 다룹니다.</div>
+    </div>
+  </section>
+
+  <!-- =============================================================== 5 -->
+  <section id="codec">
+    <h2>동영상 코덱</h2>
+    <p>4K(3840×2160) 30p 영상을 10비트 4:2:2로 압축 없이 저장하면 830만 화소 × 20 bit × 30 = 약 5 Gbit/s, 128 GB 카드가 3분 반 만에 찹니다. 그래서 동영상은 거의 언제나 <span class="term">코덱</span><span class="en">(codec)</span>을 거칩니다. 코덱은 두 가지 중복을 줄입니다.</p>
+    <ul>
+      <li><b>한 장면 안의 중복</b>(공간): 하늘처럼 비슷한 이웃 화소를 블록 단위 주파수 변환과 양자화로 줄입니다. JPEG와 같은 생각입니다.</li>
+      <li><b>장면과 장면 사이의 중복</b>(시간): 1/30초 뒤의 장면은 거의 같습니다. 앞뒤 프레임에서 '무엇이 어디로 움직였는지(움직임 벡터)'와 남은 차이만 저장합니다.</li>
+    </ul>
+    <figure class="diagram fig-lg">
+      <svg viewBox="0 0 760 272" role="img" aria-label="All-Intra와 Long-GOP의 프레임별 데이터 크기 비교">
+        <text x="20" y="22" class="t-acc">All-Intra (모든 프레임이 독립)</text>
+        <g id="eng-intra"></g>
+        <text x="20" y="148" class="t-acc">Long-GOP (I · P · B 프레임)</text>
+        <g id="eng-gop"></g>
+        <text x="740" y="266" text-anchor="end" class="t-dim">막대 높이 = 프레임 하나의 데이터 크기(개념도)</text>
+      </svg>
+      <figcaption><b>그림 6-4.</b> <span class="term">All-Intra</span>는 모든 프레임을 사진처럼 따로 압축해 크지만 편집이 가볍습니다. <span class="term">Long-GOP</span>는 몇십 프레임마다 한 번 완전한 I 프레임을 두고, 사이에는 앞을 참조하는 P, 앞뒤를 참조하는 B 프레임으로 차이만 저장해 같은 화질에서 데이터가 몇 분의 일로 줄어듭니다. 대신 한 프레임을 보려면 다른 프레임들까지 풀어야 해 편집 컴퓨터가 힘들어합니다.</figcaption>
+    </figure>
+    <div class="cards">
+      <div><b>H.264 · H.265</b>가장 흔한 압축 규격. <span class="term">H.265</span><span class="en">(HEVC)</span>는 더 크고 유연한 블록과 더 많은 예측 방식을 써서 같은 화질을 대략 절반의 비트레이트로 담지만, 압축·재생 계산이 더 무겁습니다.</div>
+      <div><b>10비트와 4:2:2</b>밝기 단계를 256 → 1,024로 늘리면 Log 영상과 하늘의 계조가 버팁니다. 4:2:2는 색 정보를 가로로만 절반, 4:2:0은 가로·세로 모두 절반으로 줄인 것입니다.</div>
+      <div><b>중간 코덱</b>ProRes·DNxHR 같은 편집용 코덱은 인트라 방식에 압축률을 낮춰 화질과 편집 속도를 택합니다. 대신 비트레이트가 수백 Mbps~수 Gbps입니다.</div>
+      <div><b>RAW 동영상</b>디모자이크 전 센서 데이터를 (가볍게 압축해) 그대로 담습니다. 화소당 값이 하나뿐이라 의외로 RGB 비압축보다 작지만, 여전히 Gbps급입니다.</div>
+    </div>
+
+    <div class="sim" id="sim-codec">
+      <div class="sim-head"><span class="sim-tag">SIMULATOR</span><h3>비트레이트와 카드 용량 계산기</h3></div>
+      <div class="sim-view"><canvas id="cv-codec" aria-label="코덱별 비트레이트 비교"></canvas></div>
+      <div class="sim-controls">
+        <div class="ctrl"><span>해상도</span><div class="seg" id="cd-res"><button data-value="fhd">FHD</button><button data-value="4k" class="on">4K UHD</button><button data-value="8k">8K</button></div></div>
+        <div class="ctrl"><span>프레임 레이트</span><div class="seg" id="cd-fps"><button data-value="24">24p</button><button data-value="30" class="on">30p</button><button data-value="60">60p</button><button data-value="120">120p</button></div></div>
+        <div class="ctrl"><span>비트 심도</span><div class="seg" id="cd-bit"><button data-value="8">8 bit</button><button data-value="10" class="on">10 bit</button><button data-value="12">12 bit</button></div></div>
+        <div class="ctrl"><span>색 샘플링</span><div class="seg" id="cd-chroma"><button data-value="1.5">4:2:0</button><button data-value="2" class="on">4:2:2</button></div></div>
+        <div class="ctrl"><span>코덱</span><div class="seg" id="cd-codec"><button data-value="h265" class="on">H.265 GOP</button><button data-value="h264">H.264 GOP</button><button data-value="alli">All-I</button><button data-value="prores">중간 코덱</button><button data-value="craw">압축 RAW</button><button data-value="raw">비압축 RAW</button></div></div>
+      </div>
+      <div class="sim-readout">
+        <div class="stat"><span class="k">비압축 데이터율</span><span class="v" id="o-cd-raw">—</span></div>
+        <div class="stat"><span class="k">비트레이트</span><span class="v" id="o-cd-br">—</span></div>
+        <div class="stat"><span class="k">128 GB 카드에</span><span class="v" id="o-cd-min">—</span></div>
+        <div class="stat"><span class="k">1시간 용량</span><span class="v" id="o-cd-hr">—</span></div>
+        <div class="stat"><span class="k">필요한 카드 등급</span><span class="v" id="o-cd-card" style="font-size:15px">—</span></div>
+      </div>
+      <div class="sim-note"><b>모델:</b> 비압축 데이터율 = 가로 × 세로 × fps × 비트 심도 × 색 샘플링 계수(4:2:0 = 1.5, 4:2:2 = 2배의 값/화소). RAW는 디모자이크 전이므로 화소당 값 1개(색 샘플링 무관, 판독 영역 = 출력 해상도로 단순화). 비트레이트 = 비압축 ÷ 압축비이며, 압축비는 화질 '고정'을 가정한 <b>예시값</b>입니다: H.265 Long-GOP 70:1, H.264 Long-GOP 35:1, H.264 All-Intra 15:1, 중간 코덱(ProRes 422 HQ급) 7:1, 압축 RAW 4:1. 실제 압축비는 장면의 움직임과 디테일, 제조사의 설정에 따라 크게 달라지고, 카메라는 대개 몇 단계의 고정 비트레이트만 제공합니다. 그래프 가로축은 로그 눈금(M = Mbps, G = Gbps)이고 점선은 카드 등급의 최소 보장 속도입니다. 카드 등급은 비트레이트를 넘는 최소 보장 속도(V30 = 240, V60 = 480, V90 = 720 Mbps, VPG200 = 1.6, VPG400 = 3.2 Gbps)로 골랐으며 실제로는 여유를 두는 것이 좋습니다. <b>해볼 것:</b> ① 4K 30p 10비트 4:2:2에서 H.265와 All-I의 비트레이트 차이. ② 같은 조건을 60p로 바꾸면 거의 정확히 두 배. ③ 8K 60p 비압축 RAW는 어떤 카드로도 힘든 이유. 촬영 쪽 선택은 <a href="video.html">22장</a>에서 다룹니다.</div>
+    </div>
+    <div class="callout warn"><strong>비트레이트는 화질의 '상한'일 뿐</strong>같은 100 Mbps라도 코덱이 다르면 화질이 다르고, 같은 코덱이라도 나뭇잎이 흔들리는 장면과 하늘만 있는 장면에 필요한 비트는 몇 배 차이가 납니다. 비트레이트가 모자라면 움직임이 많은 장면에서 먼저 블록 무늬와 뭉개짐이 나타납니다.</div>
+  </section>
+
+  <!-- =============================================================== 6 -->
+  <section id="power">
+    <h2>전력과 처리량</h2>
+    <p>디지털 회로는 숫자 하나를 옮기고 계산할 때마다 작은 에너지를 씁니다. 그래서 대략 이렇게 말할 수 있습니다. <b>전력 ≈ (화소당 에너지) × (초당 화소 수)</b>. 사진 한 장은 수천만 화소를 한 번 처리하고 끝나지만, 4K 60p 동영상은 오버샘플링을 위해 센서에서 2,000만 화소 가까이를 초당 60번, 쉬지 않고 읽어 처리하고 압축합니다. 연사 2초는 잠깐의 전력 봉우리이고, 30분 촬영은 같은 전력이 30분 내내 이어지는 것입니다.</p>
+    <p>그리고 전기 에너지는 결국 전부 열이 됩니다. 손바닥만 한, 방진·방적을 위해 틈을 막은 금속 상자 안에서 몇 와트가 끊임없이 나오면 온도가 오르고, 센서 노이즈가 늘고, 결국 보호를 위해 촬영이 멈춥니다. 그 열을 어떻게 빼내는지는 <a href="body.html">08장</a>의 주제입니다.</p>
+    <div class="sim" id="sim-power">
+      <div class="sim-head"><span class="sim-tag">SIMULATOR</span><h3>모드별 전력 예산: 처리량이 곧 열이다</h3></div>
+      <div class="sim-body side">
+        <div class="sim-view"><canvas id="cv-power" aria-label="촬영 모드별 전력 구성 막대그래프"></canvas></div>
+        <div class="sim-controls">
+          <div class="ctrl"><span>살펴볼 모드</span><div class="seg" id="pw-mode"><button data-value="0">라이브 뷰</button><button data-value="1">연사 20fps</button><button data-value="2">4K30</button><button data-value="3" class="on">4K60</button><button data-value="4">4K120</button><button data-value="5">8K30</button></div></div>
+          <label class="ctrl"><span>ISP 에너지 <output id="pw-isp-out"></output></span><input type="range" id="pw-isp" min="0.2" max="2" value="0.6" step="0.1"></label>
+          <label class="ctrl"><span>DRAM 왕복 횟수 <output id="pw-pass-out"></output></span><input type="range" id="pw-pass" min="1" max="6" value="3" step="1"></label>
+          <label class="ctrl"><span>배터리 <output id="pw-bat-out"></output></span><input type="range" id="pw-bat" min="8" max="24" value="16" step="1"></label>
+        </div>
+      </div>
+      <div class="sim-readout">
+        <div class="stat"><span class="k">판독 화소율</span><span class="v" id="o-pw-px">—</span></div>
+        <div class="stat"><span class="k">총 전력(= 열)</span><span class="v" id="o-pw-w">—</span></div>
+        <div class="stat"><span class="k">프레임당 처리 에너지</span><span class="v" id="o-pw-ef">—</span></div>
+        <div class="stat"><span class="k">배터리로 연속</span><span class="v" id="o-pw-h">—</span></div>
+      </div>
+      <div class="sim-note"><b>모델(자릿수만 맞춘 예시):</b> 전력 = 기본(CPU·AF·IBIS·전원 변환 손실 1.5 W) + 화면(EVF/LCD 1.0 W) + 센서 판독·ADC(1.0 nJ/화소) + ISP(슬라이더, 기본 0.6 nJ/화소) + DRAM(화소당 4 B × 왕복 횟수, 8 pJ/bit) + 압축(동영상 H.265 0.8 nJ/출력 화소, 사진 0.15 nJ/화소). 모드별 판독은 라이브 뷰 8 MP×60, 연사 45 MP×20, 4K30·4K60은 약 20 MP(6K) 오버샘플, 4K120은 8.3 MP 판독, 8K30은 33 MP입니다. 계수는 실측값이 아니라 결과가 실제 미러리스의 전형적 소비 전력(수 W)과 같은 자릿수가 되도록 고른 값이며, 공정 세대와 설계에 따라 몇 배씩 다를 수 있습니다. 모든 전력은 결국 열이 됩니다. <b>해볼 것:</b> ① 라이브 뷰만 켜 놓아도 몇 W를 쓴다는 점. ② 4K30 → 4K60에서 처리 부분만 두 배가 되는 것. ③ DRAM 왕복을 줄이는(라인 버퍼) 설계가 얼마나 아끼는지. ④ 연사의 '프레임당 에너지'는 크지만 지속 시간이 짧다는 점.</div>
+    </div>
+    <div class="callout"><strong>설계자의 선택지</strong>같은 4K라도 센서 전체를 읽어 줄이는 <b>오버샘플링</b>은 화질이 좋지만 판독·처리 화소가 두세 배라 뜨겁고, 줄을 건너뛰는 <b>라인 스킵</b>은 시원하지만 계단 현상과 모아레가 늘어납니다. 고프레임 모드가 화면을 잘라 내는(크롭) 경우가 많은 것도 같은 예산 문제입니다. 미세 공정의 새 칩이 나오면 같은 일을 더 적은 에너지로 하게 되어, 같은 바디 크기에서 더 높은 해상도·프레임 레이트가 가능해집니다.</div>
+  </section>
+
+  <section class="keypoints" id="summary">
+    <h2>핵심 정리</h2>
+    <ol>
+      <li>영상 처리 엔진은 센서 인터페이스·ISP·CPU·NPU·코덱·메모리 컨트롤러·입출력을 한 칩에 모은 SoC이며, 모든 블록이 DRAM 대역폭을 나눠 쓴다.</li>
+      <li>ISP는 선형 영역에서 물리 보정(블랙 레벨 → 결함 화소 → 셰이딩 → WB)을 끝내고, 디모자이크·색 행렬·노이즈 감소를 거쳐, 마지막에 톤·샤프닝·압축으로 '보기 좋게' 만든다. 순서가 바뀌면 결과가 틀어진다.</li>
+      <li>센서 데이터율 = 화소 수 × 비트 심도 × 초당 장수. 45 MP·14 bit·20 fps는 약 1.6 GB/s이고, 처리 도중에는 몇 배로 부푼다.</li>
+      <li>연사 지속 장수 ≈ 버퍼 ÷ (장당 크기 − 카드 속도/fps). 버퍼가 차면 연사 속도는 카드 속도 ÷ 장당 크기로 떨어진다.</li>
+      <li>동영상 코덱은 공간·시간 중복을 줄인다. Long-GOP는 작고 All-Intra·중간 코덱은 크지만 편집이 가볍다. 카드는 동영상 등급(V·VPG)을 비트레이트와 비교해 고른다.</li>
+      <li>전력 ≈ 화소당 에너지 × 초당 화소 수이고, 전력은 모두 열이 된다. 쉬지 않는 동영상이 발열의 주범이다.</li>
+    </ol>
+  </section>
+
+  <section class="quiz-sec" id="quiz">
+    <h2>확인 퀴즈</h2>
+    <div class="quiz">
+      <div class="quiz-q"><p>2,400만 화소(24 MP) 센서를 12비트로 초당 30번 읽으면 센서 데이터율은 대략?</p><div class="opts">
+        <button class="opt">약 108 MB/s</button>
+        <button class="opt" data-correct>약 1.1 GB/s</button>
+        <button class="opt">약 8.6 GB/s</button>
+      </div><div class="quiz-exp">24×10⁶ × 12 bit × 30 = 8.64 Gbit/s ÷ 8 ≈ 1.08 GB/s. 비트와 바이트(÷8)를 헷갈리지 않는 것이 핵심입니다.</div></div>
+      <div class="quiz-q"><p>블랙 레벨 보정을 빼먹으면 사진에 어떤 일이 생길까?</p><div class="opts">
+        <button class="opt">하이라이트가 하얗게 날아간다</button>
+        <button class="opt" data-correct>그림자가 뿌옇게 뜨고, WB·색 행렬 곱셈이 틀어져 색이 바랜다</button>
+        <button class="opt">특정 픽셀이 반짝이는 점으로 남는다</button>
+      </div><div class="quiz-exp">WB 게인과 색 행렬은 '빛 0 = 값 0'을 전제로 한 곱셈입니다. 바닥값이 남아 있으면 어두운 곳이 들뜨고 색 균형도 어긋납니다. 반짝이는 점은 결함 화소 보정의 몫입니다.</div></div>
+      <div class="quiz-q"><p>ISP에서 데이터 양이 한 화소당 값 1개에서 3개로 늘어나는 단계는?</p><div class="opts">
+        <button class="opt">화이트 밸런스</button>
+        <button class="opt" data-correct>디모자이크</button>
+        <button class="opt">톤 커브</button>
+      </div><div class="quiz-exp">베이어 모자이크의 각 화소에 빠진 두 색을 이웃에서 보간해 RGB 3채널을 만드는 것이 디모자이크입니다.</div></div>
+      <div class="quiz-q"><p>버퍼 4 GB, 들어오는 데이터 1,500 MB/s, 카드 연속 쓰기 250 MB/s. 버퍼가 가득 차기까지 대략 몇 초?</p><div class="opts">
+        <button class="opt">약 2.7초</button>
+        <button class="opt" data-correct>약 3.2초</button>
+        <button class="opt">약 16초</button>
+      </div><div class="quiz-exp">수위가 오르는 속도 = 1,500 − 250 = 1,250 MB/s. 4,000 MB ÷ 1,250 MB/s = 3.2초. 카드가 비우는 몫을 빼먹으면 2.7초로 잘못 계산합니다.</div></div>
+      <div class="quiz-q"><p>Long-GOP 코덱이 All-Intra보다 같은 화질에서 훨씬 작은 이유는?</p><div class="opts">
+        <button class="opt">해상도를 몰래 낮추기 때문에</button>
+        <button class="opt" data-correct>대부분의 프레임을 앞뒤 프레임과의 차이(움직임과 잔차)로만 저장하기 때문에</button>
+        <button class="opt">색 정보를 모두 버리기 때문에</button>
+      </div><div class="quiz-exp">I 프레임 사이의 P·B 프레임은 참조 프레임에서 움직임 벡터와 남은 차이만 담습니다. 그 대가로 편집 시 디코딩이 무겁습니다.</div></div>
+      <div class="quiz-q"><p>같은 카메라에서 사진 연사보다 4K 동영상 촬영이 발열 경고를 더 잘 일으키는 근본 이유는?</p><div class="opts">
+        <button class="opt">동영상은 화소당 처리 에너지가 사진의 수십 배라서</button>
+        <button class="opt" data-correct>초당 수억 화소의 판독·처리·압축이 몇십 분씩 쉬지 않고 이어져 평균 전력(=열)이 높기 때문에</button>
+        <button class="opt">동영상 촬영 중에는 팬이 꺼지기 때문에</button>
+      </div><div class="quiz-exp">전력 ≈ 화소당 에너지 × 초당 화소 수. 연사는 순간 전력이 높아도 몇 초로 끝나지만, 동영상은 같은 수준이 계속됩니다. 열 설계는 08장에서.</div></div>
+    </div>
+  </section>
+</main>
+
+<script>
+/* ---------------------------------------------------------------- 그림 6-4: GOP 막대 */
+(function () {
+  const NS = "http://www.w3.org/2000/svg";
+  function bars(gid, y0, seq) {
+    const g = document.getElementById(gid);
+    const bw = 22, gap = 6, x0 = 20, maxH = 72;
+    seq.forEach((k, i) => {
+      const h = { I: 1, P: 0.32, B: 0.14 }[k] * maxH;
+      const x = x0 + i * (bw + gap);
+      const r = document.createElementNS(NS, "rect");
+      r.setAttribute("x", x); r.setAttribute("y", y0 + maxH - h); r.setAttribute("width", bw); r.setAttribute("height", h); r.setAttribute("rx", 3);
+      r.setAttribute("class", k === "I" ? "blk-acc" : k === "P" ? "blk-acc2" : "f-surface");
+      g.appendChild(r);
+      const t = document.createElementNS(NS, "text");
+      t.setAttribute("x", x + bw / 2); t.setAttribute("y", y0 + maxH + 14); t.setAttribute("text-anchor", "middle"); t.setAttribute("class", "t-mono");
+      t.textContent = k; g.appendChild(t);
+    });
+  }
+  bars("eng-intra", 32, Array(25).fill("I"));
+  bars("eng-gop", 158, "IBBPBBPBBPBBPBBPBBPBBPBBI".split(""));
+})();
+
+/* ---------------------------------------------------------------- 1. ISP 실험실 */
+(function () {
+  const W = 320, H = 200, N = W * H;
+  const BL = 1024, WL = 16383, S = WL - BL;
+  const STAGES = [
+    { id: "blc", name: "블랙 레벨", tag: "BLC" },
+    { id: "dpc", name: "결함 화소", tag: "DPC" },
+    { id: "lsc", name: "렌즈 셰이딩", tag: "LSC" },
+    { id: "wb", name: "화이트 밸런스", tag: "WB" },
+    { id: "dem", name: "디모자이크", tag: "DEM" },
+    { id: "ccm", name: "색 보정 행렬", tag: "CCM" },
+    { id: "nr", name: "노이즈 감소", tag: "NR" },
+    { id: "tone", name: "톤·감마", tag: "TONE" },
+    { id: "shp", name: "샤프닝", tag: "USM" },
+    { id: "csc", name: "YCbCr 4:2:0", tag: "CSC" },
+  ];
+  const TONE_SNAP = 8; // 스냅 번호(0 = RAW, 1.. = 각 단계 뒤)
+  // 센서 색 응답(행 합 1): 이웃 채널과 겹치는 필터 → 탁한 색
+  const MS = [[0.70, 0.24, 0.06], [0.10, 0.78, 0.12], [0.04, 0.26, 0.70]];
+  function inv3(m) {
+    const [a, b, c] = m[0], [d, e, f] = m[1], [g, h, i] = m[2];
+    const A = e * i - f * h, B = -(d * i - f * g), C = d * h - e * g;
+    const det = a * A + b * B + c * C;
+    return [[A / det, -(b * i - c * h) / det, (b * f - c * e) / det], [B / det, (a * i - c * g) / det, -(a * f - c * d) / det], [C / det, -(a * h - b * g) / det, (a * e - b * d) / det]];
+  }
+  const CCM = inv3(MS);
+  const cfa = (x, y) => ((y & 1) === 0 ? ((x & 1) === 0 ? 0 : 1) : ((x & 1) === 0 ? 1 : 2));
+  const vig = new Float32Array(N);
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    const dx = (x - W / 2 + 0.5) / (W / 2), dy = (y - H / 2 + 0.5) / (H / 2);
+    const r2 = (dx * dx + dy * dy) / 2; // 모서리에서 1
+    vig[y * W + x] = 1 / Math.pow(1 + 0.6 * r2, 2);
+  }
+
+  /* 장면: 풍경 + 24색 차트 + 방사형 해상도 차트 */
+  const sceneLin = (function () {
+    const LW = 200;
+    const c = CB.offscreen(W, H, (g) => {
+      const D = CB.draw;
+      g.save(); g.beginPath(); g.rect(0, 0, LW, H); g.clip();
+      D.sky(g, LW, H, "#5d8fd0", "#efdcbc", H * 0.6);
+      g.fillStyle = "rgba(255,255,255,0.85)"; g.beginPath(); g.ellipse(LW * 0.7, H * 0.16, 30, 9, 0, 0, 7); g.ellipse(LW * 0.8, H * 0.13, 20, 8, 0, 0, 7); g.fill();
+      D.mountains(g, LW, H * 0.58, H * 0.16, "#8796b5", 4);
+      g.fillStyle = "#6f9a55"; g.fillRect(0, H * 0.56, LW, H);
+      D.tree(g, LW * 0.17, H * 0.8, H * 0.6, "#3f7d3a", "#5b4033", 3);
+      D.person(g, LW * 0.6, H * 0.99, H * 0.74, { shirt: "#d9622b", longHair: true });
+      D.flower(g, LW * 0.9, H * 0.97, H * 0.22, "#e2563b", 9);
+      g.restore();
+      g.fillStyle = "#6e6e6e"; g.fillRect(LW, 0, W - LW, H);
+      const cols = ["#735244", "#c29682", "#627a9d", "#576c43", "#8580b1", "#67bdaa", "#d67e2c", "#505ba6", "#c15a63", "#5e3c6c", "#9dbc40", "#e0a32e", "#383d96", "#469449", "#af363c", "#e7c71f", "#bb5695", "#0885a1", "#f3f3f2", "#c8c8c8", "#a0a0a0", "#7a7a79", "#555555", "#343434"];
+      const ps = 17, gp = 2.4;
+      cols.forEach((col, k) => { g.fillStyle = col; g.fillRect(LW + gp + (k % 6) * (ps + gp) + 1, gp + Math.floor(k / 6) * (ps + gp) + 1, ps, ps); });
+      const cx = LW + 60, cy = 142, R = 52;
+      g.fillStyle = "#f0f0f0"; g.beginPath(); g.arc(cx, cy, R, 0, 7); g.fill();
+      g.fillStyle = "#151515";
+      const n = 36;
+      for (let k = 0; k < n; k++) { const a0 = (k / n) * Math.PI * 2, a1 = ((k + 0.5) / n) * Math.PI * 2; g.beginPath(); g.moveTo(cx, cy); g.arc(cx, cy, R, a0, a1); g.closePath(); g.fill(); }
+    });
+    const d = c.getContext("2d").getImageData(0, 0, W, H).data;
+    const lut = new Float32Array(256); for (let v = 0; v < 256; v++) lut[v] = CB.srgbToLin(v / 255);
+    const out = new Float32Array(N * 3);
+    for (let i = 0; i < N; i++) { out[i * 3] = lut[d[i * 4]]; out[i * 3 + 1] = lut[d[i * 4 + 1]]; out[i * 3 + 2] = lut[d[i * 4 + 2]]; }
+    return out;
+  })();
+
+  /* 가짜 RAW 만들기 */
+  const FW = { 100: 20000, 1600: 1250, 6400: 312 };
+  function gaussFn(seed) { const r = CB.rng(seed); return () => { let u = r(); if (u < 1e-12) u = 1e-12; return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * r()); }; }
+  let rawCache = { key: "", dn: null, wbG: null };
+  function makeRaw(light, iso) {
+    const key = light + iso;
+    if (rawCache.key === key) return rawCache;
+    const ill = light === "day" ? [1, 1, 1] : CB.kelvin(3000);
+    const wr = MS.map((row) => row[0] * ill[0] + row[1] * ill[1] + row[2] * ill[2]);
+    const mx = Math.max(wr[0], wr[1], wr[2]);
+    const illN = ill.map((v) => v / mx), wrN = wr.map((v) => v / mx);
+    const fw = FW[iso], rd = iso == 100 ? 4 : 2.2, K = 0.82;
+    const gauss = gaussFn(7);
+    const dn = new Uint16Array(N);
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+      const i = y * W + x, c = cfa(x, y), m = MS[c];
+      const e = m[0] * illN[0] * sceneLin[i * 3] + m[1] * illN[1] * sceneLin[i * 3 + 1] + m[2] * illN[2] * sceneLin[i * 3 + 2];
+      let el = K * e * vig[i] * fw;
+      el += Math.sqrt(Math.max(el, 0)) * gauss() + rd * gauss();
+      dn[i] = Math.round(CB.clamp(BL + (el / fw) * S, 0, WL));
+    }
+    const r = CB.rng(99);
+    for (let k = 0; k < N * 0.0015; k++) dn[Math.floor(r() * N)] = WL;               // 핫 픽셀
+    for (let k = 0; k < N * 0.0005; k++) dn[Math.floor(r() * N)] = BL + (S * 0.45) | 0; // 고착 픽셀
+    for (let k = 0; k < N * 0.0004; k++) dn[Math.floor(r() * N)] = BL;               // 데드 픽셀
+    rawCache = { key, dn, gains: [wrN[1] / wrN[0], 1, wrN[1] / wrN[2]], fw };
+    return rawCache;
+  }
+
+  /* 처리 블록 */
+  const mir = (v, n) => (v < 0 ? -v : v >= n ? 2 * n - 2 - v : v);
+  function dpc(p) {
+    const o = new Float32Array(p);
+    const off = [[-2, 0], [2, 0], [0, -2], [0, 2], [-2, -2], [2, -2], [-2, 2], [2, 2]];
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+      let mn = 1e9, mx = -1e9, s4 = 0;
+      for (let k = 0; k < 8; k++) { const v = p[mir(y + off[k][1], H) * W + mir(x + off[k][0], W)]; if (v < mn) mn = v; if (v > mx) mx = v; if (k < 4) s4 += v; }
+      const v = p[y * W + x], thr = 0.06 + 0.25 * (mx - mn);
+      if (v > mx + thr || v < mn - thr) o[y * W + x] = s4 / 4;
+    }
+    return o;
+  }
+  function demosaic(p) {
+    const o = new Float32Array(N * 3);
+    const P = (x, y) => p[mir(y, H) * W + mir(x, W)];
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+      const c = cfa(x, y), v = P(x, y), i = (y * W + x) * 3;
+      const orth = (P(x - 1, y) + P(x + 1, y) + P(x, y - 1) + P(x, y + 1)) / 4;
+      const diag = (P(x - 1, y - 1) + P(x + 1, y - 1) + P(x - 1, y + 1) + P(x + 1, y + 1)) / 4;
+      const hz = (P(x - 1, y) + P(x + 1, y)) / 2, vt = (P(x, y - 1) + P(x, y + 1)) / 2;
+      if (c === 0) { o[i] = v; o[i + 1] = orth; o[i + 2] = diag; }
+      else if (c === 2) { o[i] = diag; o[i + 1] = orth; o[i + 2] = v; }
+      else if ((y & 1) === 0) { o[i] = hz; o[i + 1] = v; o[i + 2] = vt; }
+      else { o[i] = vt; o[i + 1] = v; o[i + 2] = hz; }
+    }
+    return o;
+  }
+  function boxH(a, b, r) { for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) { let s = 0; for (let k = -r; k <= r; k++) s += a[y * W + mir(x + k, W)]; b[y * W + x] = s / (2 * r + 1); } }
+  function boxV(a, b, r) { for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) { let s = 0; for (let k = -r; k <= r; k++) s += a[mir(y + k, H) * W + x]; b[y * W + x] = s / (2 * r + 1); } }
+  function blur(a, r, passes) { const t = new Float32Array(N), o = new Float32Array(a); for (let k = 0; k < passes; k++) { boxH(o, t, r); boxV(t, o, r); } return o; }
+  const SW = []; for (let dy = -2; dy <= 2; dy++) for (let dx = -2; dx <= 2; dx++) SW.push([dx, dy, Math.exp(-(dx * dx + dy * dy) / (2 * 1.3 * 1.3))]);
+  function nr(rgb, fw) {
+    const Y = new Float32Array(N), Cr = new Float32Array(N), Cb = new Float32Array(N);
+    for (let i = 0; i < N; i++) { const r = rgb[i * 3], g = rgb[i * 3 + 1], b = rgb[i * 3 + 2]; const y = 0.2126 * r + 0.7152 * g + 0.0722 * b; Y[i] = y; Cr[i] = r - y; Cb[i] = b - y; }
+    const Yo = new Float32Array(N), k = 3 / fw;
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+      const i = y * W + x, y0 = Y[i];
+      const sr = 2.2 * Math.sqrt(Math.max(y0, 0) * k + 1e-6) + 0.004, inv = 1 / (2 * sr * sr);
+      let s = 0, ws = 0;
+      for (let t = 0; t < SW.length; t++) { const v = Y[mir(y + SW[t][1], H) * W + mir(x + SW[t][0], W)], d = v - y0, w = SW[t][2] * Math.exp(-d * d * inv); s += v * w; ws += w; }
+      Yo[i] = s / ws;
+    }
+    const Cr2 = blur(Cr, 2, 2), Cb2 = blur(Cb, 2, 2);
+    const o = new Float32Array(N * 3);
+    for (let i = 0; i < N; i++) { const r = Yo[i] + Cr2[i], b = Yo[i] + Cb2[i]; o[i * 3] = r; o[i * 3 + 2] = b; o[i * 3 + 1] = (Yo[i] - 0.2126 * r - 0.0722 * b) / 0.7152; }
+    return o;
+  }
+  const tone = (v) => { const y = v <= 0 ? 0 : CB.linToSrgb(Math.min(1, v)); return CB.clamp(y + 0.06 * Math.sin((y - 0.5) * Math.PI * 2) * 0.5, 0, 1); };
+  function sharpen(rgb) {
+    const Y = new Float32Array(N); for (let i = 0; i < N; i++) Y[i] = 0.299 * rgb[i * 3] + 0.587 * rgb[i * 3 + 1] + 0.114 * rgb[i * 3 + 2];
+    const o = new Float32Array(rgb);
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+      let s = 0;
+      for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) s += Y[mir(y + dy, H) * W + mir(x + dx, W)] * (dx ? 1 : 2) * (dy ? 1 : 2);
+      const d = 1.0 * (Y[y * W + x] - s / 16), i = (y * W + x) * 3;
+      o[i] += d; o[i + 1] += d; o[i + 2] += d;
+    }
+    return o;
+  }
+  function csc420(rgb) {
+    const Yq = new Float32Array(N), Cb = new Float32Array(N), Cr = new Float32Array(N);
+    const q = (v) => Math.round(CB.clamp(v, 0, 1) * 255) / 255;
+    for (let i = 0; i < N; i++) { const r = CB.clamp(rgb[i * 3], 0, 1), g = CB.clamp(rgb[i * 3 + 1], 0, 1), b = CB.clamp(rgb[i * 3 + 2], 0, 1); const y = 0.299 * r + 0.587 * g + 0.114 * b; Yq[i] = q(y); Cb[i] = q((b - y) * 0.564 + 0.5) - 0.5; Cr[i] = q((r - y) * 0.713 + 0.5) - 0.5; }
+    const o = new Float32Array(N * 3);
+    for (let y = 0; y < H; y += 2) for (let x = 0; x < W; x += 2) {
+      const ids = [y * W + x, y * W + x + 1, (y + 1) * W + x, (y + 1) * W + x + 1];
+      const cb = ids.reduce((s, i) => s + Cb[i], 0) / 4, cr = ids.reduce((s, i) => s + Cr[i], 0) / 4;
+      ids.forEach((i) => { const yy = Yq[i]; o[i * 3] = yy + 1.403 * cr; o[i * 3 + 1] = yy - 0.344 * cb - 0.714 * cr; o[i * 3 + 2] = yy + 1.773 * cb; });
+    }
+    return o;
+  }
+
+  /* UI */
+  const list = document.getElementById("isp-stages");
+  STAGES.forEach((s) => { const l = document.createElement("label"); l.className = "check"; l.innerHTML = `<input type="checkbox" id="isp-${s.id}" checked> ${s.name} <b>${s.tag}</b>`; list.appendChild(l); });
+  const on = {}; STAGES.forEach((s) => { on[s.id] = CB.check("isp-" + s.id, () => schedule()); });
+  const LIGHT = CB.seg("isp-light", () => schedule());
+  const ISO = CB.seg("isp-iso", () => schedule());
+  document.getElementById("isp-all").addEventListener("click", () => { STAGES.forEach((s) => (document.getElementById("isp-" + s.id).checked = true)); schedule(); });
+  document.getElementById("isp-none").addEventListener("click", () => { STAGES.forEach((s) => (document.getElementById("isp-" + s.id).checked = false)); schedule(); });
+
+  const strip = document.getElementById("isp-strip");
+  const snapNames = ["센서 RAW"].concat(STAGES.map((s) => s.name));
+  const thumbs = snapNames.map((nm, k) => {
+    const b = document.createElement("button"); b.type = "button";
+    b.innerHTML = `<canvas width="160" height="100"></canvas><span>${k}. ${nm}</span>`;
+    b.addEventListener("click", () => { sel = k; refreshSel(); view.redraw(); });
+    strip.appendChild(b); return b;
+  });
+  let sel = snapNames.length - 1, zoom = false, zc = [260, 142];
+  let snaps = [], frames = [], lastMs = 0;
+
+  function toCanvas(snap, k) {
+    const c = frames[k] || (frames[k] = CB.offscreen(W, H));
+    const g = c.getContext("2d"), img = g.createImageData(W, H), d = img.data;
+    const prev = k < TONE_SNAP; // 선형 데이터 미리보기는 표시용 감마
+    const f = prev ? (v) => (v <= 0 ? 0 : CB.linToSrgb(Math.min(1, v))) : (v) => CB.clamp(v, 0, 1);
+    for (let i = 0; i < N; i++) {
+      let r, gg, b;
+      if (snap.kind === "bayer") r = gg = b = f(snap.data[i]);
+      else { r = f(snap.data[i * 3]); gg = f(snap.data[i * 3 + 1]); b = f(snap.data[i * 3 + 2]); }
+      d[i * 4] = r * 255; d[i * 4 + 1] = gg * 255; d[i * 4 + 2] = b * 255; d[i * 4 + 3] = 255;
+    }
+    g.putImageData(img, 0, 0);
+  }
+  function run() {
+    const t0 = performance.now();
+    const R = makeRaw(LIGHT(), +ISO());
+    const dn = R.dn;
+    snaps = [];
+    let p = new Float32Array(N);
+    for (let i = 0; i < N; i++) p[i] = dn[i] / S;
+    snaps.push({ kind: "bayer", data: p, fmt: "Bayer 1채널 · 14비트 정수" });
+    p = new Float32Array(N);
+    for (let i = 0; i < N; i++) p[i] = on.blc() ? (dn[i] - BL) / S : dn[i] / S;
+    snaps.push({ kind: "bayer", data: p, fmt: "Bayer 1채널 · 선형" });
+    if (on.dpc()) p = dpc(p);
+    snaps.push({ kind: "bayer", data: p, fmt: "Bayer 1채널 · 선형" });
+    if (on.lsc()) { p = new Float32Array(p); for (let i = 0; i < N; i++) p[i] /= vig[i]; }
+    snaps.push({ kind: "bayer", data: p, fmt: "Bayer 1채널 · 선형" });
+    if (on.wb()) { p = new Float32Array(p); for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) { const i = y * W + x; p[i] = Math.min(1, p[i] * R.gains[cfa(x, y)]); } }
+    snaps.push({ kind: "bayer", data: p, fmt: "Bayer 1채널 · 선형" });
+    let rgb;
+    if (on.dem()) rgb = demosaic(p);
+    else { rgb = new Float32Array(N * 3); for (let i = 0; i < N; i++) rgb[i * 3] = rgb[i * 3 + 1] = rgb[i * 3 + 2] = p[i]; }
+    const lin = on.dem() ? "RGB 3채널 · 선형" : "흑백 모자이크 · 선형";
+    snaps.push({ kind: "rgb", data: rgb, fmt: lin });
+    if (on.ccm()) {
+      const o = new Float32Array(N * 3);
+      for (let i = 0; i < N; i++) for (let c = 0; c < 3; c++) o[i * 3 + c] = CCM[c][0] * rgb[i * 3] + CCM[c][1] * rgb[i * 3 + 1] + CCM[c][2] * rgb[i * 3 + 2];
+      rgb = o;
+    }
+    snaps.push({ kind: "rgb", data: rgb, fmt: lin });
+    if (on.nr()) rgb = nr(rgb, R.fw);
+    snaps.push({ kind: "rgb", data: rgb, fmt: lin });
+    let enc = lin.replace("선형", "선형(톤 꺼짐)");
+    if (on.tone()) { const o = new Float32Array(N * 3); for (let i = 0; i < N * 3; i++) o[i] = tone(rgb[i]); rgb = o; enc = lin.replace("선형", "감마 부호화"); }
+    snaps.push({ kind: "rgb", data: rgb, fmt: enc });
+    if (on.shp()) rgb = sharpen(rgb);
+    snaps.push({ kind: "rgb", data: rgb, fmt: enc });
+    if (on.csc()) rgb = csc420(rgb);
+    snaps.push({ kind: "rgb", data: rgb, fmt: on.csc() ? "YCbCr 4:2:0 · 8비트" : enc });
+    lastMs = performance.now() - t0;
+    snaps.forEach((s, k) => {
+      toCanvas(s, k);
+      const tc = thumbs[k].querySelector("canvas"), g = tc.getContext("2d");
+      g.imageSmoothingEnabled = true; g.drawImage(frames[k], 0, 0, tc.width, tc.height);
+      thumbs[k].classList.toggle("off", k > 0 && !on[STAGES[k - 1].id]());
+    });
+    refreshSel();
+    view.redraw();
+  }
+  function refreshSel() {
+    thumbs.forEach((b, k) => b.classList.toggle("sel", k === sel));
+    const s = snaps[sel]; if (!s) return;
+    CB.stat("o-isp-stage", sel + ". " + snapNames[sel] + (sel > 0 && !on[STAGES[sel - 1].id]() ? " <small>(꺼짐)</small>" : ""));
+    CB.stat("o-isp-fmt", s.fmt);
+    CB.stat("o-isp-ms", lastMs.toFixed(0) + "<small> ms / 6.4만 화소</small>");
+    const perSec = (lastMs / 1000 / N) * 45e6 * 20; // 실시간 1초에 필요한 계산 시간
+    CB.stat("o-isp-rt", "≈ " + CB.fmt(perSec, 2) + "<small> 배 느림(실시간 대비)</small>");
+  }
+  const schedule = CB.throttle(run);
+  const view = CB.canvas("#cv-isp", (ctx, w, h) => {
+    const f = frames[sel]; if (!f) return;
+    ctx.imageSmoothingEnabled = !zoom;
+    if (zoom) {
+      const cw = W / 4, ch = H / 4;
+      const sx = CB.clamp(zc[0] - cw / 2, 0, W - cw), sy = CB.clamp(zc[1] - ch / 2, 0, H - ch);
+      ctx.drawImage(f, sx, sy, cw, ch, 0, 0, w, h);
+    } else ctx.drawImage(f, 0, 0, W, H, 0, 0, w, h);
+    const label = sel + ". " + snapNames[sel] + (sel < TONE_SNAP ? " (표시용 감마)" : "") + (zoom ? " · ×4" : "");
+    ctx.font = "600 12px " + CB.color("font");
+    const tw = ctx.measureText(label).width;
+    ctx.fillStyle = "rgba(0,0,0,0.55)"; ctx.fillRect(8, 8, tw + 14, 22);
+    ctx.fillStyle = "#fff"; ctx.textBaseline = "middle"; ctx.fillText(label, 15, 19);
+  }, { aspect: H / W });
+  const cvEl = document.getElementById("cv-isp"), hint = document.getElementById("isp-hint");
+  cvEl.addEventListener("click", (e) => {
+    const r = cvEl.getBoundingClientRect();
+    if (!zoom) { zc = [((e.clientX - r.left) / r.width) * W, ((e.clientY - r.top) / r.height) * H]; zoom = true; hint.textContent = "클릭: 전체 보기"; }
+    else { zoom = false; hint.textContent = "클릭: 그 자리 ×4 확대"; }
+    view.redraw();
+  });
+  run();
+})();
+
+/* ---------------------------------------------------------------- 2. 버퍼 */
+(function () {
+  const upd = CB.throttle(() => cv.redraw());
+  const MP = CB.range("bf-mp", (v) => v + " MP", upd);
+  const BIT = CB.seg("bf-bit", upd);
+  const FMT = CB.seg("bf-fmt", upd);
+  const FPS = CB.range("bf-fps", (v) => v + " fps", upd);
+  const GB = CB.range("bf-gb", (v) => v.toFixed(1) + " GB", upd);
+  const CARD = CB.seg("bf-card", upd);
+  const HOLD = CB.range("bf-hold", (v) => v + " 초", upd);
+  function fileMB() {
+    const mp = MP(), bit = +BIT(), raw = (mp * 1e6 * bit) / 8 / 1e6;
+    if (FMT() === "raw") return raw + 2;
+    if (FMT() === "lossless") return raw * 0.6 + 2;
+    return (mp * 1e6 * 3) / 8 / 1e6;
+  }
+  const cv = CB.canvas("#cv-buffer", (ctx, w, h) => {
+    const P = CB.palette();
+    const s = fileMB(), f = FPS(), B = GB() * 1000, c = +CARD(), hold = HOLD();
+    const inR = f * s;
+    // 시뮬레이션(유체 + 이산 프레임)
+    const tClear = B / c, tEnd = Math.max(hold * 1.15, hold + Math.min(tClear, 600) * 1.08);
+    const steps = 3000, dt = tEnd / steps;
+    let buf = 0, n = 0, acc = 0, nFull = -1, tFull = NaN, held = 0;
+    const bufS = [[0, 0]], nS = [[0, 0]];
+    for (let k = 1; k <= steps; k++) {
+      const t = k * dt;
+      buf = Math.max(0, buf - c * dt);
+      if (t <= hold) {
+        acc += f * dt;
+        while (acc >= 1) {
+          if (buf + s <= B) { buf += s; n++; acc -= 1; }
+          else { if (nFull < 0) { nFull = n; tFull = t; } acc = Math.min(acc, 1); break; }
+        }
+        held = n;
+      }
+      bufS.push([t, (buf / B) * 100]); nS.push([t, n]);
+    }
+    const leftAtRelease = bufS[Math.min(steps, Math.round(hold / dt))][1] / 100 * B;
+    const pad = w < 480 ? 48 : 58;
+    const h1 = (h - 70) * 0.45, top2 = 16 + h1 + 30;
+    const xF = (v) => (v >= 60 ? (v / 60).toFixed(v % 60 ? 1 : 0) + "m" : Number(v.toPrecision(3)) + "s");
+    CB.chart(ctx, { x: pad, y: 16, w: w - pad - 14, h: h1 }, { x: [0, tEnd], y: [0, 100], yTicks: [0, 50, 100], yFmt: (v) => v + "%", xFmt: xF,
+      series: [{ data: bufS, color: P.accent2, width: 2, fill: "rgba(59,201,219,0.15)" }],
+      vlines: [{ x: hold, color: P.faint, label: "손 뗌" }] });
+    ctx.fillStyle = P.dim; ctx.font = "12px " + CB.color("font"); ctx.textAlign = "left"; ctx.textBaseline = "top";
+    ctx.fillText("버퍼 사용률", pad + 6, 18);
+    const nMax = Math.max(10, f * hold * 1.05);
+    CB.chart(ctx, { x: pad, y: top2, w: w - pad - 14, h: h - top2 - 40 }, { x: [0, tEnd], y: [0, nMax], xFmt: xF, xLabel: "시간",
+      series: [{ data: [[0, 0], [hold, f * hold]], color: P.faint, width: 1.2, dash: [4, 4] }, { data: nS, color: P.accent, width: 2.5 }],
+      vlines: isFinite(tFull) ? [{ x: tFull, color: P.bad, label: "버퍼 가득" }] : [] });
+    ctx.fillStyle = P.dim; ctx.textAlign = "left"; ctx.textBaseline = "top"; ctx.font = "12px " + CB.color("font");
+    ctx.fillText("누적 장수 (" + held + "장)", pad + 6, top2 + 2);
+
+    CB.stat("o-bf-size", CB.fmt(s, 3) + "<small> MB</small>");
+    CB.stat("o-bf-rate", CB.fmt(inR, 3) + " / " + c + "<small> MB/s</small>");
+    const depth = s - c / f;
+    if (depth <= 0) { CB.stat("o-bf-depth", "<small>제한 없음</small>"); CB.stat("o-bf-slow", f + "<small> fps 유지</small>"); }
+    else {
+      const nb = Math.floor(B / depth), tb = nb / f;
+      CB.stat("o-bf-depth", nb.toLocaleString("en-US") + "<small> 장 · " + CB.fmt(tb, 2) + " 초</small>");
+      CB.stat("o-bf-slow", CB.fmt(c / s, 2) + "<small> fps</small>");
+    }
+    CB.stat("o-bf-clear", CB.fmt(leftAtRelease / c, 2) + "<small> 초</small>");
+  }, { aspect: (w) => (w < 500 ? 0.95 : 0.66), minHeight: 300, maxHeight: 440 });
+})();
+
+/* ---------------------------------------------------------------- 3. 코덱 */
+(function () {
+  const upd = () => cv.redraw();
+  const RES = CB.seg("cd-res", upd), FPS = CB.seg("cd-fps", upd), BIT = CB.seg("cd-bit", upd), CH = CB.seg("cd-chroma", upd), COD = CB.seg("cd-codec", upd);
+  const DIM = { fhd: [1920, 1080], "4k": [3840, 2160], "8k": [7680, 4320] };
+  const CODECS = [
+    { id: "h265", name: "H.265 Long-GOP", ratio: 70 },
+    { id: "h264", name: "H.264 Long-GOP", ratio: 35 },
+    { id: "alli", name: "H.264 All-Intra", ratio: 15 },
+    { id: "prores", name: "중간 코덱(ProRes급)", ratio: 7 },
+    { id: "craw", name: "압축 RAW", ratio: 4, raw: true },
+    { id: "raw", name: "비압축 RAW", ratio: 1, raw: true },
+  ];
+  const CARDS = [["V30", 240], ["V60", 480], ["V90", 720], ["VPG200", 1600], ["VPG400", 3200]];
+  function rate(cd) {
+    const [w, h] = DIM[RES()], fps = +FPS(), bit = +BIT(), chroma = +CH();
+    const unc = w * h * fps * bit * (cd.raw ? 1 : chroma); // bit/s
+    return { unc, br: unc / cd.ratio };
+  }
+  const cv = CB.canvas("#cv-codec", (ctx, w, h) => {
+    const P = CB.palette();
+    const narrow = w < 520;
+    const lx = narrow ? 8 : 168, rx = w - 18, top = 12, rowH = (h - top - 44) / CODECS.length;
+    const lo = 10, hi = 1e5; // Mbps, 로그 축 (눈금: M = Mbps, G = Gbps)
+    const X = (v) => lx + ((Math.log10(CB.clamp(v, lo, hi)) - 1) / 4) * (rx - lx);
+    ctx.font = "11px " + CB.color("mono"); ctx.textAlign = "center"; ctx.textBaseline = "top";
+    [10, 100, 1000, 10000, 100000].forEach((v) => {
+      ctx.strokeStyle = P.grid; ctx.beginPath(); ctx.moveTo(X(v), top); ctx.lineTo(X(v), h - 40); ctx.stroke();
+      ctx.fillStyle = P.dim; ctx.textAlign = v === hi ? "right" : v === lo ? "left" : "center"; ctx.fillText(v >= 1000 ? v / 1000 + "G" : v + "M", X(v), h - 36);
+    });
+    CARDS.forEach(([nm, v], k) => {
+      ctx.strokeStyle = P.accent2; ctx.setLineDash([3, 4]); ctx.beginPath(); ctx.moveTo(X(v), top); ctx.lineTo(X(v), h - 40); ctx.stroke(); ctx.setLineDash([]);
+      if (!narrow || k % 2 === 0) { ctx.fillStyle = P.accent2; ctx.textAlign = "center"; ctx.fillText(nm, X(v), h - 22); }
+    });
+    CODECS.forEach((cd, k) => {
+      const { br } = rate(cd), y = top + k * rowH, cur = cd.id === COD();
+      ctx.fillStyle = cur ? P.text : P.dim; ctx.font = (cur ? "700 " : "") + (narrow ? "11.5px " : "13px ") + CB.color("font");
+      ctx.textBaseline = "middle";
+      const by = narrow ? y + rowH * 0.46 : y + rowH * 0.2, bh = narrow ? rowH * 0.44 : rowH * 0.6;
+      if (narrow) { ctx.textAlign = "left"; ctx.fillText(cd.name, lx, y + rowH * 0.24); }
+      else { ctx.textAlign = "right"; ctx.fillText(cd.name, lx - 8, y + rowH / 2); }
+      ctx.fillStyle = cur ? P.accent : P.surface; ctx.strokeStyle = cur ? P.accent : P.border;
+      const bw = Math.max(2, X(br / 1e6) - lx);
+      ctx.fillRect(lx, by, bw, bh); ctx.strokeRect(lx, by, bw, bh);
+      const lbl = br / 1e6 >= 1000 ? (br / 1e9).toFixed(2) + " Gbps" : Math.round(br / 1e6) + " Mbps";
+      ctx.font = "11px " + CB.color("mono"); ctx.textAlign = "left";
+      const tx = lx + bw + 6;
+      if (tx + 70 < rx) { ctx.fillStyle = cur ? P.text : P.dim; ctx.fillText(lbl, tx, by + bh / 2); }
+      else { ctx.fillStyle = cur ? "#fff" : P.text; ctx.textAlign = "right"; ctx.fillText(lbl, lx + bw - 6, by + bh / 2); }
+    });
+    const cd = CODECS.find((c) => c.id === COD()), { unc, br } = rate(cd);
+    const mbps = br / 1e6, MBs = br / 8 / 1e6;
+    CB.stat("o-cd-raw", (unc / 1e9).toFixed(2) + "<small> Gbps</small>");
+    CB.stat("o-cd-br", (mbps >= 1000 ? (mbps / 1000).toFixed(2) + "<small> Gbps</small>" : Math.round(mbps) + "<small> Mbps</small>") + "<small> · " + CB.fmt(MBs, 3) + " MB/s</small>");
+    const min = 128e9 / (br / 8) / 60;
+    CB.stat("o-cd-min", (min >= 60 ? (min / 60).toFixed(1) + "<small> 시간</small>" : CB.fmt(min, 3) + "<small> 분</small>"));
+    CB.stat("o-cd-hr", CB.fmt((br / 8) * 3600 / 1e9, 3) + "<small> GB</small>");
+    const card = CARDS.find(([, v]) => v >= mbps);
+    CB.stat("o-cd-card", card ? card[0] + (card[1] <= 720 ? " <small>(SD 가능)</small>" : " <small>(CFexpress)</small>") : "<small>카드 한 장으로는 벅참(외부 녹화)</small>");
+  }, { aspect: (w) => (w < 520 ? 1.0 : 0.42), minHeight: 280, maxHeight: 380 });
+})();
+
+/* ---------------------------------------------------------------- 4. 전력 */
+(function () {
+  const upd = () => cv.redraw();
+  const MODE = CB.seg("pw-mode", upd);
+  const EISP = CB.range("pw-isp", (v) => v.toFixed(1) + " nJ/화소", upd);
+  const PASS = CB.range("pw-pass", (v) => v + "회", upd);
+  const BAT = CB.range("pw-bat", (v) => v + " Wh", upd);
+  // 판독 MP, fps, 압축 대상 MP(출력), 압축 계수 nJ/px
+  const MODES = [
+    { name: "라이브 뷰 대기", rd: 8, fps: 60, out: 0, ec: 0 },
+    { name: "연사 45MP 20fps", rd: 45, fps: 20, out: 45, ec: 0.15 },
+    { name: "4K 30p (6K 오버샘플)", rd: 20, fps: 30, out: 8.3, ec: 0.8 },
+    { name: "4K 60p (6K 오버샘플)", rd: 20, fps: 60, out: 8.3, ec: 0.8 },
+    { name: "4K 120p (4K 판독)", rd: 8.3, fps: 120, out: 8.3, ec: 0.8 },
+    { name: "8K 30p", rd: 33, fps: 30, out: 33, ec: 0.8 },
+  ];
+  const PARTS = ["기본", "화면", "센서", "ISP", "DRAM", "압축"];
+  function budget(m) {
+    const px = m.rd * 1e6 * m.fps, out = m.out * 1e6 * m.fps;
+    return [1.5, 1.0, px * 1.0e-9, px * EISP() * 1e-9, px * 4 * PASS() * 8 * 8e-12, out * m.ec * 1e-9];
+  }
+  const cv = CB.canvas("#cv-power", (ctx, w, h) => {
+    const P = CB.palette();
+    const cols = [P.faint, P.dim, P.warn, P.accent, P.accent2, P.ok];
+    const narrow = w < 480;
+    const lx = narrow ? 8 : 150, rx = w - 52, top = 34, rowH = (h - top - 30) / MODES.length;
+    const maxW = 10;
+    const X = (v) => lx + (v / maxW) * (rx - lx);
+    // 범례
+    ctx.font = "12px " + CB.color("font"); ctx.textBaseline = "middle"; ctx.textAlign = "left";
+    let lgx = 8;
+    PARTS.forEach((nm, k) => { ctx.fillStyle = cols[k]; ctx.fillRect(lgx, 10, 10, 10); ctx.fillStyle = P.dim; ctx.fillText(nm, lgx + 14, 15); lgx += ctx.measureText(nm).width + 28; });
+    for (let v = 0; v <= maxW; v += 2) { ctx.strokeStyle = P.grid; ctx.beginPath(); ctx.moveTo(X(v), top); ctx.lineTo(X(v), h - 26); ctx.stroke(); ctx.fillStyle = P.dim; ctx.font = "11px " + CB.color("mono"); ctx.textAlign = "center"; ctx.fillText(v + " W", X(v), h - 14); }
+    const sel = +MODE();
+    MODES.forEach((m, k) => {
+      const b = budget(m), y = top + k * rowH, cur = k === sel;
+      const by = narrow ? y + rowH * 0.45 : y + rowH * 0.18, bh = narrow ? rowH * 0.45 : rowH * 0.64;
+      ctx.font = (cur ? "700 " : "") + "12px " + CB.color("font"); ctx.fillStyle = cur ? P.text : P.dim; ctx.textBaseline = "middle";
+      if (narrow) { ctx.textAlign = "left"; ctx.fillText(m.name, lx, y + rowH * 0.24); }
+      else { ctx.textAlign = "right"; ctx.fillText(m.name, lx - 8, y + rowH / 2); }
+      let x = lx;
+      ctx.globalAlpha = cur ? 1 : 0.45;
+      b.forEach((v, j) => { const ww = X(Math.min(v, maxW)) - lx; ctx.fillStyle = cols[j]; ctx.fillRect(x, by, Math.max(0, Math.min(ww, rx - x)), bh); x += ww; });
+      ctx.globalAlpha = 1;
+      const tot = b.reduce((a, c) => a + c, 0);
+      if (cur) { ctx.strokeStyle = P.text; ctx.lineWidth = 1.5; ctx.strokeRect(lx, by, Math.min(X(tot), rx) - lx, bh); ctx.lineWidth = 1; }
+      ctx.fillStyle = cur ? P.text : P.dim; ctx.font = "11px " + CB.color("mono"); ctx.textAlign = "left";
+      ctx.fillText(tot.toFixed(1) + " W", Math.min(X(tot), rx) + 5, by + bh / 2);
+    });
+    const m = MODES[sel], b = budget(m), tot = b.reduce((a, c) => a + c, 0);
+    const proc = b[2] + b[3] + b[4] + b[5];
+    CB.stat("o-pw-px", CB.fmt(m.rd * m.fps / 1000, 3) + "<small> G화소/s</small>");
+    CB.stat("o-pw-w", tot.toFixed(1) + "<small> W</small>");
+    CB.stat("o-pw-ef", CB.fmt(proc / m.fps * 1000, 3) + "<small> mJ</small>");
+    const hrs = BAT() / tot;
+    CB.stat("o-pw-h", (hrs >= 1 ? hrs.toFixed(1) + "<small> 시간</small>" : Math.round(hrs * 60) + "<small> 분</small>") + "<small> (열 무시)</small>");
+  }, { aspect: (w) => (w < 480 ? 1.05 : 0.6), minHeight: 300, maxHeight: 420 });
+})();
+</script>
+</body>
+</html>
