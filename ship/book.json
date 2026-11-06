@@ -1,0 +1,11 @@
+{
+  "id": "shipbook",
+  "title": "ShipBook",
+  "description": "부력과 복원성에서 프로펠러, 파도, 선체 구조, 친환경 연료와 자율운항까지. 슬라이더를 움직이고 3D 모델을 돌려 보며 선박의 원리를 배웁니다.",
+  "url": "https://system.euiyun.com/ship/",
+  "repo": "https://github.com/geniuskey/system-books",
+  "field": "electronics",
+  "status": "published",
+  "domain": "system.euiyun.com",
+  "basePath": "/ship/"
+}

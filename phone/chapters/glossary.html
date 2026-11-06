@@ -1,0 +1,547 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>용어집 &amp; 종합 퀴즈 · PhoneBook</title>
+<meta name="description" content="스마트폰 하드웨어 핵심 용어 200여 개를 한국어·영어·약어로 검색하고, 13개 장을 아우르는 종합 퀴즈로 실력을 점검한다.">
+<link rel="canonical" href="https://system.euiyun.com/phone/chapters/glossary.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="PhoneBook">
+<meta property="og:title" content="용어집 &amp; 종합 퀴즈 · PhoneBook">
+<meta property="og:description" content="스마트폰 하드웨어 핵심 용어 200여 개를 한국어·영어·약어로 검색하고, 13개 장을 아우르는 종합 퀴즈로 실력을 점검한다.">
+<meta property="og:url" content="https://system.euiyun.com/phone/chapters/glossary.html">
+<meta property="og:image" content="https://system.euiyun.com/phone/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="ko_KR">
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","headline":"용어집 & 종합 퀴즈","name":"용어집 & 종합 퀴즈 · PhoneBook","url":"https://system.euiyun.com/phone/chapters/glossary.html","mainEntityOfPage":"https://system.euiyun.com/phone/chapters/glossary.html","inLanguage":"ko","isAccessibleForFree":true,"learningResourceType":"interactive textbook chapter","position":14,"image":"https://system.euiyun.com/phone/og.png","dateModified":"2026-10-03","isPartOf":{"@type":"Book","@id":"https://system.euiyun.com/phone/#book","name":"PhoneBook — 인터랙티브 스마트폰 해부 교과서","url":"https://system.euiyun.com/phone/"},"publisher":{"@type":"Organization","name":"PhoneBook","url":"https://system.euiyun.com/phone/"},"description":"스마트폰 하드웨어 핵심 용어 200여 개를 한국어·영어·약어로 검색하고, 13개 장을 아우르는 종합 퀴즈로 실력을 점검한다."},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"PhoneBook","item":"https://system.euiyun.com/phone/"},{"@type":"ListItem","position":2,"name":"14 용어집 & 종합 퀴즈","item":"https://system.euiyun.com/phone/chapters/glossary.html"}]}]}</script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<link rel="stylesheet" href="../css/style.css">
+<script src="../js/common.js"></script>
+<style>
+  [hidden] { display: none !important; }
+  .gl-tools { display: grid; gap: 10px; margin-bottom: 18px; }
+  .gl-tools .row { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; }
+  .gl-tools .lbl { font-size: 13px; color: var(--text-dim); flex: none; }
+  .gl-tools .seg button { font-size: 12.5px; padding: 4px 9px; }
+  .gl-search { margin-bottom: 0 !important; }
+  .gl-count { font-size: 13px; color: var(--text-faint); margin-left: auto; font-family: var(--mono); }
+  #gl-list { max-height: min(78vh, 980px); overflow-y: auto; overscroll-behavior: contain; padding: 2px 6px 2px 2px; border-radius: 12px; }
+  .gl-group { position: sticky; top: 0; z-index: 1; background: var(--bg); font-family: var(--mono); font-weight: 700; font-size: 13px; color: var(--accent); letter-spacing: .06em; margin: 14px 0 0; padding-bottom: 4px; border-bottom: 1px solid var(--border); }
+  .gl-group:first-child { margin-top: 0; }
+  .gl-item h4 { overflow-wrap: anywhere; }
+  .gl-item h4 .abbr { font-family: var(--mono); font-size: 12px; font-weight: 700; color: var(--accent-2); background: var(--accent-2-soft); border-radius: 5px; padding: 1px 6px; margin-left: 6px; vertical-align: 1px; }
+  .gl-item .ch i { display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 5px; vertical-align: 0; }
+  .gl-item mark { background: color-mix(in srgb, var(--warn) 35%, transparent); color: inherit; border-radius: 3px; padding: 0 1px; }
+  .gl-empty { padding: 24px; text-align: center; color: var(--text-dim); border: 1px dashed var(--border); border-radius: 12px; }
+  .chips button .c { font-family: var(--mono); font-size: 11px; color: var(--text-faint); }
+  .chips button.on .c { color: inherit; }
+
+  #cv-map { cursor: pointer; }
+  .map-legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 13px; color: var(--text-dim); padding: 0 18px 10px; }
+  .map-legend span::before { content: ""; display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; background: var(--accent); }
+  .map-legend span.q::before { border-radius: 50%; background: var(--text); }
+
+  .fq-panel { position: sticky; top: 64px; z-index: 3; background: var(--bg-elev); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 12px 16px; margin: 0 0 16px; display: grid; gap: 8px; }
+  .fq-panel .top { display: flex; flex-wrap: wrap; gap: 6px 16px; align-items: center; font-family: var(--mono); font-size: 13px; color: var(--text-dim); }
+  .fq-panel .top b { color: var(--text); }
+  .fq-panel .top .btn { margin-left: auto; font-size: 13px; padding: 5px 12px; }
+  .fq-bar { height: 6px; background: var(--surface-2); border-radius: 3px; overflow: hidden; display: flex; }
+  .fq-bar i { display: block; height: 100%; width: 0; transition: width .3s ease; }
+  .fq-bar i.okb { background: var(--ok); } .fq-bar i.badb { background: var(--bad); }
+  .quiz-q .qch { display: block; font-size: 12px; font-weight: 700; color: var(--accent); letter-spacing: .04em; margin-bottom: 4px; }
+  .quiz-q .qno { font-family: var(--mono); color: var(--text-faint); margin-right: 6px; }
+  .fq-result { text-align: center; background: var(--bg-elev); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 20px; margin-top: 18px; }
+  .fq-rank { font-size: 13px; letter-spacing: .12em; color: var(--text-faint); font-weight: 700; }
+  .fq-title { font-size: clamp(24px, 5vw, 32px); font-weight: 800; letter-spacing: -0.02em; margin: 4px 0; background: linear-gradient(90deg, var(--accent), var(--accent-2)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .fq-big { font-family: var(--mono); font-size: 40px; font-weight: 700; }
+  .fq-big small { font-size: 18px; color: var(--text-dim); }
+  .fq-review { text-align: left; font-size: 14px; color: var(--text-dim); margin: 12px 0 16px; }
+  .fq-review a { font-weight: 600; }
+</style>
+<link rel="stylesheet" href="../../shared/css/book-shell.css">
+<script defer src="../../shared/js/book-shell.js" data-book="phone"></script>
+</head>
+<body data-chapter="glossary">
+<main class="chapter">
+  <header class="chapter-hero">
+    <div class="eyebrow">Chapter 14</div>
+    <h1>용어집 &amp; 종합 퀴즈</h1>
+    <p class="lead">스마트폰 하드웨어는 약어의 숲이다. LTPO, DVFS, PoP, UFS, CC-CV, PPS, FEM, SAR, OIS, PDAF, TIM, IP68, DVT… 이 장은 책 전체에 흩어진 핵심 용어를 한곳에 모은 사전이자, 1장부터 13장까지를 한 번에 점검하는 마무리 시험이다.</p>
+    <ul class="objectives">
+      <li>한국어·영어·약어 어느 쪽으로든 용어를 찾아 정의를 읽고, 해당 장으로 바로 이동할 수 있다.</li>
+      <li>용어 지도로 각 장이 다루는 개념의 양을 한눈에 보고, 장별로 좁혀 복습한다.</li>
+      <li>종합 퀴즈로 디스플레이에서 설계까지 전 범위를 점검하고, 틀린 장을 골라 다시 공부한다.</li>
+    </ul>
+    <p style="margin-top:16px"><a href="#map">→ 용어 지도</a> · <a href="#glossary">→ 용어집</a> · <a href="#final-quiz">→ 종합 퀴즈</a></p>
+  </header>
+
+  <section id="map">
+    <h2>용어 지도</h2>
+    <p>막대 하나가 한 장이다. 막대 높이는 그 장에 속한 용어 수, 점은 종합 퀴즈의 문항 수다. 막대를 누르면 아래 용어집이 그 장으로 걸러지고, 같은 막대를 다시 누르면 전체로 돌아간다. 용어 수가 많은 장이 꼭 어려운 장은 아니지만, <b>약어가 많은 장(RF, 디스플레이, 배터리)</b>은 처음 읽을 때 이 사전을 옆에 띄워 두면 편하다.</p>
+    <div class="sim" id="sim-map">
+      <div class="sim-head"><span class="sim-tag">INTERACTIVE</span><h3>장별 용어 분포</h3></div>
+      <div class="sim-view"><canvas id="cv-map" role="img" aria-label="장별 용어 수 막대 그래프. 막대를 누르면 해당 장의 용어만 보인다."></canvas></div>
+      <div class="map-legend"><span>용어 수(막대, 클릭하면 필터)</span><span class="q">퀴즈 문항 수(점)</span></div>
+      <div class="sim-readout">
+        <div class="stat"><span class="k">전체 용어</span><span class="v" id="o-total">—</span></div>
+        <div class="stat"><span class="k">선택한 장</span><span class="v" id="o-sel">전체</span></div>
+        <div class="stat"><span class="k">약어가 있는 용어</span><span class="v" id="o-abbr">—</span></div>
+        <div class="stat"><span class="k">퀴즈 문항</span><span class="v" id="o-quiz">—</span></div>
+      </div>
+      <div class="sim-note">해볼 것: 7장 RF 막대를 눌러 FEM·LNA·PA가 신호 경로의 어디에 있는지 정의를 이어 읽어 보자. 그다음 검색창에 <code>dB</code>를 넣어 여러 장에 걸친 데시벨 용어를 비교해 보자.</div>
+    </div>
+  </section>
+
+  <section id="glossary">
+    <h2>용어집</h2>
+    <p>검색창에 한국어(예: <code>편광</code>), 영어(예: <code>throttl</code>), 약어(예: <code>PPS</code>) 중 아무것이나 입력하면 바로 걸러진다. 정의 본문도 검색 대상이며, 이름이 일치한 용어가 본문만 일치한 용어보다 먼저 나온다. 장 칩으로 범위를 좁히고, 가나다순·ABC순·장순으로 정렬을 바꿀 수 있다.</p>
+    <div class="gl-tools">
+      <input type="search" class="gl-search" id="gl-q" placeholder="용어 검색: 예) 스로틀링, buck, SAR" autocomplete="off" aria-label="용어 검색">
+      <div class="chips" id="gl-ch" role="group" aria-label="장 필터"></div>
+      <div class="row">
+        <span class="lbl">정렬</span>
+        <div class="seg" id="gl-sort"><button data-value="ko" class="on">가나다순</button><button data-value="en">ABC순</button><button data-value="ch">장순</button></div>
+        <span class="gl-count" id="gl-count"></span>
+      </div>
+    </div>
+    <div class="gl-list" id="gl-list" aria-live="polite"></div>
+  </section>
+
+  <section class="quiz-sec" id="final-quiz">
+    <h2>종합 퀴즈</h2>
+    <p>13개 장에서 고른 문항이다. 보기를 누르면 바로 채점되고 해설과 복습할 장의 링크가 나온다. 아래 칩으로 특정 장의 문항만 골라 풀 수도 있다(점수는 보이는 문항만 집계). 다 풀면 등급과 다시 볼 장을 알려 준다. <b>다시 풀기</b>는 문항과 보기 순서를 섞는다.</p>
+    <div class="chips" id="fq-ch" role="group" aria-label="퀴즈 장 필터" style="margin-bottom:12px"></div>
+    <div class="fq-panel" id="fq-panel">
+      <div class="top"><span>정답 <b id="fq-ok">0</b></span><span>오답 <b id="fq-bad">0</b></span><span>남음 <b id="fq-left">0</b></span><span id="fq-pct">—</span><button class="btn" id="fq-retry2" type="button">다시 풀기</button></div>
+      <div class="fq-bar"><i class="okb" id="fq-fill-ok"></i><i class="badb" id="fq-fill-bad"></i></div>
+    </div>
+    <div class="quiz" id="fq-list">
+
+      <div class="quiz-q" data-ch="anatomy"><p>두께 약 8 mm인 전형적 플래그십의 Z-스택(두께 예산)에서 가장 큰 몫을 차지하는 단일 부품은?</p><div class="opts">
+        <button class="opt">커버 글라스</button><button class="opt" data-correct>배터리 셀</button><button class="opt">OLED 패널</button><button class="opt">메인보드 PCB</button>
+      </div><div class="quiz-exp">배터리 셀은 보통 4~5 mm 안팎으로 전체 두께의 절반 이상을 쓴다. 커버 글라스(약 0.5~0.7 mm), 패널(수백 µm), 보드(0.6~1 mm)는 각각 1 mm 안팎이다.</div></div>
+
+      <div class="quiz-q" data-ch="anatomy"><p>메인보드를 인터포저로 두 장 겹친 '샌드위치' 구조를 쓰는 가장 큰 이유는?</p><div class="opts">
+        <button class="opt" data-correct>같은 평면 면적에서 부품 실장 면적을 늘려 배터리에 더 넓은 자리를 내주기 위해</button><button class="opt">보드의 열저항을 낮추기 위해</button><button class="opt">안테나 이득을 높이기 위해</button><button class="opt">PCB 원가를 줄이기 위해</button>
+      </div><div class="quiz-exp">보드를 위아래로 쌓으면 평면 면적(footprint)은 줄고 실장 면적은 거의 두 배가 된다. 그만큼 배터리가 넓어진다. 대가로 인터포저·추가 공정 원가와 층간 발열 문제가 생긴다.</div></div>
+
+      <div class="quiz-q" data-ch="display"><p>LTPO 백플레인이 1 Hz 같은 아주 낮은 주사율을 가능하게 하는 핵심 이유는?</p><div class="opts">
+        <button class="opt">LTPS TFT의 이동도가 더 높아져서</button><button class="opt">편광판을 제거해서</button><button class="opt" data-correct>산화물(IGZO) TFT의 누설 전류가 매우 작아 화소 전압을 오래 유지하므로</button><button class="opt">OLED 재료의 수명이 길어져서</button>
+      </div><div class="quiz-exp">주사율을 낮추면 한 프레임 동안 화소 커패시터의 전압을 붙잡고 있어야 한다. 누설이 큰 LTPS만으로는 깜빡임이 생기므로, 스위칭 TFT 일부를 누설이 극히 작은 산화물 TFT로 바꾼다.</div></div>
+
+      <div class="quiz-q" data-ch="display"><p>OLED 위의 원편광판(선편광판 + λ/4 위상차판)이 하는 일과 그 대가로 옳은 것은?</p><div class="opts">
+        <button class="opt">색역을 넓히지만 시야각이 좁아진다</button><button class="opt" data-correct>외부광이 금속 전극에 반사되어 나오는 것을 막아 명암비를 지키지만, 자체 발광도 절반 이상 흡수한다</button><button class="opt">터치 감도를 높이지만 두께가 늘어난다</button><button class="opt">번인을 막지만 응답 속도가 느려진다</button>
+      </div><div class="quiz-exp">들어온 빛은 원편광이 되어 반사 후 회전 방향이 바뀌어 돌아오므로 편광판을 통과하지 못한다. 하지만 OLED 빛도 편광판을 지나며 절반 이상 손실된다. 편광판 대신 컬러 필터를 쓰는 COE 구조가 나온 이유다.</div></div>
+
+      <div class="quiz-q" data-ch="display"><p>OLED 화면의 소비 전력이 크게 달라지는 요인으로 가장 직접적인 것은?</p><div class="opts">
+        <button class="opt">해상도(PPI)만</button><button class="opt">터치 샘플링 레이트</button><button class="opt">화면 크기와 무관하다</button><button class="opt" data-correct>평균 화면 밝기 비율(APL)과 휘도</button>
+      </div><div class="quiz-exp">OLED는 화소마다 스스로 빛을 내므로 전력은 켜진 화소의 밝기 합, 즉 APL × 휘도에 거의 비례한다. 다크 모드가 OLED에서 전력을 아끼는 이유다.</div></div>
+
+      <div class="quiz-q" data-ch="soc"><p>동적 전력 P ≈ αCV²f에서, 주파수와 전압을 함께 20 % 낮추면 동적 전력은 대략 몇 배가 되나?</p><div class="opts">
+        <button class="opt">0.8배</button><button class="opt">0.64배</button><button class="opt" data-correct>약 0.51배</button><button class="opt">약 0.33배</button>
+      </div><div class="quiz-exp">0.8² × 0.8 = 0.512. 성능(주파수)은 20 % 줄지만 전력은 절반이 된다. DVFS가 강력한 이유이며, 같은 일을 할 때 에너지(전력 × 시간)는 V²에 비례해 약 0.64배가 된다.</div></div>
+
+      <div class="quiz-q" data-ch="soc"><p>GAA(Gate-All-Around) 트랜지스터가 FinFET보다 나은 점은?</p><div class="opts">
+        <button class="opt" data-correct>게이트가 채널을 사방에서 감싸 채널 제어가 좋아지고 누설이 줄어든다</button><button class="opt">금속 배선 저항이 0이 된다</button><button class="opt">웨이퍼 크기를 키울 수 있다</button><button class="opt">EUV 노광이 필요 없어진다</button>
+      </div><div class="quiz-exp">FinFET은 게이트가 핀의 3면을 감싸지만, GAA는 수평 나노시트의 4면을 모두 감싼다. 짧은 채널에서도 꺼짐 상태 누설을 억제하고 시트 폭으로 구동 전류를 조절할 수 있다.</div></div>
+
+      <div class="quiz-q" data-ch="soc"><p>NPU 성능 "40 TOPS"에 대한 해석으로 가장 적절한 것은?</p><div class="opts">
+        <button class="opt">어떤 모델이든 초당 40조 번의 추론을 한다</button><button class="opt">FP32 연산 기준 최고 성능이다</button><button class="opt" data-correct>보통 INT8 기준의 이론 최대 연산률(곱셈-누산 1회 = 2연산)이며, 실제 성능은 메모리 대역폭과 활용률에 좌우된다</button><button class="opt">CPU와 GPU의 성능을 합한 값이다</button>
+      </div><div class="quiz-exp">TOPS는 정밀도·희소성 가정에 따라 크게 달라지는 피크 수치다. 대형 모델 추론은 가중치를 DRAM에서 읽어 오는 속도에 막히는 경우가 많다.</div></div>
+
+      <div class="quiz-q" data-ch="board"><p>애니레이어(any-layer) HDI 기판의 특징으로 옳은 것은?</p><div class="opts">
+        <button class="opt">기계 드릴로 관통 홀만 쓴다</button><button class="opt" data-correct>모든 층 사이를 레이저 마이크로비아로 쌓아 어느 층끼리도 연결할 수 있다</button><button class="opt">한 면에만 부품을 실장한다</button><button class="opt">유연 회로와 같은 폴리이미드를 쓴다</button>
+      </div><div class="quiz-exp">마이크로비아를 층마다 쌓아(stacked via) 배선 자유도를 극대화한다. 0.35~0.4 mm 피치 BGA를 팬아웃하려면 거의 필수다.</div></div>
+
+      <div class="quiz-q" data-ch="board"><p>BGA 패키지 아래에 언더필을 채우는 주된 목적은?</p><div class="opts">
+        <button class="opt">신호 임피던스를 맞추기 위해</button><button class="opt">EMI를 차단하기 위해</button><button class="opt">패키지를 쉽게 떼어 내기 위해</button><button class="opt" data-correct>낙하 충격과 열팽창 차이로 솔더 볼에 몰리는 응력을 분산해 접합 균열을 막기 위해</button>
+      </div><div class="quiz-exp">에폭시가 패키지와 기판을 한 덩어리로 묶어 솔더 접합에 걸리는 전단 변형을 줄인다. 대신 재작업(rework)이 어려워진다.</div></div>
+
+      <div class="quiz-q" data-ch="board"><p>AP 위에 DRAM을 바로 쌓는 PoP(Package on Package)의 장점과 단점 조합으로 맞는 것은?</p><div class="opts">
+        <button class="opt" data-correct>배선이 짧고 면적이 절약되지만, DRAM이 AP 열을 그대로 받는다</button><button class="opt">열이 잘 빠지지만 면적이 커진다</button><button class="opt">메모리 용량 제한이 없지만 속도가 느리다</button><button class="opt">조립이 쉽지만 신호 경로가 길어진다</button>
+      </div><div class="quiz-exp">PoP는 평면 면적과 신호 길이 면에서 유리하지만, AP 열이 DRAM을 지나야 하고 DRAM 자체도 열원이라 방열 경로가 나빠진다.</div></div>
+
+      <div class="quiz-q" data-ch="battery"><p>공칭 3.87 V, 5,000 mAh 셀의 에너지는 대략?</p><div class="opts">
+        <button class="opt">5 Wh</button><button class="opt">12.9 Wh</button><button class="opt" data-correct>19.4 Wh</button><button class="opt">38.7 Wh</button>
+      </div><div class="quiz-exp">E = 5 Ah × 3.87 V ≈ 19.4 Wh. mAh는 전하량이라 전압이 다른 셀끼리는 Wh로 비교해야 한다.</div></div>
+
+      <div class="quiz-q" data-ch="battery"><p>CC-CV 충전의 CV 구간에서 일어나는 일은?</p><div class="opts">
+        <button class="opt">전류를 일정하게 유지하며 전압이 오른다</button><button class="opt" data-correct>상한 전압을 유지하는 동안 전류가 점점 줄고, 차단 전류에 이르면 충전을 끝낸다</button><button class="opt">셀을 잠시 방전해 균형을 맞춘다</button><button class="opt">온도가 내려갈 때까지 충전을 멈춘다</button>
+      </div><div class="quiz-exp">CC로 상한 전압(예: 4.45 V급)에 도달한 뒤에는 그 전압을 지키며 남은 용량을 채운다. 고속 충전이 '50 %까지 빠르고 끝이 느린' 이유다.</div></div>
+
+      <div class="quiz-q" data-ch="battery"><p>저온에서 고속 충전할 때 특히 위험한 열화 메커니즘은?</p><div class="opts">
+        <button class="opt">SEI 피막이 사라짐</button><button class="opt">양극의 코발트 증발</button><button class="opt">분리막의 수축</button><button class="opt" data-correct>음극 표면의 리튬 석출(lithium plating)</button>
+      </div><div class="quiz-exp">저온에서는 흑연으로의 삽입 반응과 확산이 느려 리튬이 금속으로 표면에 쌓인다. 가역 용량이 줄고, 덴드라이트가 자라면 내부 단락 위험이 있다. 그래서 BMS는 저온에서 충전 전류를 낮춘다.</div></div>
+
+      <div class="quiz-q" data-ch="power"><p>입력 4.0 V에서 0.8 V 레일을 LDO로 만들면 이상적인 효율은 최대 얼마인가?</p><div class="opts">
+        <button class="opt" data-correct>약 20 %</button><button class="opt">약 50 %</button><button class="opt">약 80 %</button><button class="opt">약 95 %</button>
+      </div><div class="quiz-exp">LDO는 입력 전류 ≈ 출력 전류라 효율 ≈ Vout/Vin = 0.8/4.0 = 20 %. 큰 강압은 벅으로 하고 LDO는 작은 차이의 저잡음 레일에 쓴다.</div></div>
+
+      <div class="quiz-q" data-ch="power"><p>고속 충전에서 USB PD PPS와 2:1 차지 펌프를 함께 쓰는 이유는?</p><div class="opts">
+        <button class="opt">케이블 전류를 두 배로 늘리기 위해</button><button class="opt">무선 충전과 호환하기 위해</button><button class="opt" data-correct>충전기가 높은 전압·낮은 전류로 보내 케이블 손실을 줄이고, 폰 안에서는 인덕터 없는 고효율 변환으로 발열을 줄이기 위해</button><button class="opt">배터리 전압을 높이기 위해</button>
+      </div><div class="quiz-exp">PPS는 20 mV 단위로 전압을 조절해 충전기가 사실상 CC 전원 역할을 하게 해 준다. 차지 펌프는 전압을 반으로, 전류를 두 배로 바꾸며 97 % 안팎의 효율을 낸다.</div></div>
+
+      <div class="quiz-q" data-ch="power"><p>무선 충전에서 코일 정렬이 어긋나면 효율이 떨어지는 직접적 이유는?</p><div class="opts">
+        <button class="opt">주파수가 바뀌어서</button><button class="opt" data-correct>결합 계수 k가 작아져 누설 자속이 늘고, 같은 전력을 보내려면 코일 전류가 커져 손실이 커지므로</button><button class="opt">코일의 직류 저항이 0이 되어서</button><button class="opt">배터리 전압이 올라가서</button>
+      </div><div class="quiz-exp">링크 효율의 상한은 k²Q₁Q₂로 정해진다. Qi2가 자석으로 위치를 고정하는 이유가 여기 있다.</div></div>
+
+      <div class="quiz-q" data-ch="rf"><p>안테나 포트의 S11이 −10 dB라는 것은?</p><div class="opts">
+        <button class="opt">방사 효율이 10 %라는 뜻</button><button class="opt">출력이 10 dBm이라는 뜻</button><button class="opt">10 %의 전력이 방사된다는 뜻</button><button class="opt" data-correct>입사 전력의 10 %가 반사되어 돌아오고 90 %가 안테나로 들어간다는 뜻</button>
+      </div><div class="quiz-exp">|Γ|² = 10^(−10/10) = 0.1. 들어간 90 %가 모두 방사되는 것은 아니며, 방사 효율은 손실(손, 금속, 유전체)에 따라 따로 정해진다.</div></div>
+
+      <div class="quiz-q" data-ch="rf"><p>폰 RF 프런트엔드에서 LNA를 안테나·필터 바로 뒤, 신호 경로의 가장 앞에 두는 이유는?</p><div class="opts">
+        <button class="opt" data-correct>캐스케이드 잡음 지수는 첫 단의 잡음과 이득이 지배하므로, 앞에서 낮은 잡음으로 증폭해야 수신 감도가 좋아진다</button><button class="opt">송신 전력을 높이기 위해</button><button class="opt">필터를 생략하기 위해</button><button class="opt">모뎀 전력을 줄이기 위해</button>
+      </div><div class="quiz-exp">프리스 공식에 따라 뒤 단의 잡음은 앞 단 이득으로 나눠져 작아진다. 그래서 첫 증폭기의 NF가 시스템 NF를 거의 결정한다.</div></div>
+
+      <div class="quiz-q" data-ch="rf"><p>mmWave(FR2)에서 폰이 여러 개의 안테나 모듈과 위상 배열 빔포밍을 쓰는 이유는?</p><div class="opts">
+        <button class="opt">주파수가 낮아 안테나가 커서</button><button class="opt">SAR 규제가 없어서</button><button class="opt" data-correct>파장이 짧아 같은 개구에서 경로 손실이 크고 손·몸에 쉽게 가려지므로, 배열 이득과 모듈 전환으로 보상해야 해서</button><button class="opt">LTE와 호환하기 위해</button>
+      </div><div class="quiz-exp">등방 안테나 기준 자유 공간 손실은 주파수 제곱에 비례해 커진다. 작은 소자를 배열해 빔을 만들면 이득을 되찾지만 방향성이 생겨, 손에 가리지 않은 모듈로 전환해야 한다.</div></div>
+
+      <div class="quiz-q" data-ch="rf"><p>SAR(전자파 흡수율) 규제에 걸리지 않도록 폰이 흔히 쓰는 방법은?</p><div class="opts">
+        <button class="opt">수신 감도를 낮춘다</button><button class="opt" data-correct>근접(그립) 센서로 몸에 가까운 상황을 감지해 송신 전력을 줄이거나 다른 안테나로 전환한다</button><button class="opt">안테나 대역폭을 넓힌다</button><button class="opt">모뎀 클럭을 낮춘다</button>
+      </div><div class="quiz-exp">SAR은 몸에 흡수되는 RF 전력(W/kg)이라 송신 전력과 거리에 좌우된다. 대신 업링크 성능이 줄어드는 트레이드오프가 있다.</div></div>
+
+      <div class="quiz-q" data-ch="camera"><p>센서 크기를 키우면 카메라 범프가 높아지는 근본 이유는?</p><div class="opts">
+        <button class="opt">픽셀 수가 늘어 회로가 커져서</button><button class="opt">OIS 코일이 커져서</button><button class="opt">IR 필터가 두꺼워져서</button><button class="opt" data-correct>같은 화각을 유지하려면 초점거리가 센서 대각선에 비례해 늘고, 그에 따라 렌즈 전장(TTL)도 길어지므로</button>
+      </div><div class="quiz-exp">화각이 같으면 f ∝ 센서 대각선이고 TTL은 대략 f에 비례한다. 1인치형 센서는 1/2인치형보다 TTL이 거의 두 배 필요하다.</div></div>
+
+      <div class="quiz-q" data-ch="camera"><p>실제 초점거리 6.9 mm, 센서 대각선 약 12.3 mm인 메인 카메라의 35 mm 환산 등가 초점거리는?</p><div class="opts">
+        <button class="opt">약 14 mm</button><button class="opt" data-correct>약 24 mm</button><button class="opt">약 35 mm</button><button class="opt">약 69 mm</button>
+      </div><div class="quiz-exp">f_eq = f × 43.3/대각선 = 6.9 × 43.3/12.3 ≈ 24 mm. 크롭 팩터는 약 3.5다.</div></div>
+
+      <div class="quiz-q" data-ch="camera"><p>PDAF(위상차 AF)가 콘트라스트 AF보다 빠른 이유는?</p><div class="opts">
+        <button class="opt" data-correct>렌즈 좌우 동공을 통과한 두 상의 어긋남으로 초점의 방향과 양을 한 번에 알 수 있어서</button><button class="opt">렌즈를 더 빠르게 움직여서</button><button class="opt">레이저로 거리를 재서</button><button class="opt">노출 시간이 짧아서</button>
+      </div><div class="quiz-exp">콘트라스트 AF는 렌즈를 움직여 가며 최대 선명도를 찾는 '언덕 오르기'라 왕복이 필요하다. PDAF는 위상차에서 목표 위치를 계산해 바로 이동한다.</div></div>
+
+      <div class="quiz-q" data-ch="sensors"><p>MEMS 자이로스코프가 각속도를 감지하는 물리 원리는?</p><div class="opts">
+        <button class="opt">홀 효과</button><button class="opt">압전 효과로 생긴 전압</button><button class="opt" data-correct>진동하는 질량에 회전 시 작용하는 코리올리 힘이 만드는 직교 방향 변위</button><button class="opt">빛의 간섭(사냑 효과)</button>
+      </div><div class="quiz-exp">구동 방향으로 진동하는 질량이 회전하면 F = −2m Ω × v가 감지 방향으로 작용한다. 그 미세 변위를 콤 전극의 정전용량 변화로 읽는다.</div></div>
+
+      <div class="quiz-q" data-ch="sensors"><p>지자기 센서를 8자 모양으로 돌려 보정할 때, 측정점이 원점에서 벗어난 구 위에 놓이는 원인은?</p><div class="opts">
+        <button class="opt">소프트 아이언 왜곡</button><button class="opt" data-correct>하드 아이언 오프셋(폰 안의 자석·전류가 만드는 고정 자기장)</button><button class="opt">센서 노이즈</button><button class="opt">지구 자기장의 복각</button>
+      </div><div class="quiz-exp">하드 아이언은 폰과 함께 회전하는 고정 자기장이라 측정 구 전체를 평행 이동시킨다. 소프트 아이언은 구를 타원체로 찌그러뜨린다.</div></div>
+
+      <div class="quiz-q" data-ch="sensors"><p>생체 인증의 판정 임계값을 엄격하게 바꾸면 일반적으로?</p><div class="opts">
+        <button class="opt">FAR과 FRR이 모두 내려간다</button><button class="opt">FAR과 FRR이 모두 올라간다</button><button class="opt" data-correct>FAR(타인 수락)은 내려가고 FRR(본인 거부)은 올라간다</button><button class="opt">FAR은 올라가고 FRR은 내려간다</button>
+      </div><div class="quiz-exp">같은 센서·알고리즘에서는 두 오류율이 시소 관계다. 둘을 함께 낮추려면 센서 품질과 특징 추출 자체를 개선해야 한다.</div></div>
+
+      <div class="quiz-q" data-ch="audio"><p>스마트폰 햅틱에 ERM 대신 LRA를 쓰는 주된 이유는?</p><div class="opts">
+        <button class="opt">더 싸서</button><button class="opt">공진 주파수가 없어 모든 주파수로 진동해서</button><button class="opt">소리가 커서</button><button class="opt" data-correct>공진을 이용해 시동·정지가 빨라(수~수십 ms) 또렷한 '틱' 같은 짧은 효과를 낼 수 있어서</button>
+      </div><div class="quiz-exp">ERM은 편심 질량이 회전 속도에 이를 때까지 시간이 걸린다. LRA는 공진 주파수 근처에서 구동하고, 드라이버의 오버드라이브와 역위상 브레이킹으로 잔진동을 빠르게 끊는다.</div></div>
+
+      <div class="quiz-q" data-ch="audio"><p>스마트 앰프가 일반 앰프보다 마이크로 스피커에서 더 큰 음압을 안전하게 낼 수 있는 이유는?</p><div class="opts">
+        <button class="opt" data-correct>스피커 전압·전류를 실시간으로 감지해 진동판 변위와 코일 온도를 추정하고, 한계 직전까지만 구동하므로</button><button class="opt">출력 임피던스가 0이라서</button><button class="opt">디지털 입력을 받아서</button><button class="opt">저음을 모두 제거해서</button>
+      </div><div class="quiz-exp">고정 마진 대신 실제 상태를 보고 보호하므로, 같은 스피커에서 수 dB 더 큰 소리와 더 풍부한 저음을 낼 수 있다.</div></div>
+
+      <div class="quiz-q" data-ch="thermal"><p>스마트폰의 지속 성능(sustained performance)을 결정하는 가장 근본적인 한계는?</p><div class="opts">
+        <button class="opt">AP의 최고 클럭</button><button class="opt">배터리 용량</button><button class="opt" data-correct>표면(피부) 온도 한계에서 외부로 내보낼 수 있는 열량, 대략 3~5 W 수준</button><button class="opt">DRAM 용량</button>
+      </div><div class="quiz-exp">팬이 없는 폰은 자연 대류와 복사로만 열을 버린다. 표면 온도를 약 40 °C대 초중반으로 지키면 내보낼 수 있는 열은 몇 W에 그치고, 그 이상은 스로틀링으로 맞춘다.</div></div>
+
+      <div class="quiz-q" data-ch="thermal"><p>그래파이트 시트를 두께가 아니라 '면 방향 열 확산'에 쓰는 이유는?</p><div class="opts">
+        <button class="opt">전기 절연체라서</button><button class="opt" data-correct>면내 열전도도는 수백~천수백 W/m·K로 매우 높지만 두께 방향은 수~수십 W/m·K로 낮은 이방성 재료이기 때문</button><button class="opt">비열이 매우 커서</button><button class="opt">자기장을 차단해서</button>
+      </div><div class="quiz-exp">그래파이트의 탄소 층은 층 안에서는 열이 잘 흐르지만 층 사이로는 잘 흐르지 못한다. 그래서 핫스팟 열을 넓게 펼치는 데 쓴다.</div></div>
+
+      <div class="quiz-q" data-ch="thermal"><p>칩 접합부에서 외기까지 열저항 합이 12 K/W이고 외기가 25 °C일 때, 접합 온도를 85 °C 이하로 지키려면 칩이 낼 수 있는 최대 전력은?</p><div class="opts">
+        <button class="opt">약 2 W</button><button class="opt" data-correct>5 W</button><button class="opt">약 7 W</button><button class="opt">12 W</button>
+      </div><div class="quiz-exp">P = ΔT/R = (85 − 25)/12 = 5 W. 실제로는 표면 온도 한계가 먼저 걸리는 경우가 많다.</div></div>
+
+      <div class="quiz-q" data-ch="mechanical"><p>화학 강화(이온 교환) 유리가 깨지기 어려운 원리는?</p><div class="opts">
+        <button class="opt">유리 내부에 금속 섬유가 들어 있어서</button><button class="opt">표면을 매우 단단한 코팅으로 덮어서</button><button class="opt">유리를 아주 두껍게 만들어서</button><button class="opt" data-correct>표면의 작은 Na⁺를 큰 K⁺로 바꿔 표면에 압축 응력층을 만들어, 균열이 열리려면 그 압축을 먼저 이겨야 하므로</button>
+      </div><div class="quiz-exp">유리는 표면 결함에서 인장으로 깨진다. 압축 응력(CS, 수백 MPa 이상)과 깊이(DOL)가 클수록 낙하 시 날카로운 접촉에도 균열이 자라기 어렵다.</div></div>
+
+      <div class="quiz-q" data-ch="mechanical"><p>IP68 등급에서 숫자 '6'과 '8'의 의미는?</p><div class="opts">
+        <button class="opt" data-correct>6: 먼지 완전 차단, 8: 제조사가 정한 조건(1 m 초과)에서 연속 침수 보호</button><button class="opt">6: 6 m 방수, 8: 8시간 방수</button><button class="opt">6: 낙하 6회, 8: 침수 8회</button><button class="opt">6: 방진 60 %, 8: 방수 80 %</button>
+      </div><div class="quiz-exp">IEC 60529의 첫 자리는 고체(먼지), 둘째 자리는 액체 보호 등급이다. IPX8의 수심·시간은 제조사가 명시하며, 스마트폰은 흔히 1.5~6 m, 30분 수준이다.</div></div>
+
+      <div class="quiz-q" data-ch="mechanical"><p>공차 스택업에서 RSS(제곱합 제곱근) 방식이 최악값(worst-case) 합보다 작은 누적 공차를 주는 이유는?</p><div class="opts">
+        <button class="opt">측정 오차를 빼서</button><button class="opt">공차 중 가장 큰 것만 더해서</button><button class="opt" data-correct>독립적인 편차들이 모두 동시에 한계쪽으로 몰릴 확률은 매우 낮다는 통계적 가정을 쓰기 때문</button><button class="opt">온도 팽창을 무시해서</button>
+      </div><div class="quiz-exp">n개의 같은 공차 t를 더하면 최악값은 n·t, RSS는 √n·t다. 대신 공정이 중심에 있고 서로 독립이라는 가정이 깨지면 불량이 생긴다.</div></div>
+
+      <div class="quiz-q" data-ch="design"><p>EVT → DVT → PVT 순서에서 DVT 단계의 핵심 목표는?</p><div class="opts">
+        <button class="opt">처음으로 회로가 동작하는지 확인</button><button class="opt" data-correct>최종에 가까운 설계로 신뢰성·인증·환경 시험을 통과해 설계를 확정</button><button class="opt">양산 라인의 수율과 택트 타임 확인</button><button class="opt">시장 조사</button>
+      </div><div class="quiz-exp">EVT는 기능·성능 검증, DVT는 설계 검증(낙하·방수·인증 등)으로 금형과 설계를 굳히는 단계, PVT는 실제 양산 공정과 수율을 검증하는 단계다.</div></div>
+
+      <div class="quiz-q" data-ch="design"><p>배터리 용량·두께·무게·원가 같은 목표를 동시에 볼 때 '파레토 전선(Pareto front)'에 있는 설계란?</p><div class="opts">
+        <button class="opt">원가가 가장 싼 설계</button><button class="opt">모든 지표가 최고인 설계</button><button class="opt">무작위로 고른 설계</button><button class="opt" data-correct>다른 지표를 나쁘게 하지 않고는 어떤 지표도 더 좋게 할 수 없는 설계들</button>
+      </div><div class="quiz-exp">파레토 전선 위의 점들은 서로 우열을 가릴 수 없는 '좋은 타협안'이다. 그중 어느 것을 고를지는 제품 전략(가중치)이 정한다.</div></div>
+
+      <div class="quiz-q" data-ch="design"><p>부피 예산에서 1 mm 더 얇게 만드는 결정이 가장 직접적으로 깎아 먹는 것은?</p><div class="opts">
+        <button class="opt" data-correct>배터리 두께, 곧 용량(사용 시간)과 열을 버틸 질량·면적의 여유</button><button class="opt">화면 해상도</button><button class="opt">모뎀 대역</button><button class="opt">저장 용량</button>
+      </div><div class="quiz-exp">두께 방향에서 줄일 여지가 가장 큰 부품이 배터리라, 1 mm는 흔히 용량 10~20 % 수준의 손실로 이어진다. 카메라 범프와 열 여유도 함께 빠듯해진다.</div></div>
+
+    </div>
+    <div class="fq-result" id="fq-result" hidden>
+      <div class="fq-rank">YOUR RANK</div>
+      <div class="fq-title" id="fq-title"></div>
+      <div class="fq-big" id="fq-big"></div>
+      <p id="fq-msg" style="color:var(--text-dim)"></p>
+      <p class="fq-review" id="fq-review"></p>
+      <button class="btn primary" id="fq-retry" type="button">다시 풀기 (문항·보기 섞기)</button>
+    </div>
+  </section>
+
+  <section class="keypoints" id="summary">
+    <h2>마치며</h2>
+    <ol>
+      <li>스마트폰은 <b>약 8 mm 두께, 200 g 안팎의 무게, 몇 W의 방열</b>이라는 세 가지 천장 아래에서 화면·칩·배터리·카메라·안테나가 자리와 열과 전력을 나눠 갖는 시스템이다.</li>
+      <li>거의 모든 용어는 트레이드오프의 한쪽을 가리킨다. LTPO는 전력과 원가, OIS는 화질과 두께, mmWave는 속도와 커버리지, 고속 충전은 시간과 수명의 거래다.</li>
+      <li>틀린 문항이 있던 장으로 돌아가 시뮬레이터를 다시 만져 보고, 마지막으로 <a href="design.html">13장 설계 플레이그라운드</a>에서 자신만의 폰을 설계해 보자. 카메라 센서 자체가 궁금하면 자매편 <a href="https://semi.euiyun.com/sensor/chapters/glossary.html">SensorBook 용어집</a>으로.</li>
+    </ol>
+  </section>
+</main>
+
+<script src="../js/glossary-data.js"></script>
+<script>
+(function () {
+  "use strict";
+  /* =============================================================== 용어 데이터 */
+  var TERMS = window.BOOK_GLOSSARY.terms.map((t) => ({ ko: t.ko, en: t.en, abbr: t.abbr, def: t.def, ch: t.chapters[0] }));
+
+  /* =============================================================== 공통 */
+  var CH = {}, ORDER = {};
+  var CHS = PB.CHAPTERS.filter(function (c) { return c.slug !== "glossary"; });
+  CHS.forEach(function (c, i) { CH[c.slug] = c; ORDER[c.slug] = i; });
+  var SHORT = { anatomy: "해부", display: "디스플레이", soc: "AP(SoC)", board: "보드·메모리", battery: "배터리", power: "전력·충전", rf: "통신·RF", camera: "카메라", sensors: "센서", audio: "오디오·햅틱", thermal: "열", mechanical: "기구", design: "설계" };
+  function hue(slug) { return Math.round(ORDER[slug] * 360 / CHS.length + 175) % 360; }
+  function chColor(slug, a) { var d = PB.isDark(); return "hsla(" + hue(slug) + "," + (d ? 62 : 58) + "%," + (d ? 62 : 44) + "%," + (a == null ? 1 : a) + ")"; }
+  function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
+  function norm(s) { return String(s).toLowerCase().replace(/[\s\-·_/()]/g, ""); }
+  function shuffle(a) { for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+
+  var CHO = ["ㄱ", "ㄲ", "ㄴ", "ㄷ", "ㄸ", "ㄹ", "ㅁ", "ㅂ", "ㅃ", "ㅅ", "ㅆ", "ㅇ", "ㅈ", "ㅉ", "ㅊ", "ㅋ", "ㅌ", "ㅍ", "ㅎ"];
+  var MERGE = { "ㄲ": "ㄱ", "ㄸ": "ㄷ", "ㅃ": "ㅂ", "ㅆ": "ㅅ", "ㅉ": "ㅈ" };
+  function koInitial(s) {
+    var c = s.charCodeAt(0);
+    if (c >= 0xac00 && c <= 0xd7a3) { var j = CHO[Math.floor((c - 0xac00) / 588)]; return MERGE[j] || j; }
+    if (/[0-9]/.test(s[0])) return "0–9";
+    return "A–Z";
+  }
+  function enInitial(s) { var c = s.trim()[0].toUpperCase(); return /[A-Z]/.test(c) ? c : "0–9"; }
+  function gOrdKo(g) { var i = CHO.indexOf(g); return i >= 0 ? i : g === "0–9" ? 99 : 100; }
+  TERMS.forEach(function (t, i) { t.id = i; t._key = norm(t.ko + " " + t.en + " " + t.abbr); t._def = norm(t.def); t._ki = koInitial(t.ko); t._ei = enInitial(t.en); });
+
+  /* =============================================================== 퀴즈 개수 (지도용) */
+  var qEls = [].slice.call(document.querySelectorAll("#fq-list .quiz-q"));
+  var QCOUNT = {}; qEls.forEach(function (q) { QCOUNT[q.dataset.ch] = (QCOUNT[q.dataset.ch] || 0) + 1; });
+  var TCOUNT = {}; TERMS.forEach(function (t) { TCOUNT[t.ch] = (TCOUNT[t.ch] || 0) + 1; });
+
+  /* =============================================================== 용어집 */
+  var qEl = document.getElementById("gl-q"), listEl = document.getElementById("gl-list"), countEl = document.getElementById("gl-count");
+  var curCh = "all";
+  var sortSel = PB.seg("gl-sort", renderGlossary);
+  qEl.addEventListener("input", renderGlossary);
+
+  function buildChips(box, counts, onPick) {
+    var html = '<button type="button" data-value="all" class="on">전체 <span class="c">' + Object.keys(counts).reduce(function (s, k) { return s + counts[k]; }, 0) + "</span></button>";
+    CHS.forEach(function (c) {
+      if (!counts[c.slug]) return;
+      html += '<button type="button" data-value="' + c.slug + '"><i data-sw="' + c.slug + '"></i>' + c.num + " " + esc(SHORT[c.slug]) + ' <span class="c">' + counts[c.slug] + "</span></button>";
+    });
+    box.innerHTML = html;
+    var btns = [].slice.call(box.querySelectorAll("button"));
+    function set(v) { btns.forEach(function (b) { var on = b.dataset.value === v; b.classList.toggle("on", on); b.setAttribute("aria-pressed", on); }); }
+    btns.forEach(function (b) { b.addEventListener("click", function () { set(b.dataset.value); onPick(b.dataset.value); }); });
+    set("all");
+    return set;
+  }
+  function paintSwatches() {
+    [].forEach.call(document.querySelectorAll("[data-sw]"), function (i) { i.style.background = chColor(i.dataset.sw); });
+  }
+  var setGlChip = buildChips(document.getElementById("gl-ch"), TCOUNT, function (v) { curCh = v; renderGlossary(); if (mapCv) mapCv.redraw(); });
+
+  function hl(text, q) {
+    var t = esc(text);
+    if (!q) return t;
+    var i = text.toLowerCase().indexOf(q);
+    if (i < 0) return t;
+    return esc(text.slice(0, i)) + "<mark>" + esc(text.slice(i, i + q.length)) + "</mark>" + esc(text.slice(i + q.length));
+  }
+  function setChapter(v) { curCh = v; setGlChip(v); renderGlossary(); if (mapCv) mapCv.redraw(); }
+
+  function renderGlossary() {
+    var raw = qEl.value.trim(), q = norm(raw), qLow = raw.toLowerCase(), mode = sortSel();
+    var items = TERMS.filter(function (t) {
+      if (curCh !== "all" && t.ch !== curCh) return false;
+      if (!q) return true;
+      return t._key.indexOf(q) >= 0 || t._def.indexOf(q) >= 0;
+    });
+    var rank = function (t) { return q && t._key.indexOf(q) < 0 ? 1 : 0; };
+    items.sort(function (a, b) {
+      if (mode === "ch") { var d = ORDER[a.ch] - ORDER[b.ch]; if (d) return d; return a.id - b.id; }
+      var r = rank(a) - rank(b); if (r) return r;
+      if (mode === "en") return a.en.localeCompare(b.en, "en", { sensitivity: "base" });
+      var g = gOrdKo(a._ki) - gOrdKo(b._ki); if (g) return g;
+      return a.ko.localeCompare(b.ko, "ko");
+    });
+    countEl.textContent = items.length + " / " + TERMS.length + "개 용어";
+    PB.stat("o-sel", curCh === "all" ? "전체" : CH[curCh].num + " " + SHORT[curCh] + " · " + TCOUNT[curCh] + "개");
+    if (!items.length) { listEl.innerHTML = '<div class="gl-empty">“' + esc(raw) + "”에 해당하는 용어가 없습니다." + (curCh !== "all" ? " 장 필터를 ‘전체’로 바꾸거나" : "") + " 영어나 약어로도 검색해 보세요.</div>"; return; }
+    var html = [], last = null;
+    items.forEach(function (t) {
+      var g = mode === "ch" ? t.ch : (q && rank(t) ? "본문 일치" : (mode === "en" ? t._ei : t._ki));
+      if (g !== last) {
+        last = g;
+        html.push('<div class="gl-group">' + (mode === "ch" ? CH[g].num + " · " + esc(CH[g].title) : esc(g)) + "</div>");
+      }
+      var c = CH[t.ch];
+      html.push('<div class="gl-item" id="term-' + t.id + '"><h4>' + hl(t.ko, qLow) + '<span class="en">' + hl(t.en, qLow) + "</span>" +
+        (t.abbr && t.abbr !== t.ko ? '<span class="abbr">' + hl(t.abbr, qLow) + "</span>" : "") + "</h4><p>" + hl(t.def, qLow) + "</p>" +
+        '<a class="ch" href="' + t.ch + '.html"><i style="background:' + chColor(t.ch) + '"></i>' + c.num + "장 " + esc(c.title) + " →</a></div>");
+    });
+    listEl.innerHTML = html.join("");
+  }
+
+  /* =============================================================== 용어 지도 */
+  var mapBars = [], hover = null, mapCv = null;
+  var maxT = Math.max.apply(null, CHS.map(function (c) { return TCOUNT[c.slug] || 0; }));
+  function drawMap(ctx, w, h) {
+    var P = PB.palette(), horiz = w < 560;
+    mapBars = [];
+    ctx.font = "12px " + PB.color("font");
+    ctx.textBaseline = "middle";
+    var scaleMax = Math.ceil((maxT + 2) / 5) * 5;
+    if (horiz) {
+      var left = 92, right = 40, top = 10, rh = (h - top - 10) / CHS.length, bw = w - left - right;
+      // grid
+      ctx.strokeStyle = P.grid; ctx.lineWidth = 1;
+      for (var gx = 0; gx <= scaleMax; gx += 5) { var xx = left + bw * gx / scaleMax; ctx.beginPath(); ctx.moveTo(xx, top); ctx.lineTo(xx, h - 10); ctx.stroke(); }
+      CHS.forEach(function (c, i) {
+        var n = TCOUNT[c.slug] || 0, y = top + i * rh, bh = rh * 0.62, yb = y + (rh - bh) / 2;
+        var sel = curCh === c.slug, dim = curCh !== "all" && !sel;
+        ctx.fillStyle = chColor(c.slug, dim ? 0.3 : (hover === i ? 1 : 0.85));
+        var L = bw * n / scaleMax;
+        ctx.fillRect(left, yb, L, bh);
+        if (sel) { ctx.strokeStyle = P.text; ctx.lineWidth = 2; ctx.strokeRect(left + 1, yb + 1, L - 2, bh - 2); }
+        ctx.fillStyle = sel ? P.text : P.dim; ctx.textAlign = "right";
+        ctx.fillText(c.num + " " + SHORT[c.slug], left - 6, y + rh / 2);
+        ctx.fillStyle = P.text; ctx.textAlign = "left"; ctx.font = "11px " + PB.color("mono");
+        ctx.fillText(n, left + L + 4, y + rh / 2);
+        ctx.font = "12px " + PB.color("font");
+        var qn = QCOUNT[c.slug] || 0;
+        for (var k = 0; k < qn; k++) { ctx.beginPath(); ctx.arc(left + 6 + k * 8, y + rh / 2, 2.6, 0, 7); ctx.fillStyle = P.text; ctx.fill(); }
+        mapBars.push({ x0: 0, x1: w, y0: y, y1: y + rh, slug: c.slug, i: i });
+      });
+    } else {
+      var l2 = 40, r2 = 12, t2 = 18, b2 = 46, cw = (w - l2 - r2) / CHS.length, ph = h - t2 - b2;
+      ctx.strokeStyle = P.grid; ctx.lineWidth = 1; ctx.fillStyle = P.faint; ctx.textAlign = "right"; ctx.font = "11px " + PB.color("mono");
+      for (var gy = 0; gy <= scaleMax; gy += 5) { var yy = t2 + ph - ph * gy / scaleMax; ctx.beginPath(); ctx.moveTo(l2, yy); ctx.lineTo(w - r2, yy); ctx.stroke(); ctx.fillText(gy, l2 - 6, yy); }
+      CHS.forEach(function (c, i) {
+        var n = TCOUNT[c.slug] || 0, x = l2 + i * cw, bwid = cw * 0.66, xb = x + (cw - bwid) / 2;
+        var H = ph * n / scaleMax, sel = curCh === c.slug, dim = curCh !== "all" && !sel;
+        ctx.fillStyle = chColor(c.slug, dim ? 0.3 : (hover === i ? 1 : 0.85));
+        ctx.fillRect(xb, t2 + ph - H, bwid, H);
+        if (sel) { ctx.strokeStyle = P.text; ctx.lineWidth = 2; ctx.strokeRect(xb + 1, t2 + ph - H + 1, bwid - 2, H - 2); }
+        ctx.fillStyle = P.text; ctx.textAlign = "center"; ctx.font = "11px " + PB.color("mono");
+        ctx.fillText(n, x + cw / 2, t2 + ph - H - 9);
+        var qn = QCOUNT[c.slug] || 0;
+        for (var k = 0; k < qn; k++) { ctx.beginPath(); ctx.arc(x + cw / 2, t2 + ph - 8 - k * 9, 3, 0, 7); ctx.fillStyle = PB.isDark() ? "rgba(0,0,0,.75)" : "rgba(255,255,255,.92)"; ctx.fill(); ctx.strokeStyle = P.text; ctx.lineWidth = 1; ctx.stroke(); }
+        ctx.fillStyle = sel ? P.accent : P.dim; ctx.font = (sel ? "700 " : "") + "12px " + PB.color("mono");
+        ctx.fillText(c.num, x + cw / 2, h - b2 + 14);
+        ctx.font = (sel ? "700 " : "") + "11px " + PB.color("font");
+        var lab = SHORT[c.slug].replace(/[·(].*$/, "");
+        while (ctx.measureText(lab).width > cw - 2 && lab.length > 2) lab = lab.slice(0, -1);
+        ctx.fillText(lab, x + cw / 2, h - b2 + 31);
+        mapBars.push({ x0: x, x1: x + cw, y0: 0, y1: h, slug: c.slug, i: i });
+      });
+    }
+  }
+  function hit(ev) {
+    var r = ev.currentTarget.getBoundingClientRect(), x = ev.clientX - r.left, y = ev.clientY - r.top;
+    for (var i = 0; i < mapBars.length; i++) { var b = mapBars[i]; if (x >= b.x0 && x < b.x1 && y >= b.y0 && y < b.y1) return b; }
+    return null;
+  }
+  var cvEl = document.getElementById("cv-map");
+  mapCv = PB.canvas(cvEl, drawMap, { get height() { return (cvEl.parentElement.clientWidth || 600) < 560 ? CHS.length * 26 + 20 : 300; } });
+  cvEl.addEventListener("mousemove", function (ev) { var b = hit(ev), hv = b ? b.i : null; if (hv !== hover) { hover = hv; mapCv.redraw(); } cvEl.title = b ? CH[b.slug].num + " " + CH[b.slug].title + " · 용어 " + (TCOUNT[b.slug] || 0) + "개, 퀴즈 " + (QCOUNT[b.slug] || 0) + "문항" : ""; });
+  cvEl.addEventListener("mouseleave", function () { hover = null; mapCv.redraw(); });
+  cvEl.addEventListener("click", function (ev) {
+    var b = hit(ev); if (!b) return;
+    setChapter(curCh === b.slug ? "all" : b.slug);
+  });
+  PB.stat("o-total", TERMS.length + "개");
+  PB.stat("o-abbr", TERMS.filter(function (t) { return t.abbr; }).length + "개");
+  PB.stat("o-quiz", qEls.length + "문항");
+
+  /* =============================================================== 종합 퀴즈 */
+  var listQ = document.getElementById("fq-list"), quizCh = "all";
+  qEls.forEach(function (q, i) {
+    var c = CH[q.dataset.ch], p = q.querySelector("p");
+    var tag = document.createElement("span"); tag.className = "qch";
+    tag.innerHTML = '<span class="qno"></span>' + c.num + " · " + esc(c.title);
+    p.insertBefore(tag, p.firstChild);
+    var exp = q.querySelector(".quiz-exp");
+    exp.insertAdjacentHTML("beforeend", ' <a href="' + q.dataset.ch + '.html">→ ' + c.num + "장 복습</a>");
+    q.addEventListener("answered", function (e) { q.dataset.res = e.detail.correct ? "ok" : "bad"; updateScore(); });
+  });
+  buildChips(document.getElementById("fq-ch"), QCOUNT, function (v) { quizCh = v; applyQuizFilter(); });
+  function visibleQs() { return qEls.filter(function (q) { return !q.hidden; }); }
+  function applyQuizFilter() {
+    qEls.forEach(function (q) { q.hidden = quizCh !== "all" && q.dataset.ch !== quizCh; });
+    renumber(); updateScore();
+  }
+  function renumber() { var n = 0; [].forEach.call(listQ.querySelectorAll(".quiz-q"), function (q) { if (!q.hidden) q.querySelector(".qno").textContent = "Q" + (++n); }); }
+  var RANKS = [
+    [0, "분해 입문자", "드라이버를 막 들었다. 1장의 3D 분해부터 천천히 다시 둘러보자."],
+    [0.4, "부품 수집가", "주요 부품은 알아본다. 틀린 장의 시뮬레이터를 다시 만지면 금방 오른다."],
+    [0.65, "하드웨어 엔지니어", "스펙시트를 읽고 부품 간 트레이드오프를 설명할 수 있는 수준이다."],
+    [0.85, "스마트폰 아키텍트!", "두께·열·전력·안테나·원가를 한 번에 저울질할 줄 안다. 13장에서 직접 설계해 보자."],
+  ];
+  function updateScore() {
+    var vis = visibleQs(), ok = 0, bad = 0;
+    vis.forEach(function (q) { if (q.dataset.res === "ok") ok++; else if (q.dataset.res === "bad") bad++; });
+    var n = vis.length, done = ok + bad;
+    PB.stat("fq-ok", ok); PB.stat("fq-bad", bad); PB.stat("fq-left", n - done);
+    PB.stat("fq-pct", done ? "정답률 " + Math.round(ok / done * 100) + " %" : (quizCh === "all" ? "전체 " : CH[quizCh].num + "장 ") + n + "문항");
+    document.getElementById("fq-fill-ok").style.width = (n ? ok / n * 100 : 0) + "%";
+    document.getElementById("fq-fill-bad").style.width = (n ? bad / n * 100 : 0) + "%";
+    var res = document.getElementById("fq-result");
+    if (n && done === n) {
+      var frac = ok / n, rank = RANKS[0];
+      RANKS.forEach(function (r) { if (frac >= r[0]) rank = r; });
+      PB.stat("fq-title", esc(rank[1]));
+      PB.stat("fq-big", ok + "<small> / " + n + "</small>");
+      PB.stat("fq-msg", "정답률 " + Math.round(frac * 100) + " % · " + esc(rank[2]));
+      var m = {};
+      vis.forEach(function (q) { if (q.dataset.res === "bad") m[q.dataset.ch] = (m[q.dataset.ch] || 0) + 1; });
+      var weak = CHS.filter(function (c) { return m[c.slug]; });
+      PB.stat("fq-review", weak.length
+        ? "다시 볼 장: " + weak.map(function (c) { return '<a href="' + c.slug + '.html">' + c.num + " " + esc(c.title) + "</a> (" + m[c.slug] + "문항)"; }).join(" · ")
+        : "모두 정답! <a href=\"design.html\">13장 설계 플레이그라운드</a>에서 자신만의 폰을 설계해 보자.");
+      var wasHidden = res.hidden;
+      res.hidden = false;
+      if (wasHidden) res.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    } else res.hidden = true;
+  }
+  function resetQuiz() {
+    var arr = shuffle(qEls.slice());
+    arr.forEach(function (q) {
+      delete q.dataset.res;
+      q.classList.remove("done");
+      var box = q.querySelector(".opts"), opts = shuffle([].slice.call(box.querySelectorAll("button.opt")));
+      opts.forEach(function (b) { b.disabled = false; b.classList.remove("right", "wrong"); box.appendChild(b); });
+      listQ.appendChild(q);
+    });
+    renumber(); updateScore();
+    document.getElementById("final-quiz").scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+  document.getElementById("fq-retry").addEventListener("click", resetQuiz);
+  document.getElementById("fq-retry2").addEventListener("click", resetQuiz);
+
+  /* =============================================================== 초기화 */
+  try {
+    var h = decodeURIComponent(location.hash || "");
+    if (h.indexOf("#q=") === 0) qEl.value = h.slice(3);
+  } catch (e) {}
+  paintSwatches();
+  renderGlossary();
+  renumber(); updateScore();
+  PB.onTheme(function () { paintSwatches(); renderGlossary(); });
+})();
+</script>
+</body>
+</html>

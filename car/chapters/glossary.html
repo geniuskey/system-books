@@ -1,0 +1,579 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<title>용어집 &amp; 종합 퀴즈 · CarBook</title>
+<meta name="description" content="자동차 기초부터 자율주행까지 핵심 용어 300여 개를 한국어·영어·약어로 검색하고, 단위 환산 계산기와 전 챕터 종합 퀴즈로 실력을 점검한다.">
+<link rel="canonical" href="https://system.euiyun.com/car/chapters/glossary.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="CarBook">
+<meta property="og:title" content="용어집 &amp; 종합 퀴즈 · CarBook">
+<meta property="og:description" content="자동차 기초부터 자율주행까지 핵심 용어 300여 개를 한국어·영어·약어로 검색하고, 단위 환산 계산기와 전 챕터 종합 퀴즈로 실력을 점검한다.">
+<meta property="og:url" content="https://system.euiyun.com/car/chapters/glossary.html">
+<meta property="og:image" content="https://system.euiyun.com/car/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="ko_KR">
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","headline":"용어집 & 종합 퀴즈","name":"용어집 & 종합 퀴즈 · CarBook","url":"https://system.euiyun.com/car/chapters/glossary.html","mainEntityOfPage":"https://system.euiyun.com/car/chapters/glossary.html","inLanguage":"ko","isAccessibleForFree":true,"learningResourceType":"interactive textbook chapter","position":22,"image":"https://system.euiyun.com/car/og.png","dateModified":"2026-10-02","isPartOf":{"@type":"Book","@id":"https://system.euiyun.com/car/#book","name":"CarBook — 인터랙티브 자동차 교과서","url":"https://system.euiyun.com/car/"},"publisher":{"@type":"Organization","name":"CarBook","url":"https://system.euiyun.com/car/"},"description":"자동차 기초부터 자율주행까지 핵심 용어 300여 개를 한국어·영어·약어로 검색하고, 단위 환산 계산기와 전 챕터 종합 퀴즈로 실력을 점검한다."},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"CarBook","item":"https://system.euiyun.com/car/"},{"@type":"ListItem","position":2,"name":"22 용어집 & 종합 퀴즈","item":"https://system.euiyun.com/car/chapters/glossary.html"}]}]}</script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<link rel="stylesheet" href="../css/style.css">
+<script src="../js/common.js"></script>
+<style>
+  [hidden] { display: none !important; }
+  .gl-tools { display: grid; gap: 10px; margin-bottom: 18px; }
+  .gl-tools .row { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; }
+  .gl-tools .lbl { font-size: 13px; color: var(--text-dim); }
+  .gl-tools .seg button { font-size: 12.5px; padding: 4px 9px; }
+  .gl-search { margin-bottom: 0 !important; box-sizing: border-box; }
+  .gl-count { font-size: 13px; color: var(--text-faint); margin-left: auto; }
+  #gl-list { max-height: min(78vh, 980px); overflow-y: auto; overscroll-behavior: contain; padding: 2px 6px 2px 2px; border-radius: 12px; }
+  .gl-group { position: sticky; top: 0; z-index: 1; background: var(--bg); font-family: var(--mono); font-weight: 700; font-size: 13px; color: var(--accent); letter-spacing: .06em; margin: 14px 0 0; padding-bottom: 4px; border-bottom: 1px solid var(--border); }
+  .gl-group:first-child { margin-top: 0; }
+  .gl-item h4 .abbr { font-family: var(--mono); font-size: 12px; font-weight: 700; color: var(--accent-2); background: var(--accent-2-soft); border-radius: 5px; padding: 1px 6px; margin-left: 6px; vertical-align: 1px; white-space: nowrap; }
+  .gl-item h4 .en { color: var(--text-dim); font-size: 14px; }
+  .gl-item .cat { font-size: 12px; color: var(--text-faint); margin-right: 8px; }
+  .gl-item mark, #ab-body mark { background: color-mix(in srgb, var(--warn) 35%, transparent); color: inherit; border-radius: 3px; padding: 0 1px; }
+  .gl-empty { padding: 24px; text-align: center; color: var(--text-dim); border: 1px dashed var(--border); border-radius: 12px; }
+
+  #ab-table td:first-child { font-family: var(--mono); font-weight: 700; color: var(--accent); white-space: nowrap; }
+  #ab-table td:nth-child(2) { font-size: 14px; color: var(--text-dim); }
+  #ab-wrap { max-height: min(70vh, 720px); overflow-y: auto; }
+  #ab-table thead th { position: sticky; top: 0; background: var(--bg-elev); z-index: 1; }
+
+  .cv-in { display: flex; gap: 8px; }
+  .cv-in input[type="number"] { flex: 1; min-width: 0; font: inherit; font-family: var(--mono); font-size: 15px; padding: 7px 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); color: var(--text); }
+  .cv-in select { flex: none; max-width: 55%; }
+  .cv-bars { padding: 14px 18px; display: grid; gap: 8px; background: var(--canvas-bg); }
+  .cv-row { display: grid; grid-template-columns: minmax(76px, 110px) minmax(0, 1fr); gap: 10px; align-items: center; font-size: 14px; }
+  .cv-row .u { color: var(--text-dim); font-size: 13px; }
+  .cv-row .val { font-family: var(--mono); font-weight: 600; font-size: 17px; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+  .cv-row.src .val { color: var(--accent); }
+  .cv-row .val small { font-size: 12px; color: var(--text-dim); font-weight: 400; margin-left: 4px; }
+
+  .fq-head { background: var(--bg-elev); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 18px; margin-bottom: 16px; display: grid; gap: 10px; position: sticky; top: 56px; z-index: 2; box-shadow: var(--shadow); }
+  .fq-top { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 6px 12px; font-size: 13px; color: var(--text-dim); font-family: var(--mono); }
+  .fq-bar { height: 6px; background: var(--surface-2); border-radius: 3px; overflow: hidden; }
+  .fq-bar i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, var(--accent), var(--accent-2)); transition: width .3s ease; }
+  .fq-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .fq-actions .lbl { font-size: 13px; color: var(--text-dim); }
+  .fq-actions .btn { font-size: 13px; padding: 6px 12px; }
+  .fq-actions .btn[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); font-weight: 700; }
+  .quiz-q .q-ch { font-size: 12px; font-weight: 700; color: var(--accent); letter-spacing: .04em; margin: 0 0 6px !important; }
+  .quiz-q .q-text { font-weight: 700; margin-bottom: 12px; }
+  .quiz-q .quiz-exp b.ok { color: var(--ok); } .quiz-q .quiz-exp b.bad { color: var(--bad); }
+  .fq-result { background: var(--bg-elev); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-top: 16px; text-align: center; }
+  .fq-rank { font-size: 13px; letter-spacing: .12em; color: var(--text-faint); font-weight: 700; }
+  .fq-title { font-size: clamp(22px, 5vw, 30px); font-weight: 800; letter-spacing: -0.02em; margin: 4px 0; color: var(--accent); }
+  .fq-big { font-family: var(--mono); font-size: 38px; font-weight: 700; }
+  .fq-big small { font-size: 18px; color: var(--text-dim); }
+  .fq-review { text-align: left; font-size: 14px; color: var(--text-dim); margin: 12px 0 0; }
+  .fq-review a { font-weight: 600; }
+</style>
+<link rel="stylesheet" href="../../shared/css/book-shell.css">
+<script defer src="../../shared/js/book-shell.js" data-book="car"></script>
+</head>
+<body data-chapter="glossary">
+<main class="chapter">
+  <header class="chapter-hero">
+    <div class="eyebrow">Chapter 22</div>
+    <h1>용어집 &amp; 종합 퀴즈</h1>
+    <p class="lead">자동차는 약어와 외래어의 숲이다. BMEP, LSD, ESC, PMSM, SOC, AEB, SOTIF... 이 장은 책 전체에 흩어진 핵심 용어를 한곳에 모은 사전이자, 엔진부터 자율주행까지 전 범위를 점검하는 마무리 시험이다.</p>
+    <ul class="objectives">
+      <li>한국어·영어·약어 어느 쪽으로든 용어를 찾아 정의를 확인하고 해당 챕터로 바로 이동할 수 있다.</li>
+      <li>ps와 kW, kgf·m와 N·m, km/L와 L/100 km처럼 자주 헷갈리는 단위를 서로 환산할 수 있다.</li>
+      <li>무작위 종합 퀴즈로 각 장의 핵심 개념을 점검하고, 틀린 문제의 챕터를 다시 공부할 계획을 세운다.</li>
+    </ul>
+    <p style="margin-top:16px"><a href="#glossary">→ 용어집</a> · <a href="#abbr">→ 약어 빠른 표</a> · <a href="#units">→ 단위 환산</a> · <a href="#final-quiz">→ 종합 퀴즈</a></p>
+  </header>
+
+  <section id="glossary">
+    <h2>용어집</h2>
+    <p>검색창에 한국어(예: <code>슬립</code>), 영어(예: <code>differential</code>), 약어(예: <code>BMS</code>) 중 아무것이나 입력하면 바로 걸러진다. 정의 본문도 검색 대상이다. 분야 칩으로 범위를 좁히고, 가나다순 또는 챕터순으로 묶어 볼 수 있다. 각 항목 아래의 링크를 누르면 그 용어를 자세히 다루는 장으로 이동한다.</p>
+    <div class="gl-tools">
+      <input type="search" class="gl-search" id="gl-q" placeholder="용어 검색: 예) 마찰원, torque, ASIL" autocomplete="off" aria-label="용어 검색">
+      <div class="row">
+        <span class="lbl">분야</span>
+        <div class="seg" id="gl-cat">
+          <button data-value="all" class="on">전체</button>
+          <button data-value="기초">기초</button>
+          <button data-value="파워트레인">파워트레인</button>
+          <button data-value="섀시">섀시</button>
+          <button data-value="차체">차체</button>
+          <button data-value="전장">전장</button>
+          <button data-value="전동화">전동화</button>
+          <button data-value="자율주행">자율주행</button>
+        </div>
+      </div>
+      <div class="row">
+        <span class="lbl">정렬</span>
+        <div class="seg" id="gl-sort"><button data-value="kor" class="on">가나다순</button><button data-value="ch">챕터순</button></div>
+        <span class="gl-count" id="gl-count"></span>
+      </div>
+    </div>
+    <div class="gl-list no-math" id="gl-list" aria-live="polite"></div>
+  </section>
+
+  <section id="abbr">
+    <h2>약어 빠른 표</h2>
+    <p>제원표와 기사, 정비 문서에 가장 자주 나오는 약어만 추렸다. 같은 약어가 분야에 따라 다른 뜻으로 쓰이기도 한다. 예를 들어 BEV는 전동화에서는 배터리 전기차, 인지에서는 조감도 표현을 가리킨다. 위 검색창에 입력한 글자는 이 표에도 함께 적용된다.</p>
+    <div class="table-wrap" id="ab-wrap">
+      <table id="ab-table" class="no-math">
+        <thead><tr><th>약어</th><th>원어</th><th>우리말</th><th>장</th></tr></thead>
+        <tbody id="ab-body"></tbody>
+      </table>
+    </div>
+    <p style="font-size:14px;color:var(--text-dim)" id="ab-count"></p>
+  </section>
+
+  <section id="units">
+    <h2>단위와 환산</h2>
+    <p>자동차 제원에는 SI 단위와 관습 단위가 섞여 쓰인다. 출력은 kW와 ps(미터 마력), 토크는 N·m와 kgf·m, 공기압은 kPa·bar·psi가 함께 돌아다닌다. 숫자만 보고 비교하면 틀리기 쉬우므로 아래 표의 환산 계수 몇 개는 외워 둘 만하다.</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>물리량</th><th>SI 단위</th><th>관습 단위</th><th>환산</th></tr></thead>
+        <tbody>
+          <tr><td>출력</td><td>kW</td><td>ps, hp</td><td>1 ps = 0.7355 kW, 1 hp = 0.7457 kW, 1 kW ≈ 1.36 ps</td></tr>
+          <tr><td>토크</td><td>N·m</td><td>kgf·m, lb·ft</td><td>1 kgf·m = 9.807 N·m, 1 lb·ft = 1.356 N·m</td></tr>
+          <tr><td>속도</td><td>m/s</td><td>km/h, mph</td><td>1 m/s = 3.6 km/h, 1 mph = 1.609 km/h</td></tr>
+          <tr><td>회전 속도</td><td>rad/s</td><td>rpm</td><td>1 rpm = 2π/60 ≈ 0.1047 rad/s</td></tr>
+          <tr><td>가속도</td><td>m/s²</td><td>g</td><td>1 g = 9.81 m/s²</td></tr>
+          <tr><td>힘</td><td>N</td><td>kgf</td><td>1 kgf = 9.807 N</td></tr>
+          <tr><td>압력</td><td>kPa</td><td>bar, psi, kgf/cm²</td><td>1 bar = 100 kPa = 14.50 psi, 1 kgf/cm² = 98.07 kPa</td></tr>
+          <tr><td>에너지</td><td>J</td><td>kWh, kcal</td><td>1 kWh = 3.6 MJ, 1 kcal = 4.184 kJ</td></tr>
+          <tr><td>연비</td><td>—</td><td>km/L, L/100 km, mpg(US)</td><td>L/100 km = 100 ÷ (km/L), mpg(US) = 2.352 × (km/L)</td></tr>
+          <tr><td>전비</td><td>—</td><td>km/kWh, Wh/km</td><td>Wh/km = 1000 ÷ (km/kWh)</td></tr>
+          <tr><td>전하량(용량)</td><td>C</td><td>Ah</td><td>1 Ah = 3,600 C, 에너지(Wh) = 용량(Ah) × 전압(V)</td></tr>
+          <tr><td>길이(휠·타이어)</td><td>mm</td><td>inch</td><td>1 inch = 25.4 mm</td></tr>
+          <tr><td>각도</td><td>rad</td><td>°</td><td>1 rad = 57.30°</td></tr>
+          <tr><td>온도</td><td>K</td><td>°C, °F</td><td>K = °C + 273.15, °F = 1.8 × °C + 32</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>출력과 토크는 회전 속도로 묶여 있다(<a href="engine.html">3장</a>). 단위를 맞춘 실용 식은 다음과 같다.</p>
+    <div class="formula">$$P = T\,\omega \quad\Rightarrow\quad P_{\mathrm{kW}} = \frac{T_{\mathrm{N\cdot m}}\; n_{\mathrm{rpm}}}{9549}, \qquad P_{\mathrm{ps}} = \frac{T_{\mathrm{kgf\cdot m}}\; n_{\mathrm{rpm}}}{716.2}$$
+      <div class="where">여기서 \(P\)는 출력, \(T\)는 토크, \(\omega\)는 각속도(rad/s), \(n\)은 분당 회전수다. 9549는 \(60\,000/2\pi\)에서 나온다.</div>
+    </div>
+    <div class="callout tip"><strong>계산 예</strong>
+      <p>최대 토크 36 kgf·m를 4,500 rpm에서 내는 엔진이 그 회전수에서 내는 출력은 얼마인가? 토크는 36 × 9.807 ≈ 353 N·m이므로 \(P = 353 \times 4500 / 9549 \approx 166\) kW, 미터 마력으로는 166 ÷ 0.7355 ≈ 226 ps다. kgf·m 식으로 바로 계산해도 36 × 4500 ÷ 716.2 ≈ 226 ps로 같다.</p>
+    </div>
+
+    <div class="sim" id="sim-conv">
+      <div class="sim-head"><span class="sim-tag">SIMULATOR</span><h3>단위 환산 계산기</h3></div>
+      <div class="sim-body side">
+        <div class="sim-view"><div class="cv-bars" id="cv-out" aria-live="polite"></div></div>
+        <div class="sim-controls">
+          <div class="ctrl"><span>물리량</span>
+            <div class="seg" id="cv-kind">
+              <button data-value="power" class="on">출력</button>
+              <button data-value="torque">토크</button>
+              <button data-value="speed">속도</button>
+              <button data-value="pressure">압력</button>
+              <button data-value="fuel">연비</button>
+              <button data-value="ev">전비</button>
+              <button data-value="energy">에너지</button>
+            </div>
+          </div>
+          <div class="ctrl"><span>값과 단위</span>
+            <div class="cv-in"><input type="number" id="cv-val" value="150" step="any" aria-label="환산할 값"><select id="cv-unit" aria-label="입력 단위"></select></div>
+          </div>
+          <label class="ctrl"><span>미세 조정 <output id="cv-fine-out"></output></span><input type="range" id="cv-fine" min="-50" max="50" value="0" step="1"></label>
+        </div>
+      </div>
+      <div class="sim-readout">
+        <div class="stat"><span class="k">입력</span><span class="v" id="o-cv-in">—</span></div>
+        <div class="stat"><span class="k">기준 단위(SI)</span><span class="v" id="o-cv-si">—</span></div>
+        <div class="stat"><span class="k">감 잡기</span><span class="v" id="o-cv-hint" style="font-size:13px;font-family:inherit;font-weight:500">—</span></div>
+      </div>
+      <div class="sim-note">해볼 것: 출력 200 ps를 kW로 바꿔 보자(약 147 kW). 연비에서 km/L가 두 배가 되면 L/100 km는 절반이 된다. 역수 관계라서 연비가 나쁜 차의 개선이 연료 절감에는 더 크게 기여한다. 타이어 공기압 35 psi가 몇 kPa인지도 확인해 보자.</div>
+    </div>
+  </section>
+
+  <section id="final-quiz">
+    <h2>종합 퀴즈</h2>
+    <p>전 챕터에서 고른 문제 은행에서 무작위로 한 세트를 뽑아 낸다. 보기를 누르면 바로 채점되고 해설과 관련 챕터 링크가 나온다. 세트를 다 풀면 점수와 다시 볼 장이 정리된다. <b>다시 풀기</b>를 누르면 문제와 보기 순서가 새로 섞인다.</p>
+    <div class="fq-head">
+      <div class="fq-top"><span id="fq-count">푼 문제 0 / 10</span><span id="fq-score">정답 0 · 오답 0</span></div>
+      <div class="fq-bar"><i id="fq-fill"></i></div>
+      <div class="fq-actions">
+        <span class="lbl">세트</span>
+        <div class="seg" id="fq-size"><button data-value="10" class="on">10문항</button><button data-value="20">20문항</button><button data-value="all">전체</button></div>
+        <button class="btn primary" id="fq-retry">다시 풀기</button>
+        <button class="btn" id="fq-wrong" aria-pressed="false">틀린 문제만 보기</button>
+      </div>
+    </div>
+    <div class="quiz no-math" id="fq-list"></div>
+    <div class="gl-empty" id="fq-none" hidden>아직 틀린 문제가 없다.</div>
+    <div class="fq-result" id="fq-result" hidden aria-live="polite">
+      <div class="fq-rank">YOUR RANK</div>
+      <div class="fq-title" id="fq-title"></div>
+      <div class="fq-big" id="fq-big"></div>
+      <p id="fq-msg" style="color:var(--text-dim);margin:6px 0 0"></p>
+      <p class="fq-review" id="fq-review"></p>
+    </div>
+  </section>
+
+  <section class="keypoints" id="summary">
+    <h2>마치며</h2>
+    <ol>
+      <li>자동차가 할 수 있는 모든 일은 결국 <b>네 개의 접지면</b>이 낼 수 있는 힘 안에서 정해진다. 엔진·모터, 브레이크, 조향, 서스펜션은 그 힘을 만들고 나누는 장치다.</li>
+      <li>파워트레인의 역사는 <b>에너지를 덜 버리는</b> 방향으로 흘러왔다. 열효율을 높이고, 운전점을 옮기고, 제동 에너지를 되찾고, 마침내 전기로 바꾼다.</li>
+      <li>차체와 섀시의 설계는 대부분 <b>상충 관계</b>의 조정이다. 승차감과 접지, 강성과 무게, 항력과 냉각, 안정성과 민첩성은 하나만 좋게 만들 수 없다.</li>
+      <li>현대의 차는 <b>바퀴 달린 컴퓨터 네트워크</b>다. 기계가 하던 일을 센서·ECU·액추에이터와 소프트웨어가 넘겨받으면서 기능은 OTA로 계속 바뀐다.</li>
+      <li>자율주행은 <b>감지 → 인지 → 예측·계획 → 제어</b>의 사슬이고, 가장 어려운 부분은 기능을 만드는 것보다 그것이 충분히 안전함을 증명하는 일이다.</li>
+      <li>틀린 문제가 있던 챕터로 돌아가 시뮬레이터를 다시 만져 보자. 용어는 외우는 것보다 손으로 움직여 본 기억과 묶일 때 오래 남는다.</li>
+    </ol>
+  </section>
+</main>
+
+<script src="../js/glossary-data.js"></script>
+<script>
+(function () {
+  "use strict";
+  /*DATA-START*/
+  /* 용어: [한국어, 영어, 약어, 챕터 slug, 정의] */
+  var TERMS = window.BOOK_GLOSSARY.terms.map((t) => [t.ko, t.en, t.abbr, t.chapters[0], t.def]);
+
+  /* 약어: [약어, 원어, 우리말, 챕터 slug] */
+  var ABBR = [
+    ["ABS", "Anti-lock Braking System", "잠김 방지 브레이크", "brake"],
+    ["ACC", "Adaptive Cruise Control", "어댑티브 크루즈 컨트롤", "adas"],
+    ["ADAS", "Advanced Driver Assistance Systems", "첨단 운전자 보조 시스템", "adas"],
+    ["AEB", "Autonomous Emergency Braking", "자동 긴급 제동", "adas"],
+    ["AFR", "Air–Fuel Ratio", "공연비", "combustion"],
+    ["ASIL", "Automotive Safety Integrity Level", "자동차 안전 무결성 등급", "autonomy"],
+    ["AWD", "All-Wheel Drive", "사륜구동", "overview"],
+    ["BEV", "Battery Electric Vehicle / Bird's-Eye View", "배터리 전기차 / 조감도 표현", "perception"],
+    ["BIW", "Body In White", "화이트 바디", "body"],
+    ["BMEP", "Brake Mean Effective Pressure", "제동 평균 유효 압력", "engine"],
+    ["BMS", "Battery Management System", "배터리 관리 시스템", "battery"],
+    ["BSD", "Blind-Spot Detection", "후측방 경고", "adas"],
+    ["BSFC", "Brake Specific Fuel Consumption", "제동 연료 소비율", "combustion"],
+    ["CAN", "Controller Area Network", "차량 제어기 통신망", "electrical"],
+    ["CVT", "Continuously Variable Transmission", "무단 변속기", "transmission"],
+    ["DCT", "Dual-Clutch Transmission", "듀얼 클러치 변속기", "transmission"],
+    ["DMS", "Driver Monitoring System", "운전자 모니터링 시스템", "adas"],
+    ["DOHC", "Double Overhead Camshaft", "더블 오버헤드 캠축", "engine"],
+    ["DPF", "Diesel Particulate Filter", "디젤 미립자 필터", "combustion"],
+    ["DTC", "Diagnostic Trouble Code", "고장 코드", "electrical"],
+    ["EBD", "Electronic Brakeforce Distribution", "전자식 제동력 배분", "brake"],
+    ["ECU", "Electronic Control Unit", "전자 제어 장치", "electrical"],
+    ["EGR", "Exhaust Gas Recirculation", "배기가스 재순환", "combustion"],
+    ["EPS", "Electric Power Steering", "전동 파워 스티어링", "steering"],
+    ["ESC", "Electronic Stability Control", "차체 자세 제어", "steering"],
+    ["FCW", "Forward Collision Warning", "전방 충돌 경고", "adas"],
+    ["FMCW", "Frequency-Modulated Continuous Wave", "주파수 변조 연속파", "sensors"],
+    ["FOC", "Field-Oriented Control", "벡터 제어", "motor"],
+    ["GDI", "Gasoline Direct Injection", "가솔린 직분사", "combustion"],
+    ["GNSS", "Global Navigation Satellite System", "위성 항법 시스템", "sensors"],
+    ["GPF", "Gasoline Particulate Filter", "가솔린 미립자 필터", "combustion"],
+    ["HEV", "Hybrid Electric Vehicle", "하이브리드 전기차", "hybrid"],
+    ["HIC", "Head Injury Criterion", "머리 상해 기준", "body"],
+    ["IGBT", "Insulated-Gate Bipolar Transistor", "절연 게이트 양극성 트랜지스터", "motor"],
+    ["IMU", "Inertial Measurement Unit", "관성 측정 장치", "sensors"],
+    ["IoU", "Intersection over Union", "교집합 대 합집합 비", "perception"],
+    ["IPM", "Interior Permanent Magnet", "매입형 영구자석 (모터)", "motor"],
+    ["LFA", "Lane Following Assist", "차로 유지 보조", "adas"],
+    ["LFP", "Lithium Iron Phosphate", "리튬 인산철", "battery"],
+    ["LIN", "Local Interconnect Network", "저속 단선 버스", "electrical"],
+    ["LKA", "Lane Keeping Assist", "차로 이탈 방지 보조", "adas"],
+    ["LQR", "Linear Quadratic Regulator", "선형 2차 조절기", "planning"],
+    ["LSD", "Limited-Slip Differential", "차동 제한 장치", "driveline"],
+    ["MBT", "Minimum advance for Best Torque", "최대 토크 최소 진각", "combustion"],
+    ["MPC", "Model Predictive Control", "모델 예측 제어", "planning"],
+    ["MRM", "Minimal Risk Maneuver", "최소 위험 기동", "autonomy"],
+    ["NCAP", "New Car Assessment Program", "신차 안전도 평가", "body"],
+    ["NCM", "Nickel Cobalt Manganese", "니켈·코발트·망간 양극재", "battery"],
+    ["NMS", "Non-Maximum Suppression", "비최대 억제", "perception"],
+    ["NVH", "Noise, Vibration and Harshness", "소음·진동·거친 충격감", "body"],
+    ["OBC", "On-Board Charger", "온보드 차저", "battery"],
+    ["OBD", "On-Board Diagnostics", "차량 자기 진단", "electrical"],
+    ["OCV", "Open-Circuit Voltage", "개방 회로 전압", "battery"],
+    ["ODD", "Operational Design Domain", "운행 설계 영역", "adas"],
+    ["OTA", "Over-The-Air", "무선 업데이트", "electrical"],
+    ["PHEV", "Plug-in Hybrid Electric Vehicle", "플러그인 하이브리드", "hybrid"],
+    ["PID", "Proportional–Integral–Derivative", "비례·적분·미분 제어", "electrical"],
+    ["PMSM", "Permanent Magnet Synchronous Motor", "영구자석 동기 모터", "motor"],
+    ["PWM", "Pulse-Width Modulation", "펄스 폭 변조", "electrical"],
+    ["RSS", "Responsibility-Sensitive Safety", "책임 민감 안전", "autonomy"],
+    ["RTK", "Real-Time Kinematic", "실시간 이동 측위", "sensors"],
+    ["SCR", "Selective Catalytic Reduction", "선택적 촉매 환원", "combustion"],
+    ["SDV", "Software-Defined Vehicle", "소프트웨어 정의 차량", "electrical"],
+    ["SLAM", "Simultaneous Localization And Mapping", "동시적 위치 추정 및 지도 작성", "perception"],
+    ["SOC", "State Of Charge", "충전 상태", "battery"],
+    ["SOH", "State Of Health", "건강 상태", "battery"],
+    ["SOTIF", "Safety Of The Intended Functionality", "의도된 기능의 안전", "autonomy"],
+    ["TDC", "Top Dead Center", "상사점", "engine"],
+    ["TPMS", "Tire Pressure Monitoring System", "타이어 공기압 감시 장치", "tire"],
+    ["TTC", "Time To Collision", "충돌까지 남은 시간", "adas"],
+    ["TWC", "Three-Way Catalyst", "삼원 촉매", "combustion"],
+    ["UDS", "Unified Diagnostic Services", "통합 진단 서비스", "electrical"],
+    ["V2X", "Vehicle-to-Everything", "차량·사물 통신", "autonomy"],
+    ["VVT", "Variable Valve Timing", "가변 밸브 타이밍", "engine"]
+  ];
+
+  /* 퀴즈: { ch, q, o: 보기 4개, a: 정답 인덱스, exp }. 출제할 때 보기 순서를 섞는다. */
+  var QUIZ = [
+    { ch: "overview", q: "구동 방식 표기 FR이 뜻하는 것은?", o: ["엔진을 앞에 두고 뒷바퀴를 굴린다", "엔진을 앞에 두고 앞바퀴를 굴린다", "엔진을 뒤에 두고 뒷바퀴를 굴린다", "엔진을 가운데 두고 네 바퀴를 굴린다"], a: 0, exp: "첫 글자는 엔진 위치(Front), 둘째 글자는 구동 바퀴(Rear)다. 프로펠러 샤프트로 뒤 차축까지 동력을 보낸다." },
+    { ch: "overview", q: "휠베이스(축거)의 정의로 옳은 것은?", o: ["좌우 바퀴 중심 사이의 거리", "앞 차축 중심과 뒤 차축 중심 사이의 거리", "차체 앞끝에서 뒤끝까지의 길이", "앞 차축에서 차체 앞끝까지의 길이"], a: 1, exp: "좌우 바퀴 사이 거리는 윤거(트레드), 차축에서 차체 끝까지는 오버행, 전체 길이는 전장이다." },
+    { ch: "dynamics", q: "속도가 2배가 되면 공기 저항력과 그것을 이기는 데 필요한 출력은 각각 몇 배가 되는가?", o: ["2배, 4배", "4배, 4배", "4배, 8배", "8배, 8배"], a: 2, exp: "공기 저항력은 v²에 비례해 4배, 출력은 힘 × 속도이므로 v³에 비례해 8배가 된다." },
+    { ch: "dynamics", q: "질량 1,500 kg, 구름 저항 계수 0.01인 차의 평지 구름 저항력은 약 얼마인가?", o: ["약 15 N", "약 150 N", "약 1,500 N", "약 15,000 N"], a: 1, exp: "구름 저항 = Crr·m·g = 0.01 × 1500 × 9.81 ≈ 147 N이다." },
+    { ch: "engine", q: "압축비 10, 비열비 1.4인 이상적인 오토 사이클의 열효율은 약 얼마인가?", o: ["약 30 %", "약 45 %", "약 60 %", "약 90 %"], a: 2, exp: "η = 1 − 1/r^(γ−1) = 1 − 10^(−0.4) ≈ 0.60이다. 실제 엔진은 열 손실과 마찰 등으로 이보다 훨씬 낮다." },
+    { ch: "engine", q: "4행정 엔진의 한 실린더가 한 사이클을 마치는 동안 크랭크축은 몇 회전하는가?", o: ["반 회전", "1회전", "2회전", "4회전"], a: 2, exp: "흡입·압축·폭발·배기 각 행정이 반 회전(180°)씩이므로 모두 720°, 2회전이다. 캠축은 그동안 1회전한다." },
+    { ch: "engine", q: "토크 200 N·m를 3,000 rpm에서 내는 엔진의 그 순간 출력은 약 얼마인가?", o: ["약 31 kW", "약 63 kW", "약 126 kW", "약 600 kW"], a: 1, exp: "P = T·n/9549 = 200 × 3000 / 9549 ≈ 62.8 kW(약 85 ps)다." },
+    { ch: "combustion", q: "삼원 촉매가 CO, HC, NOx를 동시에 잘 정화하려면 어떤 조건이 필요한가?", o: ["람다 1 부근의 이론 공연비", "람다가 1보다 훨씬 큰 희박 혼합", "람다가 1보다 훨씬 작은 농후 혼합", "배기 온도가 100 °C 이하"], a: 0, exp: "CO·HC의 산화에는 산소가, NOx의 환원에는 산소 부족이 필요하므로 둘이 균형을 이루는 λ ≈ 1의 좁은 창에서만 세 성분이 함께 정화된다." },
+    { ch: "combustion", q: "터보차저의 웨이스트게이트가 하는 일은?", o: ["압축된 흡기를 식힌다", "배기가스 일부를 터빈을 우회시켜 과급압을 제한한다", "배기가스를 흡기로 되돌린다", "매연 입자를 걸러 낸다"], a: 1, exp: "터빈으로 가는 배기 에너지를 줄여 과급압이 목표를 넘지 않게 한다. 흡기 냉각은 인터쿨러, 배기 재순환은 EGR, 입자 포집은 DPF/GPF의 일이다." },
+    { ch: "transmission", q: "엔진 토크 200 N·m, 1단 기어비 3.5, 종감속비 4.0일 때 손실을 무시한 구동축 토크는?", o: ["700 N·m", "800 N·m", "1,500 N·m", "2,800 N·m"], a: 3, exp: "전체 감속비는 3.5 × 4.0 = 14이므로 200 × 14 = 2,800 N·m다. 대신 회전수는 1/14로 줄어든다." },
+    { ch: "transmission", q: "수동 변속기의 싱크로나이저가 하는 일은?", o: ["엔진과 변속기 사이의 동력을 끊는다", "기어를 물리기 전에 마찰로 두 부품의 회전 속도를 맞춘다", "유체로 토크를 증배한다", "좌우 바퀴의 회전 차를 허용한다"], a: 1, exp: "원뿔 마찰면이 슬리브와 기어의 속도를 같게 만든 뒤에야 도그 이가 맞물린다. 동력 단속은 클러치, 토크 증배는 토크 컨버터, 좌우 회전 차는 디퍼렌셜의 일이다." },
+    { ch: "driveline", q: "오픈 디퍼렌셜을 단 차에서 한쪽 구동 바퀴만 빙판에 올라가 헛돌면 어떻게 되는가?", o: ["접지가 좋은 바퀴로 토크가 모두 옮겨 간다", "양쪽에 같은 토크만 전달되어 접지가 좋은 바퀴도 작은 힘밖에 내지 못한다", "두 바퀴가 같은 속도로 돈다", "디퍼렌셜이 자동으로 잠긴다"], a: 1, exp: "오픈 디퍼렌셜은 좌우 토크를 항상 같게 나누므로 미끄러운 쪽이 받칠 수 있는 작은 토크가 양쪽의 상한이 된다. 이를 막는 것이 LSD다." },
+    { ch: "driveline", q: "전륜구동차의 드라이브 샤프트에 등속 조인트를 쓰는 이유는?", o: ["큰 꺾임각에서도 입력과 출력의 회전 속도가 같아야 하므로", "토크를 증배해야 하므로", "좌우 바퀴의 회전 차를 만들어야 하므로", "구동축의 무게를 줄여야 하므로"], a: 0, exp: "유니버설 조인트 하나는 꺾임각이 있으면 출력 속도가 출렁인다. 조향과 서스펜션 스트로크로 각이 크게 변하는 구동 바퀴에는 등속 조인트가 필요하다." },
+    { ch: "tire", q: "타이어 규격 205/55R16의 외경은 약 얼마인가?", o: ["약 519 mm", "약 632 mm", "약 745 mm", "약 816 mm"], a: 1, exp: "림 지름 16 × 25.4 = 406.4 mm에 단면 높이 205 × 0.55 = 112.75 mm를 위아래로 두 번 더하면 약 632 mm다." },
+    { ch: "tire", q: "마찰원이 말해 주는 것은?", o: ["타이어 온도가 오르면 마찰이 커진다", "종력과 횡력의 합력이 마찰 계수 × 수직 하중을 넘을 수 없다", "공기압이 높을수록 접지면이 넓어진다", "슬립각이 클수록 횡력이 계속 커진다"], a: 1, exp: "타이어가 낼 수 있는 힘의 총량은 정해져 있어, 제동이나 가속에 그립을 쓰면 선회에 쓸 수 있는 횡력이 줄어든다." },
+    { ch: "tire", q: "슬립각의 정의로 옳은 것은?", o: ["바퀴가 향한 방향과 바퀴가 실제로 나아가는 방향 사이의 각", "스티어링 휠을 돌린 각", "바퀴가 수직에서 기운 각", "차체가 좌우로 기운 각"], a: 0, exp: "슬립각이 생기면 접지면의 고무가 옆으로 변형되면서 횡력이 나온다. 수직에서 기운 각은 캠버, 차체가 기운 각은 롤각이다." },
+    { ch: "brake", q: "100 km/h로 달리다 마찰 계수 1.0인 노면에서 최대로 제동할 때 제동 거리는 약 얼마인가(공주 거리 제외)?", o: ["약 14 m", "약 28 m", "약 39 m", "약 78 m"], a: 2, exp: "v = 27.8 m/s, d = v²/(2μg) = 771.6 / 19.62 ≈ 39 m다. 속도가 2배면 제동 거리는 4배가 된다." },
+    { ch: "brake", q: "ABS의 가장 중요한 목적은?", o: ["제동 거리를 항상 절반으로 줄인다", "바퀴 잠김을 막아 제동 중에도 조향할 수 있게 한다", "브레이크 패드의 마모를 줄인다", "브레이크액이 끓는 것을 막는다"], a: 1, exp: "잠긴 바퀴는 횡력을 거의 내지 못한다. ABS는 슬립률을 마찰 피크 부근에 유지해 조향 능력과 안정성을 지킨다." },
+    { ch: "suspension", q: "일반 승용차의 차체(스프링 위 질량) 상하 고유 진동수는 대표적으로 어느 정도인가?", o: ["약 0.1 Hz", "약 1~1.5 Hz", "약 10~15 Hz", "약 100 Hz"], a: 1, exp: "사람이 걸을 때의 상하 움직임과 비슷한 1 Hz 부근이 편안하다. 10~15 Hz는 스프링 아래 질량의 공진(휠 홉) 대역이다." },
+    { ch: "suspension", q: "안티롤 바(스태빌라이저)의 작용으로 옳은 것은?", o: ["좌우 바퀴가 함께 오르내릴 때 스프링을 단단하게 한다", "좌우 바퀴의 스트로크가 다를 때 비틀리며 저항해 롤 강성을 높인다", "차고를 높이거나 낮춘다", "진동 에너지를 열로 바꾼다"], a: 1, exp: "좌우가 같이 움직이면 막대가 그냥 돌 뿐 힘을 내지 않는다. 한쪽만 움직일 때 비틀림으로 저항하므로 승차감을 덜 해치면서 롤만 줄인다." },
+    { ch: "steering", q: "언더스티어 특성의 차로 일정한 반경의 원을 돌면서 속도를 올리면?", o: ["필요한 조향각이 점점 커진다", "필요한 조향각이 점점 작아진다", "조향각은 속도와 무관하게 일정하다", "어느 속도에서 조향각의 부호가 바뀐다"], a: 0, exp: "조향각 = L/R + K·ay에서 K가 양수이므로 횡가속도가 커질수록 더 꺾어야 한다. K가 음수인 오버스티어 차는 반대로 줄어든다." },
+    { ch: "steering", q: "선회 중 뒤가 미끄러지는 오버스티어를 ESC가 바로잡을 때 주로 제동하는 바퀴는?", o: ["선회 안쪽 뒷바퀴", "선회 안쪽 앞바퀴", "선회 바깥쪽 앞바퀴", "네 바퀴 모두 같은 힘으로"], a: 2, exp: "바깥쪽 앞바퀴를 제동하면 차를 선회 바깥으로 돌리는 요 모멘트가 생겨 스핀을 막는다. 언더스티어일 때는 안쪽 뒷바퀴를 제동한다." },
+    { ch: "body", q: "크럼플 존이 탑승자를 보호하는 원리는?", o: ["차체를 전혀 변형되지 않게 해서 충격을 튕겨 낸다", "찌그러지며 멈추는 거리와 시간을 늘려 탑승자가 받는 감속도를 낮춘다", "충돌 순간 차의 질량을 줄인다", "충돌 에너지를 전기로 회수한다"], a: 1, exp: "같은 속도 변화라도 멈추는 거리가 길면 평균 감속도가 작아진다. 탑승 공간(세이프티 셀)은 반대로 변형되지 않게 만든다." },
+    { ch: "body", q: "안전벨트의 로드 리미터가 하는 일은?", o: ["충돌 순간 벨트를 되감아 느슨함을 없앤다", "장력이 일정 값을 넘으면 웨빙을 조금 풀어 가슴에 걸리는 힘을 제한한다", "벨트를 매지 않으면 경고음을 낸다", "에어백을 터뜨리는 신호를 보낸다"], a: 1, exp: "느슨함을 없애는 것은 프리텐셔너다. 둘은 짝으로 작동해 먼저 몸을 붙잡고, 그다음 하중을 일정하게 유지하며 에어백으로 넘겨준다." },
+    { ch: "aero", q: "Cd 0.30, 전면 면적 2.2 m²인 차가 120 km/h로 달릴 때 공기 저항력은 약 얼마인가(공기 밀도 1.225 kg/m³)?", o: ["약 150 N", "약 450 N", "약 1,350 N", "약 4,500 N"], a: 1, exp: "F = ½ × 1.225 × 0.30 × 2.2 × 33.3² ≈ 449 N이다. 이를 이기는 출력은 449 × 33.3 ≈ 15 kW다." },
+    { ch: "aero", q: "일반 승용차 공기 저항의 대부분을 차지하는 것은?", o: ["차체 표면의 마찰 항력", "앞뒤 압력 차에서 오는 압력(형상) 항력", "타이어의 구름 저항", "양력에 따른 유도 항력"], a: 1, exp: "뭉툭한 차체 뒤에서 흐름이 박리되어 저압의 후류가 생기고, 앞뒤 압력 차가 차를 뒤로 당긴다. 그래서 뒷모양의 설계가 중요하다." },
+    { ch: "electrical", q: "CAN 버스에서 두 노드가 동시에 송신을 시작하면 어느 메시지가 이기는가?", o: ["ID 값이 더 낮은 메시지", "ID 값이 더 높은 메시지", "데이터 길이가 더 짧은 메시지", "둘 다 깨지고 임의 시간 뒤 재전송한다"], a: 0, exp: "도미넌트(0)가 리세시브(1)를 덮어쓰므로, ID를 상위 비트부터 비교해 먼저 0을 낸 쪽(값이 낮은 ID)이 손상 없이 계속 보낸다." },
+    { ch: "electrical", q: "존(zonal) 아키텍처의 설명으로 옳은 것은?", o: ["기능 하나마다 전용 ECU를 하나씩 둔다", "차를 물리적 구역으로 나눠 존 컨트롤러가 주변 장치를 맡고 중앙 컴퓨터가 연산한다", "모든 센서를 CAN 하나에 직접 연결한다", "ECU를 모두 없애고 기계식으로 되돌린다"], a: 1, exp: "기능이 아니라 위치를 기준으로 묶으므로 배선이 짧아지고, 기능은 중앙 컴퓨터의 소프트웨어로 옮겨 가 OTA 갱신이 쉬워진다." },
+    { ch: "hybrid", q: "대표적인 동력 분기식 하이브리드의 유성 기어에서 엔진이 연결되는 요소는?", o: ["선 기어", "캐리어", "링 기어", "어느 요소에도 연결되지 않는다"], a: 1, exp: "엔진은 캐리어, 발전기(MG1)는 선 기어, 구동 모터와 출력은 링 기어에 연결된다. MG1의 회전수를 조절해 엔진 회전수를 차속과 따로 정한다." },
+    { ch: "hybrid", q: "회생 제동으로 회수할 수 있는 전력을 제한하는 요인이 아닌 것은?", o: ["모터와 인버터의 최대 출력", "배터리가 받아들일 수 있는 충전 전력", "타이어의 편평비", "회생이 걸리는 차축이 낼 수 있는 접지력"], a: 2, exp: "회수량은 모터 출력, 배터리 수용 전력(SOC와 온도에 좌우), 구동축의 접지 한계가 정한다. 넘치는 몫은 마찰 브레이크가 맡는다." },
+    { ch: "motor", q: "8극 모터에 100 Hz의 3상 전류를 흘릴 때 동기 속도는?", o: ["750 rpm", "1,500 rpm", "3,000 rpm", "6,000 rpm"], a: 1, exp: "n = 120f/p = 120 × 100 / 8 = 1,500 rpm이다. 인버터가 주파수를 바꾸어 모터 속도를 제어한다." },
+    { ch: "motor", q: "전기 모터가 기저 속도 이상에서 최대 토크를 유지하지 못하는 주된 이유는?", o: ["역기전력이 인버터가 낼 수 있는 전압 한계에 닿기 때문", "영구자석이 고속에서 자력을 완전히 잃기 때문", "감속기의 기어비가 바뀌기 때문", "배터리 용량이 줄어들기 때문"], a: 0, exp: "속도에 비례해 커지는 역기전력이 전압 한계에 닿으면 전류를 더 밀어 넣을 수 없다. 약계자 제어로 속도를 더 올리는 대신 토크가 줄어 정출력 영역이 된다." },
+    { ch: "battery", q: "공칭 전압 3.65 V인 셀 96개를 직렬로 연결한 팩의 공칭 전압은 약 얼마인가?", o: ["약 48 V", "약 350 V", "약 800 V", "약 3,500 V"], a: 1, exp: "96 × 3.65 ≈ 350 V다. 직렬은 전압을, 병렬은 용량(Ah)을 키운다. 800 V급은 대략 두 배의 직렬 수가 필요하다." },
+    { ch: "battery", q: "급속 충전에서 SOC가 높아질수록 충전 전력이 줄어드는 주된 이유는?", o: ["충전기가 과열되기 때문", "셀 전압이 상한에 가까워져 전류를 줄여야 하고 리튬 플레이팅 위험이 커지기 때문", "배터리 용량이 일시적으로 늘어나기 때문", "충전 요금이 비싸지기 때문"], a: 1, exp: "전압 상한에 닿으면 정전압 구간으로 넘어가 전류가 줄어든다. 음극이 리튬으로 차 있을수록 받아들이는 속도도 느려져 석출 위험이 커진다." },
+    { ch: "battery", q: "LFP 셀을 NCM 셀과 비교한 설명으로 옳은 것은?", o: ["에너지 밀도는 낮지만 열 안정성과 수명, 가격에서 유리하다", "에너지 밀도가 더 높고 코발트를 더 많이 쓴다", "셀 전압이 더 높다", "전압 곡선의 기울기가 커서 SOC 추정이 더 쉽다"], a: 0, exp: "LFP는 공칭 전압이 약 3.2 V로 낮고 전압 곡선이 평탄해 SOC 추정이 까다롭지만, 싸고 오래가며 열폭주에 강하다." },
+    { ch: "adas", q: "SAE 레벨 2의 설명으로 옳은 것은?", o: ["시스템이 조향과 가감속을 함께 하지만 운전자가 항상 주시하고 책임진다", "작동 조건 안에서는 운전자가 전방을 보지 않아도 된다", "운전자가 타지 않아도 정해진 구역을 주행한다", "조향이나 가감속 중 하나만 보조한다"], a: 0, exp: "레벨 2까지는 운전자 보조다. 운전자가 주시 의무에서 벗어나는 것은 레벨 3부터이고, 하나만 보조하는 것은 레벨 1이다." },
+    { ch: "adas", q: "앞차와의 거리가 30 m, 접근 속도가 10 m/s일 때 충돌까지 남은 시간(TTC)은?", o: ["0.3초", "1초", "3초", "30초"], a: 2, exp: "TTC = 상대 거리 ÷ 접근 속도 = 30 / 10 = 3초다. FCW와 AEB는 이 값이 문턱 아래로 내려가면 단계적으로 작동한다." },
+    { ch: "sensors", q: "대역폭 1 GHz인 FMCW 레이더의 거리 분해능은?", o: ["약 1.5 cm", "약 15 cm", "약 1.5 m", "약 15 m"], a: 1, exp: "ΔR = c/(2B) = 3×10⁸ / (2 × 10⁹) = 0.15 m다. 대역폭을 줄이면 가까이 붙은 두 타깃을 구분하지 못한다." },
+    { ch: "sensors", q: "스테레오 카메라의 거리 측정 오차는 거리에 따라 어떻게 변하는가?", o: ["거리와 무관하게 일정하다", "거리에 비례한다", "거리의 제곱에 비례한다", "거리에 반비례한다"], a: 2, exp: "Z = f·B/d에서 시차 오차 Δd가 일정하면 ΔZ ≈ Z²·Δd/(f·B)다. 먼 물체일수록 시차가 작아 오차가 급격히 커진다." },
+    { ch: "perception", q: "IoU(Intersection over Union)의 정의는?", o: ["두 박스가 겹친 넓이 ÷ 두 박스를 합친 넓이", "두 박스 중심 사이의 거리", "검출한 것 중 맞은 것의 비율", "실제 물체 중 검출한 것의 비율"], a: 0, exp: "0이면 전혀 겹치지 않고 1이면 완전히 일치한다. 뒤의 둘은 각각 정밀도와 재현율이다." },
+    { ch: "perception", q: "칼만 필터가 되풀이하는 두 단계는?", o: ["예측과 갱신", "샘플링과 리샘플링", "합성곱과 풀링", "탐색과 가지치기"], a: 0, exp: "운동 모델로 다음 상태와 불확실성을 예측하고, 측정이 들어오면 칼만 이득만큼 보정해 갱신한다. 샘플링과 리샘플링은 파티클 필터의 과정이다." },
+    { ch: "planning", q: "퓨어 퍼슈트 경로 추종의 원리는?", o: ["전방 주시 거리 앞의 목표점을 지나는 원호의 곡률로 조향한다", "미래 궤적을 예측해 매 주기 최적화 문제를 푼다", "횡 오차의 적분에 비례해 조향한다", "격자 지도에서 최단 경로를 탐색한다"], a: 0, exp: "뒤 차축에서 목표점까지 원호를 그려 그 곡률을 조향각으로 바꾼다. 최적화를 반복하는 것은 MPC, 격자 탐색은 A*다." },
+    { ch: "planning", q: "모델 예측 제어(MPC)의 특징으로 옳은 것은?", o: ["유한한 예측 구간의 최적 입력 열을 구해 첫 입력만 쓰고 매 주기 다시 푼다", "모델 없이 오차의 비례·적분·미분만 쓴다", "한 번 계산한 입력 열을 끝까지 그대로 실행한다", "제약 조건을 다룰 수 없다"], a: 0, exp: "조향각 한계나 가속도 한계 같은 제약을 최적화 문제에 직접 넣을 수 있는 것이 큰 장점이다. 대신 계산량이 많다." },
+    { ch: "autonomy", q: "ISO 26262에서 ASIL을 정하는 세 가지 요소는?", o: ["심각도, 노출 빈도, 제어 가능성", "속도, 질량, 마찰 계수", "비용, 무게, 전력", "지연, 처리량, 정확도"], a: 0, exp: "위험원마다 S(Severity), E(Exposure), C(Controllability)를 평가해 QM 또는 ASIL A~D를 정한다. S3·E4·C3이면 ASIL D다." },
+    { ch: "autonomy", q: "SOTIF(ISO 21448)가 다루는 위험은?", o: ["부품 고장으로 생기는 위험", "고장이 없어도 성능 한계나 예측 가능한 오용 때문에 생기는 위험", "해킹으로 생기는 위험", "제조 불량으로 생기는 위험"], a: 1, exp: "역광에 카메라가 물체를 놓치는 것처럼 설계대로 동작했는데도 위험한 경우를 다룬다. 고장에 의한 위험은 ISO 26262의 영역이다." },
+    { ch: "autonomy", q: "사고율이 λ(건/km) 이하임을 95 % 신뢰 수준으로 보이려면 무사고로 약 얼마를 달려야 하는가?", o: ["약 1/λ km", "약 3/λ km", "약 10/λ km", "약 100/λ km"], a: 1, exp: "n = −ln(1 − C)/λ에서 C = 0.95이면 −ln(0.05) ≈ 3.0이다. 사람 수준의 낮은 사고율을 실도로 주행만으로 증명하기 어려운 이유다." }
+  ];
+  /*DATA-END*/
+
+  /* =============================================================== 공통 */
+  var CH = {}, ORDER = {};
+  CB.CHAPTERS.forEach(function (c, i) { CH[c.slug] = c; ORDER[c.slug] = i; });
+  function catOf(slug) { return CH[slug].tags[0]; }
+  function chLabel(slug) { return CH[slug].num + " " + CH[slug].title; }
+  function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
+  function norm(s) { return String(s).toLowerCase().replace(/[\s\-–·_/()*]/g, ""); }
+  function hl(text, q) {
+    var t = esc(text);
+    if (!q) return t;
+    var re = new RegExp("(" + esc(q).replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + ")", "gi");
+    return t.replace(re, "<mark>$1</mark>");
+  }
+  function shuffle(a) { for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+
+  /* =============================================================== 용어집 */
+  var CHO = ["ㄱ", "ㄲ", "ㄴ", "ㄷ", "ㄸ", "ㄹ", "ㅁ", "ㅂ", "ㅃ", "ㅅ", "ㅆ", "ㅇ", "ㅈ", "ㅉ", "ㅊ", "ㅋ", "ㅌ", "ㅍ", "ㅎ"];
+  var MERGE = { "ㄲ": "ㄱ", "ㄸ": "ㄷ", "ㅃ": "ㅂ", "ㅆ": "ㅅ", "ㅉ": "ㅈ" };
+  function initial(s) {
+    var c = s.charCodeAt(0);
+    if (c >= 0xac00 && c <= 0xd7a3) { var g = CHO[Math.floor((c - 0xac00) / 588)]; return MERGE[g] || g; }
+    return /[a-z]/i.test(s.charAt(0)) ? "A–Z" : "0–9";
+  }
+  function gOrd(g) { var i = CHO.indexOf(g); return i >= 0 ? i : g === "A–Z" ? 100 : 101; }
+
+  var items = TERMS.map(function (t) {
+    return { ko: t[0], en: t[1], abbr: t[2], ch: t[3], def: t[4], cat: catOf(t[3]), key: norm(t[0] + t[1] + t[2] + t[4]), head: norm(t[0] + t[1] + t[2]) };
+  });
+  var qEl = document.getElementById("gl-q"), listEl = document.getElementById("gl-list"), countEl = document.getElementById("gl-count");
+  var catSel = CB.seg("gl-cat", renderGlossary), sortSel = CB.seg("gl-sort", renderGlossary);
+
+  function renderGlossary() {
+    var raw = qEl.value.trim(), q = norm(raw), cat = catSel(), sort = sortSel();
+    var rows = items.filter(function (t) { return (cat === "all" || t.cat === cat) && (!q || t.key.indexOf(q) >= 0); });
+    rows.sort(function (a, b) {
+      if (q) { var ha = a.head.indexOf(q) >= 0 ? 0 : 1, hb = b.head.indexOf(q) >= 0 ? 0 : 1; if (ha !== hb) return ha - hb; }
+      if (sort === "ch" && ORDER[a.ch] !== ORDER[b.ch]) return ORDER[a.ch] - ORDER[b.ch];
+      if (sort === "kor") { var ga = gOrd(initial(a.ko)), gb = gOrd(initial(b.ko)); if (ga !== gb) return ga - gb; }
+      return a.ko.localeCompare(b.ko, "ko");
+    });
+    countEl.textContent = rows.length + " / " + items.length + "개";
+    if (!rows.length) { listEl.innerHTML = '<div class="gl-empty">일치하는 용어가 없다. 다른 표기(한국어/영어/약어)로 검색해 보자.</div>'; renderAbbr(raw); return; }
+    var html = "", last = null;
+    rows.forEach(function (t) {
+      var g = q ? null : sort === "ch" ? chLabel(t.ch) : initial(t.ko);
+      if (g !== last && g) { html += '<div class="gl-group">' + esc(g) + "</div>"; last = g; }
+      html += '<div class="gl-item"><h4>' + hl(t.ko, raw) + '<span class="en">' + hl(t.en, raw) + "</span>" +
+        (t.abbr ? '<span class="abbr">' + hl(t.abbr, raw) + "</span>" : "") + "</h4><p>" + hl(t.def, raw) + "</p>" +
+        '<span class="cat">' + esc(t.cat) + '</span><a class="ch" href="' + t.ch + '.html">' + esc(chLabel(t.ch)) + " →</a></div>";
+    });
+    listEl.innerHTML = html;
+    listEl.scrollTop = 0;
+    renderAbbr(raw);
+  }
+
+  /* =============================================================== 약어 표 */
+  var abBody = document.getElementById("ab-body"), abCount = document.getElementById("ab-count");
+  function renderAbbr(raw) {
+    var q = norm(raw || "");
+    var rows = ABBR.filter(function (a) { return !q || norm(a[0] + a[1] + a[2]).indexOf(q) >= 0; });
+    abBody.innerHTML = rows.length ? rows.map(function (a) {
+      return "<tr><td>" + hl(a[0], raw) + "</td><td>" + hl(a[1], raw) + "</td><td>" + hl(a[2], raw) + '</td><td><a href="' + a[3] + '.html">' + CH[a[3]].num + "</a></td></tr>";
+    }).join("") : '<tr><td colspan="4" style="text-align:center;color:var(--text-dim)">검색어와 일치하는 약어가 없다.</td></tr>';
+    abCount.textContent = "약어 " + rows.length + " / " + ABBR.length + "개" + (q ? " (검색어 적용 중)" : "");
+  }
+  qEl.addEventListener("input", renderGlossary);
+  renderGlossary();
+
+  /* =============================================================== 단위 환산 */
+  var lin = function (k) { return { to: function (v) { return v * k; }, from: function (b) { return b / k; } }; };
+  var inv = function (k) { return { to: function (v) { return k / v; }, from: function (b) { return k / b; } }; };
+  function U(id, label, conv) { return { id: id, label: label, to: conv.to, from: conv.from }; }
+  var KINDS = {
+    power: { base: "kW", def: 150, defUnit: "ps", units: [U("kW", "kW", lin(1)), U("ps", "ps (미터 마력)", lin(0.73549875)), U("hp", "hp (영국 마력)", lin(0.74569987)), U("W", "W", lin(0.001))],
+      hint: function (b) { return b < 60 ? "경차·소형차급 출력" : b < 150 ? "준중형~중형 승용차급" : b < 300 ? "고성능 승용차급" : "스포츠카·고출력 전기차급"; } },
+    torque: { base: "N·m", def: 36, defUnit: "kgfm", units: [U("Nm", "N·m", lin(1)), U("kgfm", "kgf·m", lin(9.80665)), U("lbft", "lb·ft", lin(1.3558179))],
+      hint: function (b) { return "3,000 rpm이면 " + CB.fmt(b * 3000 / 9549, 3) + " kW"; } },
+    speed: { base: "m/s", def: 100, defUnit: "kmh", units: [U("ms", "m/s", lin(1)), U("kmh", "km/h", lin(1 / 3.6)), U("mph", "mph", lin(0.44704))],
+      hint: function (b) { return "1초에 " + CB.fmt(b, 3) + " m, μ=1 제동 거리 " + CB.fmt(b * b / (2 * CB.G), 3) + " m"; } },
+    pressure: { base: "kPa", def: 35, defUnit: "psi", units: [U("kPa", "kPa", lin(1)), U("bar", "bar", lin(100)), U("psi", "psi", lin(6.894757)), U("kgfcm2", "kgf/cm²", lin(98.0665)), U("atm", "atm", lin(101.325))],
+      hint: function (b) { return b < 150 ? "승용차 타이어로는 낮은 압력" : b <= 290 ? "승용차 타이어 적정 범위" : b < 1000 ? "승용차 타이어로는 높은 압력" : "유압·연료 분사 수준의 압력"; } },
+    fuel: { base: "L/100 km", def: 15, defUnit: "kml", units: [U("l100", "L/100 km", lin(1)), U("kml", "km/L", inv(100)), U("mpg", "mpg (US)", inv(235.2146)), U("mpguk", "mpg (UK)", inv(282.4809))],
+      hint: function (b) { return "100 km에 휘발유 약 " + CB.fmt(b * 8.9, 3) + " kWh어치 에너지"; } },
+    ev: { base: "Wh/km", def: 5.5, defUnit: "kmkwh", units: [U("whkm", "Wh/km", lin(1)), U("kmkwh", "km/kWh", inv(1000)), U("kwh100", "kWh/100 km", lin(10)), U("mikwh", "mi/kWh", inv(621.3712))],
+      hint: function (b) { return "77 kWh 배터리로 약 " + CB.fmt(77000 / b, 3) + " km"; } },
+    energy: { base: "MJ", def: 77, defUnit: "kWh", units: [U("MJ", "MJ", lin(1)), U("kWh", "kWh", lin(3.6)), U("kcal", "kcal", lin(0.004184)), U("gas", "휘발유 L (약 32 MJ/L)", lin(32))],
+      hint: function (b) { return "1,500 kg 차를 " + CB.fmt(Math.sqrt(2 * b * 1e6 / 1500) * 3.6, 3) + " km/h로 만드는 운동 에너지"; } }
+  };
+  var cvVal = document.getElementById("cv-val"), cvUnit = document.getElementById("cv-unit"), cvOut = document.getElementById("cv-out");
+  var cvBaseVal = 150;
+  var cvFine = CB.range("cv-fine", function (v) { return (v > 0 ? "+" : "") + v + " %"; }, function (v) {
+    cvVal.value = Number((cvBaseVal * (1 + v / 100)).toPrecision(5));
+    drawConv();
+  });
+  var cvKind = CB.seg("cv-kind", function (k) { setKind(k); });
+  function setKind(k) {
+    var K = KINDS[k];
+    cvUnit.innerHTML = K.units.map(function (u) { return '<option value="' + u.id + '"' + (u.id === K.defUnit ? " selected" : "") + ">" + esc(u.label) + "</option>"; }).join("");
+    cvVal.value = K.def; cvBaseVal = K.def;
+    cvFine.el.value = 0; cvFine.el.dispatchEvent(new Event("input"));
+  }
+  function drawConv() {
+    var K = KINDS[cvKind()], v = parseFloat(cvVal.value);
+    var src = K.units.filter(function (u) { return u.id === cvUnit.value; })[0] || K.units[0];
+    var ok = isFinite(v) && v > 0, b = ok ? src.to(v) : NaN;
+    cvOut.innerHTML = K.units.map(function (u) {
+      return '<div class="cv-row' + (u === src ? " src" : "") + '"><span class="u">' + esc(u.label) + '</span><span class="val">' + (ok ? CB.fmt(u.from(b), 4) : "—") + "</span></div>";
+    }).join("");
+    CB.stat("o-cv-in", ok ? CB.fmt(v, 4) + " <small>" + esc(src.label.split(" ")[0]) + "</small>" : "양수를 입력");
+    CB.stat("o-cv-si", ok ? CB.fmt(b, 4) + " <small>" + esc(K.base) + "</small>" : "—");
+    CB.stat("o-cv-hint", ok ? esc(K.hint(b)) : "—");
+  }
+  cvVal.addEventListener("input", function () { cvBaseVal = parseFloat(cvVal.value) || 0; cvFine.el.value = 0; cvFine.el.style.setProperty("--fill", "50%"); document.getElementById("cv-fine-out").textContent = "0 %"; drawConv(); });
+  cvUnit.addEventListener("change", drawConv);
+  setKind("power");
+
+  /* =============================================================== 종합 퀴즈 */
+  var fqList = document.getElementById("fq-list"), fqResult = document.getElementById("fq-result"), fqNone = document.getElementById("fq-none");
+  var wrongBtn = document.getElementById("fq-wrong");
+  var fq = { set: [], done: 0, right: 0, wrongOnly: false };
+  var sizeSel = CB.seg("fq-size", function () { startQuiz(); });
+  var RANKS = [
+    [0.95, "수석 엔지니어", "거의 완벽하다. 이제 시뮬레이터의 숫자를 바꿔 가며 직접 설계 감각을 길러 보자."],
+    [0.8, "섀시 튜너", "전반을 잘 이해하고 있다. 틀린 문제의 장만 다시 보면 된다."],
+    [0.6, "정비 견습", "뼈대는 잡혔다. 아래 장들의 시뮬레이터를 다시 만져 보자."],
+    [0, "초보 운전", "괜찮다. 1장부터 차례로 다시 읽으며 시뮬레이터를 하나씩 움직여 보자."]
+  ];
+
+  function startQuiz() {
+    var n = sizeSel() === "all" ? QUIZ.length : Math.min(QUIZ.length, Number(sizeSel()));
+    fq.set = shuffle(QUIZ.slice()).slice(0, n).map(function (q) {
+      return { q: q, order: shuffle([0, 1, 2, 3]), picked: null };
+    });
+    fq.done = 0; fq.right = 0; fq.wrongOnly = false;
+    fqResult.hidden = true;
+    fqList.innerHTML = "";
+    fq.set.forEach(function (s, i) {
+      var card = document.createElement("div");
+      card.className = "quiz-q";
+      var opts = s.order.map(function (k) { return '<button class="opt" type="button" data-k="' + k + '">' + esc(s.q.o[k]) + "</button>"; }).join("");
+      card.innerHTML = '<p class="q-ch">문제 ' + (i + 1) + " · " + esc(chLabel(s.q.ch)) + '</p><p class="q-text">' + esc(s.q.q) + '</p><div class="opts">' + opts + '</div><div class="quiz-exp"></div>';
+      card.querySelector(".opts").addEventListener("click", function (e) {
+        var b = e.target.closest("button.opt");
+        if (b && s.picked === null) answer(s, card, Number(b.dataset.k));
+      });
+      s.card = card;
+      fqList.appendChild(card);
+    });
+    updateHead(); applyFilter();
+  }
+  function answer(s, card, k) {
+    s.picked = k;
+    var ok = k === s.q.a;
+    [].forEach.call(card.querySelectorAll("button.opt"), function (b) {
+      b.disabled = true;
+      var bk = Number(b.dataset.k);
+      if (bk === s.q.a) b.classList.add("right");
+      else if (bk === k) b.classList.add("wrong");
+    });
+    card.querySelector(".quiz-exp").innerHTML = (ok ? '<b class="ok">정답.</b> ' : '<b class="bad">오답.</b> ') + esc(s.q.exp) +
+      ' <a href="' + s.q.ch + '.html">' + esc(chLabel(s.q.ch)) + " →</a>";
+    card.classList.add("done");
+    if (!ok) card.classList.add("missed");
+    fq.done++; if (ok) fq.right++;
+    updateHead();
+    if (fq.done === fq.set.length) showResult();
+  }
+  function updateHead() {
+    var n = fq.set.length;
+    document.getElementById("fq-count").textContent = "푼 문제 " + fq.done + " / " + n + " (문제 은행 " + QUIZ.length + "문항)";
+    document.getElementById("fq-score").textContent = "정답 " + fq.right + " · 오답 " + (fq.done - fq.right);
+    document.getElementById("fq-fill").style.width = (n ? (fq.done / n) * 100 : 0) + "%";
+  }
+  function applyFilter() {
+    var shown = 0;
+    fq.set.forEach(function (s) {
+      var show = !fq.wrongOnly || s.card.classList.contains("missed");
+      s.card.hidden = !show; if (show) shown++;
+    });
+    fqNone.hidden = !(fq.wrongOnly && shown === 0);
+    wrongBtn.setAttribute("aria-pressed", fq.wrongOnly ? "true" : "false");
+    wrongBtn.textContent = fq.wrongOnly ? "전체 문제 보기" : "틀린 문제만 보기";
+  }
+  function showResult() {
+    var n = fq.set.length, ratio = fq.right / n;
+    var rank = RANKS.filter(function (r) { return ratio >= r[0]; })[0];
+    document.getElementById("fq-title").textContent = rank[1];
+    document.getElementById("fq-big").innerHTML = fq.right + " <small>/ " + n + "</small>";
+    document.getElementById("fq-msg").textContent = rank[2];
+    var miss = {};
+    fq.set.forEach(function (s) { if (s.picked !== s.q.a) miss[s.q.ch] = (miss[s.q.ch] || 0) + 1; });
+    var slugs = Object.keys(miss).sort(function (a, b) { return ORDER[a] - ORDER[b]; });
+    document.getElementById("fq-review").innerHTML = slugs.length
+      ? "<b>다시 볼 장:</b> " + slugs.map(function (s) { return '<a href="' + s + '.html">' + esc(chLabel(s)) + "</a> (" + miss[s] + "문제)"; }).join(" · ")
+      : "틀린 문제가 없다. 다시 풀기를 눌러 다른 세트에도 도전해 보자.";
+    fqResult.hidden = false;
+  }
+  wrongBtn.addEventListener("click", function () { fq.wrongOnly = !fq.wrongOnly; applyFilter(); });
+  document.getElementById("fq-retry").addEventListener("click", function () {
+    startQuiz();
+    document.getElementById("final-quiz").scrollIntoView({ block: "start" });
+  });
+  /* common.js의 자동 퀴즈 바인딩(DOMContentLoaded)이 끝난 뒤에 카드를 만든다. */
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", startQuiz);
+  else startQuiz();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,15 @@
+{
+  "id": "systembooks",
+  "title": "SystemBooks",
+  "description": "자동차, 선박, 스마트폰까지. 수많은 부품이 맞물려 하나로 움직이는 시스템을 3D 모델과 시뮬레이터로 분해하며 배우는 한국어 교과서 서가.",
+  "url": "https://system.euiyun.com/",
+  "repo": "https://github.com/geniuskey/system-books",
+  "field": "electronics",
+  "status": "published",
+  "domain": "system.euiyun.com",
+  "books": [
+    "car/book.json",
+    "ship/book.json",
+    "phone/book.json"
+  ]
+}

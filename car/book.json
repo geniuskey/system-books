@@ -1,0 +1,11 @@
+{
+  "id": "carbook",
+  "title": "CarBook",
+  "description": "엔진과 변속기, 타이어와 서스펜션, 모터와 배터리, 그리고 스스로 보고 판단하는 자율주행까지. 슬라이더를 움직이고 3D 모델을 돌려 보며 자동차를 배웁니다.",
+  "url": "https://system.euiyun.com/car/",
+  "repo": "https://github.com/geniuskey/system-books",
+  "field": "electronics",
+  "status": "published",
+  "domain": "system.euiyun.com",
+  "basePath": "/car/"
+}
