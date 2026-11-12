@@ -1,0 +1,156 @@
+{
+  "format": "euiyun-shelf/1",
+  "shelf": {
+    "id": "systembooks",
+    "title": "SystemBooks",
+    "url": "https://system.euiyun.com/",
+    "field": "electronics"
+  },
+  "map": {
+    "title": "일상의 기기와 이동 수단",
+    "desc": "자동차·선박이 움직이는 원리에서 스마트폰·카메라가 작동하는 방식까지.",
+    "groups": [
+      {
+        "id": "mobility",
+        "name": "탈것",
+        "en": "Mobility",
+        "desc": "자동차와 선박이 움직이고 제어되는 원리"
+      },
+      {
+        "id": "device",
+        "name": "전자 기기",
+        "en": "Devices",
+        "desc": "스마트폰과 카메라가 작동하는 방식"
+      }
+    ],
+    "links": [
+      [
+        "phonebook",
+        "camerabook",
+        "스마트폰 카메라 모듈과 전용 카메라의 센서·렌즈 크기 비교"
+      ],
+      [
+        "carbook",
+        "shipbook",
+        "전동 추진·에너지 관리와 자율 이동 시스템 비교"
+      ],
+      [
+        "phonebook",
+        "carbook",
+        "배터리 관리·열 설계의 기기별 제약 비교"
+      ]
+    ]
+  },
+  "books": [
+    {
+      "id": "carbook",
+      "title": "CarBook",
+      "subtitle": "자동차 교과서",
+      "headline": "연료 한 방울에서 스스로 달리는 차까지",
+      "description": "엔진과 변속기, 타이어와 서스펜션, 모터와 배터리, 그리고 스스로 보고 판단하는 자율주행까지. 슬라이더를 움직이고 3D 모델을 돌려 보며 자동차를 배웁니다.",
+      "stage": "mobility",
+      "status": "published",
+      "color": "#dd5a16",
+      "colorDark": "#ff8a47",
+      "topics": [
+        "엔진·변속기",
+        "타이어·제동",
+        "서스펜션·조향",
+        "하이브리드·모터",
+        "배터리·BMS",
+        "ADAS·센서",
+        "자율주행"
+      ],
+      "motif": "car",
+      "code": "CAR",
+      "legacyUrl": null,
+      "slug": "car",
+      "url": "car/",
+      "chapters": 22,
+      "simulators": 149
+    },
+    {
+      "id": "shipbook",
+      "title": "ShipBook",
+      "subtitle": "선박 교과서",
+      "headline": "수만 톤의 강철이 어떻게 바다를 건너는가",
+      "description": "부력과 복원성에서 프로펠러, 파도, 선체 구조, 친환경 연료와 자율운항까지. 슬라이더를 움직이고 3D 모델을 돌려 보며 선박의 원리를 배웁니다.",
+      "stage": "mobility",
+      "status": "published",
+      "color": "#0b6fb5",
+      "colorDark": "#4fb3ff",
+      "topics": [
+        "부력·복원성",
+        "저항·추진",
+        "프로펠러",
+        "파도·내항성",
+        "선체 구조",
+        "친환경 선박",
+        "항해·자율운항"
+      ],
+      "motif": "ship",
+      "code": "SHP",
+      "legacyUrl": null,
+      "slug": "ship",
+      "url": "ship/",
+      "chapters": 23,
+      "simulators": 229
+    },
+    {
+      "id": "phonebook",
+      "title": "PhoneBook",
+      "subtitle": "스마트폰 해부 교과서",
+      "headline": "8 mm 두께 안의 작은 도시",
+      "description": "디스플레이, AP, 보드, 배터리, 안테나, 카메라, 센서, 열, 기구 설계까지. 스마트폰을 3D로 한 겹씩 분해하고 다시 조립하며, 좋은 폰 설계의 트레이드오프를 배웁니다.",
+      "stage": "device",
+      "status": "published",
+      "color": "#0b8a7c",
+      "colorDark": "#2dd4bf",
+      "topics": [
+        "3D 분해·조립",
+        "OLED·LTPO",
+        "AP·스로틀링",
+        "HDI 보드",
+        "배터리·충전",
+        "안테나·RF",
+        "카메라 모듈",
+        "방열·기구"
+      ],
+      "motif": "phone",
+      "code": "PHN",
+      "legacyUrl": null,
+      "slug": "phone",
+      "url": "phone/",
+      "chapters": 14,
+      "simulators": 146
+    },
+    {
+      "id": "camerabook",
+      "title": "CameraBook",
+      "subtitle": "카메라 교과서",
+      "headline": "빛을 숫자로 바꾸는 기계",
+      "description": "렌즈와 셔터, 센서와 처리 엔진, 3A 제어 루프로 카메라를 3D로 분해한 뒤, 조리개·셔터·ISO부터 초점, 화이트 밸런스, RAW, 동영상까지 가상 카메라를 직접 조작하며 배웁니다.",
+      "stage": "device",
+      "status": "published",
+      "color": "#6741d9",
+      "colorDark": "#b197fc",
+      "topics": [
+        "3D 분해·조립",
+        "렌즈 광학",
+        "셔터·구동부",
+        "센서·판독",
+        "ISP·데이터",
+        "3A 제어",
+        "노출·초점",
+        "RAW·동영상"
+      ],
+      "motif": "camera",
+      "code": "CAM",
+      "legacyUrl": null,
+      "slug": "camera",
+      "url": "camera/",
+      "chapters": 25,
+      "simulators": 91
+    }
+  ]
+}

@@ -12,5 +12,45 @@
     "ship/book.json",
     "phone/book.json",
     "camera/book.json"
-  ]
+  ],
+  "coverTitles": {
+    "carbook": "자동차",
+    "shipbook": "선박",
+    "phonebook": "스마트폰"
+  },
+  "map": {
+    "title": "일상의 기기와 이동 수단",
+    "desc": "자동차·선박이 움직이는 원리에서 스마트폰·카메라가 작동하는 방식까지.",
+    "groups": [
+      {
+        "id": "mobility",
+        "name": "탈것",
+        "en": "Mobility",
+        "desc": "자동차와 선박이 움직이고 제어되는 원리"
+      },
+      {
+        "id": "device",
+        "name": "전자 기기",
+        "en": "Devices",
+        "desc": "스마트폰과 카메라가 작동하는 방식"
+      }
+    ],
+    "links": [
+      [
+        "phonebook",
+        "camerabook",
+        "스마트폰 카메라 모듈과 전용 카메라의 센서·렌즈 크기 비교"
+      ],
+      [
+        "carbook",
+        "shipbook",
+        "전동 추진·에너지 관리와 자율 이동 시스템 비교"
+      ],
+      [
+        "phonebook",
+        "carbook",
+        "배터리 관리·열 설계의 기기별 제약 비교"
+      ]
+    ]
+  }
 }
