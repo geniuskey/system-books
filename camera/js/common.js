@@ -1168,7 +1168,6 @@
     </ul>
     <h4 style="margin-top:22px">자매 사이트</h4><ul class="sb-chlist">
       <li><a href="https://semi.euiyun.com/sensor/"><span class="num">↗</span><span>SensorBook · 이미지 센서 교과서</span></a></li>
-      <li><a href="https://sensors.euiyun.com/"><span class="num">↗</span><span>Mobile Image Sensor DB</span></a></li>
     </ul>`;
     const backdrop = document.createElement("div");
     backdrop.className = "sb-drawer-backdrop";
@@ -1236,7 +1235,7 @@
     const foot = document.createElement("footer");
     foot.className = "sb-foot";
     foot.innerHTML = `CameraBook — 직접 만져 보며 배우는 카메라 교과서 · 시뮬레이터의 사진은 교육용 근사 모델입니다.
-      <br>자매 사이트: <a href="https://semi.euiyun.com/sensor/">SensorBook</a> · <a href="https://sensors.euiyun.com/">Mobile Image Sensor DB</a>
+      <br>자매 사이트: <a href="https://semi.euiyun.com/sensor/">SensorBook</a>
       <br>© 2026 <a href="https://github.com/geniuskey">geniuskey</a> ·
       콘텐츠 <a href="https://creativecommons.org/licenses/by/4.0/deed.ko" rel="license">CC BY 4.0</a> ·
       코드 <a href="https://github.com/geniuskey/camerabook/blob/main/LICENSE-MIT">MIT</a> ·

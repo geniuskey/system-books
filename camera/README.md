@@ -3,7 +3,7 @@
 빛을 숫자로 바꾸는 기계. 1부에서는 카메라를 렌즈 광학계·구동부·센서·처리 엔진·제어 루프·전원과 열로 분해해 시스템으로 이해하고, 2부에서는 조리개·셔터·ISO부터 초점, 화이트 밸런스, RAW, 플래시, 동영상, 스마트폰 카메라까지 가상 카메라를 직접 조작하며 배우는 한국어 학습 사이트입니다.
 1·2부 25개 장, 91개의 시뮬레이터(3D 모델 2개 포함), 용어 253개, 종합 퀴즈와 미션형 촬영 연습장으로 구성됩니다.
 
-자매 사이트: [SensorBook — 이미지 센서 교과서](https://semi.euiyun.com/sensor/) · [PhoneBook — 스마트폰 해부 교과서](../phone/) · [Mobile Image Sensor DB](https://sensors.euiyun.com/)
+자매 사이트: [SensorBook — 이미지 센서 교과서](https://semi.euiyun.com/sensor/) · [PhoneBook — 스마트폰 해부 교과서](../phone/)
 
 ## 실행
 빌드 과정이 없는 정적 사이트입니다.
